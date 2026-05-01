@@ -10089,6 +10089,213 @@ describe('Promise Pool Settled', () => {
   },
 
   {
+    name = "Run-Length Encoding",
+    difficulty = "easy",
+    stub = [==[
+/**
+ * Run-Length Encoding (RLE)
+ *
+ * Implement a simple lossless compression algorithm.
+ *
+ * encode(input: string): string
+ *   Compress the input string using run-length encoding.
+ *   Replace consecutive repeated characters with the character followed by the count.
+ *   Only encode runs of 3 or more characters (otherwise keep as-is for efficiency).
+ *
+ *   Examples:
+ *     "AAABBBCCC" → "A3B3C3"
+ *     "AABCCCDDDD" → "AAB" + "C3" + "D4" → "AABC3D4"
+ *     "ABC" → "ABC" (no runs of 3+)
+ *
+ * decode(encoded: string): string
+ *   Decompress a run-length encoded string back to the original.
+ *
+ *   Examples:
+ *     "A3B3C3" → "AAABBBCCC"
+ *     "AABC3D4" → "AABCCCDDDD"
+ *
+ * isValidRLE(str: string): boolean
+ *   Check if a string is valid RLE encoded format.
+ *   A valid RLE string has: uppercase letters followed by optional count (1-3 digits)
+ *
+ * Bonus: Implement countRuns(str) to count how many runs exist in the original string.
+ */
+
+export function encode(input: string): string {
+  // YOUR CODE HERE
+  return input;
+}
+
+export function decode(encoded: string): string {
+  // YOUR CODE HERE
+  return encoded;
+}
+
+export function isValidRLE(str: string): boolean {
+  // YOUR CODE HERE
+  return false;
+}
+
+export function countRuns(str: string): number {
+  // YOUR CODE HERE
+  return 0;
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { encode, decode, isValidRLE, countRuns } from './challenge';
+
+describe('Run-Length Encoding - encode', () => {
+  it('encodes simple runs', () => {
+    expect(encode('AAABBB')).toBe('A3B3');
+  });
+
+  it('does not encode runs shorter than 3', () => {
+    expect(encode('AAB')).toBe('AAB');
+    expect(encode('AB')).toBe('AB');
+    expect(encode('A')).toBe('A');
+  });
+
+  it('encodes mixed content', () => {
+    expect(encode('AABCCCDDDD')).toBe('AABC3D4');
+  });
+
+  it('handles single characters between runs', () => {
+    expect(encode('AAABCCCD')).toBe('A3BC3D');
+  });
+
+  it('handles empty string', () => {
+    expect(encode('')).toBe('');
+  });
+
+  it('handles no compressible content', () => {
+    expect(encode('ABCDEF')).toBe('ABCDEF');
+  });
+
+  it('handles long runs', () => {
+    expect(encode('A'.repeat(10))).toBe('A10');
+    expect(encode('A'.repeat(100))).toBe('A100');
+  });
+
+  it('handles multiple different runs', () => {
+    expect(encode('WWWWAAADEXXXXXX')).toBe('W4A3DEX6');
+  });
+
+  it('handles alternating single chars', () => {
+    expect(encode('ABABAB')).toBe('ABABAB');
+  });
+});
+
+describe('Run-Length Encoding - decode', () => {
+  it('decodes simple runs', () => {
+    expect(decode('A3B3')).toBe('AAABBB');
+  });
+
+  it('decodes mixed content', () => {
+    expect(decode('AABC3D4')).toBe('AABCCCDDDD');
+  });
+
+  it('handles unencoded portions', () => {
+    expect(decode('A3BC3D')).toBe('AAABCCCD');
+  });
+
+  it('handles empty string', () => {
+    expect(decode('')).toBe('');
+  });
+
+  it('handles no encoded portions', () => {
+    expect(decode('ABCDEF')).toBe('ABCDEF');
+  });
+
+  it('decodes long runs', () => {
+    expect(decode('A10')).toBe('A'.repeat(10));
+    expect(decode('A100')).toBe('A'.repeat(100));
+  });
+
+  it('handles multi-digit counts', () => {
+    expect(decode('X12Y3')).toBe('X'.repeat(12) + 'Y'.repeat(3));
+  });
+
+  it('handles single characters', () => {
+    expect(decode('ABC')).toBe('ABC');
+  });
+});
+
+describe('Run-Length Encoding - roundtrip', () => {
+  it('encode then decode returns original', () => {
+    const originals = [
+      'AAABBBCCC',
+      'AABCCCDDDD',
+      'WWWWAAADEXXXXXX',
+      'ABCDEF',
+      'AAA',
+      'AAB',
+      'ABABAB',
+    ];
+    originals.forEach(original => {
+      expect(decode(encode(original))).toBe(original);
+    });
+  });
+
+  it('already encoded strings decode correctly', () => {
+    const encoded = 'A3B3C10';
+    expect(decode(encoded)).toBe('AAABBB' + 'C'.repeat(10));
+  });
+});
+
+describe('isValidRLE', () => {
+  it('validates simple encoded strings', () => {
+    expect(isValidRLE('A3B3')).toBe(true);
+    expect(isValidRLE('ABC')).toBe(true);
+  });
+
+  it('rejects invalid formats', () => {
+    expect(isValidRLE('3A')).toBe(false);
+    expect(isValidRLE('A')).toBe(true);
+    expect(isValidRLE('')).toBe(true);
+  });
+
+  it('validates multi-digit counts', () => {
+    expect(isValidRLE('A10B2')).toBe(true);
+    expect(isValidRLE('A100B3')).toBe(true);
+  });
+
+  it('rejects lowercase letters', () => {
+    expect(isValidRLE('a3b3')).toBe(false);
+  });
+
+  it('rejects special characters', () => {
+    expect(isValidRLE('A-B3')).toBe(false);
+    expect(isValidRLE('A 3')).toBe(false);
+  });
+});
+
+describe('countRuns', () => {
+  it('counts consecutive runs', () => {
+    expect(countRuns('AAABBBCCC')).toBe(3);
+    expect(countRuns('ABCDEF')).toBe(6);
+  });
+
+  it('handles empty string', () => {
+    expect(countRuns('')).toBe(0);
+  });
+
+  it('handles single character', () => {
+    expect(countRuns('A')).toBe(1);
+  });
+
+  it('counts alternating as separate runs', () => {
+    expect(countRuns('ABABAB')).toBe(6);
+  });
+
+  it('counts mixed correctly', () => {
+    expect(countRuns('AABCCCDDDD')).toBe(4);
+  });
+});
+]==],
+  },
+
+  {
     name = "Wildcard Pattern Matching",
     difficulty = "medium",
     stub = [==[
