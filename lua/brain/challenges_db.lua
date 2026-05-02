@@ -10444,6 +10444,151 @@ describe('glob (Bonus)', () => {
 });
 ]==],
   },
+  {
+    name = "Array Chunk",
+    difficulty = "easy",
+    stub = [==[
+/**
+ * Array Chunk
+ *
+ * Split an array into chunks of a specified size.
+ *
+ * chunk([1, 2, 3, 4, 5], 2) => [[1, 2], [3, 4], [5]]
+ * chunk([1, 2, 3], 1) => [[1], [2], [3]]
+ * chunk([], 3) => []
+ *
+ * Bonus: Implement chunkedAsync that processes an array of async functions
+ * in chunks of size `n` (concurrency control).
+ */
+
+export function chunk<T>(arr: T[], size: number): T[][] {
+  // YOUR CODE HERE
+  return [];
+}
+
+/**
+ * Bonus: Process an array of async functions with limited concurrency.
+ * Execute at most `concurrency` functions at a time.
+ */
+export async function chunkedAsync<T>(
+  fns: (() => Promise<T>)[],
+  concurrency: number
+): Promise<T[]> {
+  // YOUR CODE HERE
+  return [];
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { chunk, chunkedAsync } from './challenge';
+
+describe('Array Chunk', () => {
+  it('chunks even division', () => {
+    expect(chunk([1, 2, 3, 4, 5, 6], 2)).toEqual([[1, 2], [3, 4], [5, 6]]);
+  });
+
+  it('chunks uneven division', () => {
+    expect(chunk([1, 2, 3, 4, 5], 2)).toEqual([[1, 2], [3, 4], [5]]);
+  });
+
+  it('size larger than array', () => {
+    expect(chunk([1, 2, 3], 10)).toEqual([[1, 2, 3]]);
+  });
+
+  it('size of 1', () => {
+    expect(chunk([1, 2, 3], 1)).toEqual([[1], [2], [3]]);
+  });
+
+  it('empty array', () => {
+    expect(chunk([], 3)).toEqual([]);
+  });
+
+  it('single element', () => {
+    expect(chunk([42], 2)).toEqual([[42]]);
+  });
+
+  it('size equals array length', () => {
+    expect(chunk([1, 2, 3], 3)).toEqual([[1, 2, 3]]);
+  });
+
+  it('works with strings', () => {
+    expect(chunk(['a', 'b', 'c', 'd'], 2)).toEqual([['a', 'b'], ['c', 'd']]);
+  });
+
+  it('works with mixed types', () => {
+    expect(chunk([1, 'two', true, null], 2)).toEqual([[1, 'two'], [true, null]]);
+  });
+
+  it('preserves nested arrays', () => {
+    expect(chunk([[1, 2], [3, 4], [5, 6]], 2)).toEqual([[[1, 2], [3, 4]], [[5, 6]]]);
+  });
+
+  it('stress: large array', () => {
+    const arr = Array.from({ length: 1000 }, (_, i) => i);
+    const result = chunk(arr, 100);
+    expect(result.length).toBe(10);
+    expect(result[0]).toEqual(Array.from({ length: 100 }, (_, i) => i));
+    expect(result[9]).toEqual(Array.from({ length: 100 }, (_, i) => i + 900));
+  });
+});
+
+describe('Chunked Async', () => {
+  it('processes all functions', async () => {
+    const fns = [1, 2, 3, 4, 5].map(n => () => Promise.resolve(n));
+    const result = await chunkedAsync(fns, 2);
+    expect(result).toEqual([1, 2, 3, 4, 5]);
+  });
+
+  it('respects concurrency limit', async () => {
+    let concurrent = 0;
+    let maxConcurrent = 0;
+
+    const fns = Array.from({ length: 10 }, () => () =>
+      new Promise<number>(resolve => {
+        concurrent++;
+        maxConcurrent = Math.max(maxConcurrent, concurrent);
+        setTimeout(() => {
+          concurrent--;
+          resolve(1);
+        }, 10);
+      })
+    );
+
+    await chunkedAsync(fns, 3);
+    expect(maxConcurrent).toBe(3);
+  });
+
+  it('empty array', async () => {
+    const result = await chunkedAsync([], 5);
+    expect(result).toEqual([]);
+  });
+
+  it('single function', async () => {
+    const result = await chunkedAsync([() => Promise.resolve(42)], 1);
+    expect(result).toEqual([42]);
+  });
+
+  it('propagates errors', async () => {
+    const fns = [
+      () => Promise.resolve(1),
+      () => Promise.reject(new Error('fail')),
+      () => Promise.resolve(3),
+    ];
+    await expect(chunkedAsync(fns, 2)).rejects.toThrow('fail');
+  });
+
+  it('concurrency of 1 is sequential', async () => {
+    const order: number[] = [];
+    const fns = [
+      () => new Promise<void>(r => setTimeout(() => { order.push(1); r(); }, 30)),
+      () => new Promise<void>(r => setTimeout(() => { order.push(2); r(); }, 10)),
+    ];
+    await chunkedAsync(fns, 1);
+    expect(order).toEqual([1, 2]);
+  });
+});
+]==],
+  },
 }
 
 --- Deterministic challenge selection based on date.
