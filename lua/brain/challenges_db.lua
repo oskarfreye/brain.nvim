@@ -10955,7 +10955,362 @@ describe('Circuit Breaker - Stress Tests', () => {
 });
 ]==],
   },
+  {
+    name = "CSS Selector Engine",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * CSS Selector Engine
+ *
+ * Build a miniature CSS selector engine that can query a simplified DOM tree.
+ *
+ * A Node has: { tag: string, id?: string, classes?: string[], children: Node[] }
+ *
+ * Supported selectors:
+ * - "div" — select by tag name
+ * - "#id" — select by ID
+ * - ".class" — select by class name
+ * - "div.class" — tag with class (AND)
+ * - "parent > child" — direct child combinator
+ * - "ancestor descendant" — any descendant
+ *
+ * querySelectorAll(root, selector): Node[]
+ *   Return all nodes matching the selector, in document order.
+ *
+ * matches(node, selector): boolean
+ *   Check if a single node matches the selector.
+ *
+ * closest(node, selector): Node | null
+ *   Walk up the tree (including node itself) and return first match.
+ *
+ * Bonus: Support comma-separated groups: "div, span, #nav"
+ */
+
+export interface Node {
+  tag: string;
+  id?: string;
+  classes?: string[];
+  children: Node[];
+  parent?: Node;
 }
+
+export function querySelectorAll(root: Node, selector: string): Node[] {
+  // YOUR CODE HERE
+  return [];
+}
+
+export function matches(node: Node, selector: string): boolean {
+  // YOUR CODE HERE
+  return false;
+}
+
+export function closest(node: Node, selector: string): Node | null {
+  // YOUR CODE HERE
+  return null;
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { querySelectorAll, matches, closest, type Node } from './challenge';
+
+function createNode(tag: string, props: Partial<Node> = {}, children: Node[] = []): Node {
+  return { tag, children, ...props };
+}
+
+function buildTree(): Node {
+  // Build: <div id="root" class="container">
+  //          <nav class="main-nav">
+  //            <a href="/" class="home-link active">Home</a>
+  //            <a href="/about" class="nav-link">About</a>
+  //          </nav>
+  //          <main id="content">
+  //            <article class="post featured">
+  //              <h1 class="title">Hello</h1>
+  //              <p class="excerpt">World</p>
+  //            </article>
+  //          </main>
+  //        </div>
+  const homeLink = createNode('a', { id: 'home', classes: ['home-link', 'active'] });
+  const aboutLink = createNode('a', { classes: ['nav-link'] });
+  const nav = createNode('nav', { classes: ['main-nav'] }, [homeLink, aboutLink]);
+  homeLink.parent = nav;
+  aboutLink.parent = nav;
+
+  const title = createNode('h1', { classes: ['title'] });
+  const excerpt = createNode('p', { classes: ['excerpt'] });
+  const article = createNode('article', { classes: ['post', 'featured'] }, [title, excerpt]);
+  title.parent = article;
+  excerpt.parent = article;
+
+  const main = createNode('main', { id: 'content' }, [article]);
+  article.parent = main;
+
+  const root = createNode('div', { id: 'root', classes: ['container'] }, [nav, main]);
+  nav.parent = root;
+  main.parent = root;
+
+  return root;
+}
+
+describe('querySelectorAll - Basic selectors', () => {
+  const root = buildTree();
+
+  it('selects by tag name', () => {
+    const divs = querySelectorAll(root, 'div');
+    expect(divs).toHaveLength(1);
+    expect(divs[0].tag).toBe('div');
+
+    const links = querySelectorAll(root, 'a');
+    expect(links).toHaveLength(2);
+  });
+
+  it('selects by ID', () => {
+    const home = querySelectorAll(root, '#home');
+    expect(home).toHaveLength(1);
+    expect(home[0].id).toBe('home');
+
+    const content = querySelectorAll(root, '#content');
+    expect(content).toHaveLength(1);
+  });
+
+  it('selects by class', () => {
+    const links = querySelectorAll(root, '.nav-link');
+    expect(links).toHaveLength(1);
+
+    const featured = querySelectorAll(root, '.featured');
+    expect(featured).toHaveLength(1);
+    expect(featured[0].tag).toBe('article');
+  });
+
+  it('returns empty for non-matching selector', () => {
+    expect(querySelectorAll(root, 'span')).toHaveLength(0);
+    expect(querySelectorAll(root, '#nonexistent')).toHaveLength(0);
+    expect(querySelectorAll(root, '.missing')).toHaveLength(0);
+  });
+});
+
+describe('querySelectorAll - Compound selectors', () => {
+  const root = buildTree();
+
+  it('selects tag with class', () => {
+    const navLinks = querySelectorAll(root, 'a.nav-link');
+    expect(navLinks).toHaveLength(1);
+
+    const allLinks = querySelectorAll(root, 'a.active');
+    expect(allLinks).toHaveLength(1);
+    expect(allLinks[0].id).toBe('home');
+  });
+
+  it('selects tag with ID', () => {
+    const result = querySelectorAll(root, 'a#home');
+    expect(result).toHaveLength(1);
+  });
+
+  it('multiple classes on element', () => {
+    const posts = querySelectorAll(root, 'article.post');
+    expect(posts).toHaveLength(1);
+
+    const featured = querySelectorAll(root, 'article.featured');
+    expect(featured).toHaveLength(1);
+  });
+});
+
+describe('querySelectorAll - Descendant combinator', () => {
+  const root = buildTree();
+
+  it('selects any descendant', () => {
+    const linksInNav = querySelectorAll(root, 'nav a');
+    expect(linksInNav).toHaveLength(2);
+
+    const titlesInRoot = querySelectorAll(root, 'div h1');
+    expect(titlesInRoot).toHaveLength(1);
+  });
+
+  it('selects nested descendants', () => {
+    const paragraphs = querySelectorAll(root, 'div p');
+    expect(paragraphs).toHaveLength(1);
+
+    const allUnderRoot = querySelectorAll(root, 'div a');
+    expect(allUnderRoot).toHaveLength(2);
+  });
+
+  it('selects multiple levels deep', () => {
+    const h1InMain = querySelectorAll(root, 'main h1');
+    expect(h1InMain).toHaveLength(1);
+  });
+});
+
+describe('querySelectorAll - Direct child combinator', () => {
+  const root = buildTree();
+
+  it('selects direct children only', () => {
+    const directChildren = querySelectorAll(root, 'div > nav');
+    expect(directChildren).toHaveLength(1);
+
+    const nonDirect = querySelectorAll(root, 'div > a');
+    expect(nonDirect).toHaveLength(0); // a is not direct child of div
+  });
+
+  it('direct child with class', () => {
+    const result = querySelectorAll(root, 'nav > a.active');
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe('home');
+  });
+
+  it('deep nesting with child combinator', () => {
+    const result = querySelectorAll(root, 'main > article > h1');
+    expect(result).toHaveLength(1);
+  });
+});
+
+describe('matches', () => {
+  const root = buildTree();
+
+  it('matches tag selector', () => {
+    const nav = querySelectorAll(root, 'nav')[0];
+    expect(matches(nav, 'nav')).toBe(true);
+    expect(matches(nav, 'div')).toBe(false);
+  });
+
+  it('matches ID selector', () => {
+    const home = querySelectorAll(root, '#home')[0];
+    expect(matches(home, '#home')).toBe(true);
+    expect(matches(home, '#content')).toBe(false);
+  });
+
+  it('matches class selector', () => {
+    const article = querySelectorAll(root, 'article')[0];
+    expect(matches(article, '.post')).toBe(true);
+    expect(matches(article, '.featured')).toBe(true);
+    expect(matches(article, '.missing')).toBe(false);
+  });
+
+  it('matches compound selector', () => {
+    const home = querySelectorAll(root, '#home')[0];
+    expect(matches(home, 'a.home-link')).toBe(true);
+    expect(matches(home, 'a.active')).toBe(true);
+    expect(matches(home, 'nav.home-link')).toBe(false);
+  });
+
+  it('does not match descendant patterns', () => {
+    const article = querySelectorAll(root, 'article')[0];
+    expect(matches(article, 'div article')).toBe(false);
+    expect(matches(article, 'main > article')).toBe(false);
+  });
+});
+
+describe('closest', () => {
+  const root = buildTree();
+
+  it('returns node itself if matches', () => {
+    const home = querySelectorAll(root, '#home')[0];
+    const result = closest(home, 'a');
+    expect(result).toBe(home);
+  });
+
+  it('walks up to parent', () => {
+    const home = querySelectorAll(root, '#home')[0];
+    const result = closest(home, 'nav');
+    expect(result?.tag).toBe('nav');
+  });
+
+  it('walks up multiple levels', () => {
+    const h1 = querySelectorAll(root, 'h1')[0];
+    const result = closest(h1, 'div');
+    expect(result?.tag).toBe('div');
+    expect(result?.id).toBe('root');
+  });
+
+  it('respects direct child in closest', () => {
+    const h1 = querySelectorAll(root, 'h1')[0];
+    const result = closest(h1, 'article > h1');
+    expect(result).toBe(h1);
+  });
+
+  it('returns null when no match found', () => {
+    const h1 = querySelectorAll(root, 'h1')[0];
+    const result = closest(h1, 'nav');
+    expect(result).toBeNull();
+  });
+
+  it('finds by class walking up', () => {
+    const title = querySelectorAll(root, '.title')[0];
+    const result = closest(title, '.post');
+    expect(result?.tag).toBe('article');
+  });
+});
+
+describe('Edge cases', () => {
+  it('handles empty tree', () => {
+    const empty = createNode('div');
+    expect(querySelectorAll(empty, 'span')).toHaveLength(0);
+    expect(matches(empty, 'div')).toBe(true);
+  });
+
+  it('handles node with multiple classes in selector', () => {
+    const node = createNode('div', { classes: ['a', 'b', 'c'] });
+    expect(matches(node, 'div.a')).toBe(true);
+    expect(matches(node, 'div.b')).toBe(true);
+    expect(matches(node, '.a.b')).toBe(true);
+    expect(matches(node, '.a.c')).toBe(true);
+  });
+
+  it('preserves document order in results', () => {
+    const a = createNode('a');
+    const b = createNode('a');
+    const c = createNode('a');
+    const container = createNode('div', {}, [a, b, c]);
+    a.parent = container;
+    b.parent = container;
+    c.parent = container;
+
+    const results = querySelectorAll(container, 'a');
+    expect(results[0]).toBe(a);
+    expect(results[1]).toBe(b);
+    expect(results[2]).toBe(c);
+  });
+
+  it('handles deeply nested tree', () => {
+    let deep = createNode('div', { id: 'leaf' });
+    for (let i = 0; i < 10; i++) {
+      const parent = createNode('div', {}, [deep]);
+      deep.parent = parent;
+      deep = parent;
+    }
+
+    const result = querySelectorAll(deep, '#leaf');
+    expect(result).toHaveLength(1);
+  });
+
+  it('handles no parent set in closest', () => {
+    const orphan = createNode('span', { classes: ['test'] });
+    expect(closest(orphan, 'div')).toBeNull();
+    expect(closest(orphan, 'span')).toBe(orphan);
+  });
+});
+
+describe('Stress test', () => {
+  it('handles wide tree with many matches', () => {
+    const children: Node[] = [];
+    for (let i = 0; i < 100; i++) {
+      children.push(createNode('span', { classes: ['item'] }));
+    }
+    const root = createNode('div', {}, children);
+    children.forEach(c => c.parent = root);
+
+    const results = querySelectorAll(root, '.item');
+    expect(results).toHaveLength(100);
+  });
+
+  it('handles complex nested selectors', () => {
+    const root = buildTree();
+    const complex = querySelectorAll(root, 'div nav > a.active');
+    expect(complex).toHaveLength(1);
+    expect(complex[0].id).toBe('home');
+  });
+});
+]==],
+  },
 
 --- Deterministic challenge selection based on date.
 --- Cycles sequentially through challenges using day-of-year.
