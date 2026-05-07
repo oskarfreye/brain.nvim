@@ -11554,4 +11554,313 @@ describe('similarityScore', () => {
 });
 ]==],
   },
+  {
+    name = "Rotate Image (Matrix)",
+    difficulty = "hard",
+    stub = [==[
+/**
+ * Rotate Image (Matrix)
+ *
+ * You are given an n x n 2D matrix representing an image. Rotate the image
+ * by 90 degrees (clockwise).
+ *
+ * Implement rotate(matrix): void — Modifies matrix in-place.
+ *
+ * Follow-up: Can you do this in-place without allocating another 2D matrix?
+ *
+ * Approach: Transpose the matrix, then reverse each row.
+ *
+ * Example:
+ *   Input:  [[1,2,3],
+ *            [4,5,6],
+ *            [7,8,9]]
+ *   Output: [[7,4,1],
+ *            [8,5,2],
+ *            [9,6,3]]
+ *
+ * Bonus: Implement additional matrix operations:
+ * - rotateCounterClockwise(matrix): Rotate 90 degrees counter-clockwise
+ * - transpose(matrix): Transpose in-place (for square matrices)
+ * - rotate180(matrix): Rotate 180 degrees
+ * - spiralOrder(matrix): Return elements in spiral order (clockwise)
+ */
+
+export function rotate(matrix: number[][]): void {
+  // YOUR CODE HERE
 }
+
+/**
+ * Bonus: Rotate 90 degrees counter-clockwise in-place
+ */
+export function rotateCounterClockwise(matrix: number[][]): void {
+  // YOUR CODE HERE
+}
+
+/**
+ * Bonus: Transpose a square matrix in-place
+ * (swap matrix[i][j] with matrix[j][i])
+ */
+export function transpose(matrix: number[][]): void {
+  // YOUR CODE HERE
+}
+
+/**
+ * Bonus: Rotate 180 degrees in-place
+ */
+export function rotate180(matrix: number[][]): void {
+  // YOUR CODE HERE
+}
+
+/**
+ * Bonus: Return all elements of the matrix in spiral order (clockwise),
+ * starting from the top-left corner.
+ * Example: [[1,2,3],[4,5,6],[7,8,9]] => [1,2,3,6,9,8,7,4,5]
+ */
+export function spiralOrder(matrix: number[][]): number[] {
+  // YOUR CODE HERE
+  return [];
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { rotate, rotateCounterClockwise, transpose, rotate180, spiralOrder } from './challenge';
+
+describe('Rotate Image (Clockwise)', () => {
+  it('3x3 matrix', () => {
+    const matrix = [[1,2,3],[4,5,6],[7,8,9]];
+    rotate(matrix);
+    expect(matrix).toEqual([[7,4,1],[8,5,2],[9,6,3]]);
+  });
+
+  it('4x4 matrix', () => {
+    const matrix = [[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16]];
+    rotate(matrix);
+    expect(matrix).toEqual([[13,9,5,1],[14,10,6,2],[15,11,7,3],[16,12,8,4]]);
+  });
+
+  it('1x1 matrix', () => {
+    const matrix = [[42]];
+    rotate(matrix);
+    expect(matrix).toEqual([[42]]);
+  });
+
+  it('2x2 matrix', () => {
+    const matrix = [[1,2],[3,4]];
+    rotate(matrix);
+    expect(matrix).toEqual([[3,1],[4,2]]);
+  });
+
+  it('5x5 matrix', () => {
+    const matrix = [
+      [1,2,3,4,5],
+      [6,7,8,9,10],
+      [11,12,13,14,15],
+      [16,17,18,19,20],
+      [21,22,23,24,25]
+    ];
+    rotate(matrix);
+    expect(matrix).toEqual([
+      [21,16,11,6,1],
+      [22,17,12,7,2],
+      [23,18,13,8,3],
+      [24,19,14,9,4],
+      [25,20,15,10,5]
+    ]);
+  });
+
+  it('modifies matrix in-place', () => {
+    const matrix = [[1,2],[3,4]];
+    const originalRef = matrix;
+    rotate(matrix);
+    expect(matrix).toBe(originalRef);
+  });
+
+  it('works with negative numbers', () => {
+    const matrix = [[-1,-2],[-3,-4]];
+    rotate(matrix);
+    expect(matrix).toEqual([[-3,-1],[-4,-2]]);
+  });
+
+  it('works with larger numbers', () => {
+    const matrix = [[1000,2000],[3000,4000]];
+    rotate(matrix);
+    expect(matrix).toEqual([[3000,1000],[4000,2000]]);
+  });
+
+  it('stress: 100x100 matrix', () => {
+    const n = 100;
+    const matrix: number[][] = [];
+    for (let i = 0; i < n; i++) {
+      matrix[i] = [];
+      for (let j = 0; j < n; j++) {
+        matrix[i][j] = i * n + j;
+      }
+    }
+    rotate(matrix);
+    expect(matrix[0][0]).toBe((n-1) * n);
+    expect(matrix[0][n-1]).toBe(0);
+    expect(matrix[n-1][0]).toBe(n * n - 1);
+    expect(matrix[n-1][n-1]).toBe(n - 1);
+  });
+});
+
+describe('Rotate Counter-Clockwise', () => {
+  it('3x3 matrix', () => {
+    const matrix = [[1,2,3],[4,5,6],[7,8,9]];
+    rotateCounterClockwise(matrix);
+    expect(matrix).toEqual([[3,6,9],[2,5,8],[1,4,7]]);
+  });
+
+  it('4x4 matrix', () => {
+    const matrix = [[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16]];
+    rotateCounterClockwise(matrix);
+    expect(matrix).toEqual([[4,8,12,16],[3,7,11,15],[2,6,10,14],[1,5,9,13]]);
+  });
+
+  it('2x2 matrix', () => {
+    const matrix = [[1,2],[3,4]];
+    rotateCounterClockwise(matrix);
+    expect(matrix).toEqual([[2,4],[1,3]]);
+  });
+});
+
+describe('Transpose', () => {
+  it('3x3 matrix', () => {
+    const matrix = [[1,2,3],[4,5,6],[7,8,9]];
+    transpose(matrix);
+    expect(matrix).toEqual([[1,4,7],[2,5,8],[3,6,9]]);
+  });
+
+  it('2x2 matrix', () => {
+    const matrix = [[1,2],[3,4]];
+    transpose(matrix);
+    expect(matrix).toEqual([[1,3],[2,4]]);
+  });
+
+  it('4x4 matrix', () => {
+    const matrix = [[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16]];
+    transpose(matrix);
+    expect(matrix).toEqual([[1,5,9,13],[2,6,10,14],[3,7,11,15],[4,8,12,16]]);
+  });
+
+  it('symmetric matrix stays the same', () => {
+    const matrix = [[1,2,3],[2,4,5],[3,5,6]];
+    const expected = matrix.map(row => [...row]);
+    transpose(matrix);
+    expect(matrix).toEqual(expected);
+  });
+
+  it('1x1 matrix', () => {
+    const matrix = [[42]];
+    transpose(matrix);
+    expect(matrix).toEqual([[42]]);
+  });
+});
+
+describe('Rotate 180', () => {
+  it('3x3 matrix', () => {
+    const matrix = [[1,2,3],[4,5,6],[7,8,9]];
+    rotate180(matrix);
+    expect(matrix).toEqual([[9,8,7],[6,5,4],[3,2,1]]);
+  });
+
+  it('2x2 matrix', () => {
+    const matrix = [[1,2],[3,4]];
+    rotate180(matrix);
+    expect(matrix).toEqual([[4,3],[2,1]]);
+  });
+
+  it('4x4 matrix', () => {
+    const matrix = [[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16]];
+    rotate180(matrix);
+    expect(matrix).toEqual([[16,15,14,13],[12,11,10,9],[8,7,6,5],[4,3,2,1]]);
+  });
+
+  it('double 180 returns original', () => {
+    const original = [[1,2,3],[4,5,6],[7,8,9]];
+    const matrix = original.map(row => [...row]);
+    rotate180(matrix);
+    rotate180(matrix);
+    expect(matrix).toEqual(original);
+  });
+});
+
+describe('Spiral Order', () => {
+  it('3x3 matrix', () => {
+    const matrix = [[1,2,3],[4,5,6],[7,8,9]];
+    expect(spiralOrder(matrix)).toEqual([1,2,3,6,9,8,7,4,5]);
+  });
+
+  it('1x1 matrix', () => {
+    expect(spiralOrder([[7]])).toEqual([7]);
+  });
+
+  it('2x2 matrix', () => {
+    const matrix = [[1,2],[3,4]];
+    expect(spiralOrder(matrix)).toEqual([1,2,4,3]);
+  });
+
+  it('1x3 matrix (single row)', () => {
+    expect(spiralOrder([[1,2,3]])).toEqual([1,2,3]);
+  });
+
+  it('3x1 matrix (single column)', () => {
+    expect(spiralOrder([[1],[2],[3]])).toEqual([1,2,3]);
+  });
+
+  it('4x4 matrix', () => {
+    const matrix = [[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16]];
+    expect(spiralOrder(matrix)).toEqual([1,2,3,4,8,12,16,15,14,13,9,5,6,7,11,10]);
+  });
+
+  it('empty matrix', () => {
+    expect(spiralOrder([])).toEqual([]);
+  });
+
+  it('2x3 matrix', () => {
+    const matrix = [[1,2,3],[4,5,6]];
+    expect(spiralOrder(matrix)).toEqual([1,2,3,6,5,4]);
+  });
+
+  it('3x2 matrix', () => {
+    const matrix = [[1,2],[3,4],[5,6]];
+    expect(spiralOrder(matrix)).toEqual([1,2,4,6,5,3]);
+  });
+
+  it('5x5 matrix', () => {
+    const matrix = [
+      [1,2,3,4,5],
+      [6,7,8,9,10],
+      [11,12,13,14,15],
+      [16,17,18,19,20],
+      [21,22,23,24,25]
+    ];
+    expect(spiralOrder(matrix)).toEqual([
+      1,2,3,4,5,10,15,20,25,24,23,22,21,16,11,6,7,8,9,14,19,18,17,12,13
+    ]);
+  });
+
+  it('does not modify original matrix', () => {
+    const original = [[1,2,3],[4,5,6],[7,8,9]];
+    const matrix = original.map(row => [...row]);
+    spiralOrder(matrix);
+    expect(matrix).toEqual(original);
+  });
+
+  it('stress: 10x10 matrix', () => {
+    const matrix: number[][] = [];
+    for (let i = 0; i < 10; i++) {
+      matrix[i] = [];
+      for (let j = 0; j < 10; j++) {
+        matrix[i][j] = i * 10 + j + 1;
+      }
+    }
+    const result = spiralOrder(matrix);
+    expect(result.length).toBe(100);
+    expect(result[0]).toBe(1);
+    expect(result[99]).toBe(55);
+  });
+});
+]==],
+  },
+},
