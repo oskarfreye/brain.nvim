@@ -11863,4 +11863,338 @@ describe('Spiral Order', () => {
 });
 ]==],
   },
+
+  {
+    name = "Circular Buffer (Ring Buffer)",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * Circular Buffer (Ring Buffer)
+ *
+ * Implement a fixed-capacity circular buffer (ring buffer) data structure.
+ * A circular buffer is a FIFO queue that overwrites old data when full.
+ * Used in: audio processing, network buffers, logging, streaming data.
+ *
+ * CircularBuffer class:
+ * - constructor(capacity: number) — Create buffer with fixed capacity >= 1
+ * - enqueue(item: T): boolean — Add item. Returns false if full (item not added).
+ *   If overwrite mode is enabled, oldest item is removed and returns true.
+ * - dequeue(): T | undefined — Remove and return oldest item. Returns undefined if empty.
+ * - peek(): T | undefined — Return oldest item without removing. Undefined if empty.
+ * - peekLast(): T | undefined — Return newest item without removing. Undefined if empty.
+ * - clear(): void — Remove all items.
+ * - isFull(): boolean — Returns true when count equals capacity.
+ * - isEmpty(): boolean — Returns true when count is 0.
+ * - count — Number of items currently in buffer (read-only).
+ * - capacity — Maximum capacity (read-only).
+ *
+ * All operations must be O(1) time complexity.
+ *
+ * Bonus: Implement overwrite mode where enqueue always succeeds by removing
+ * the oldest item when the buffer is full.
+ */
+
+export class CircularBuffer<T> {
+  constructor(capacity: number) {
+    // YOUR CODE HERE
+  }
+
+  enqueue(item: T): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  dequeue(): T | undefined {
+    // YOUR CODE HERE
+    return undefined;
+  }
+
+  peek(): T | undefined {
+    // YOUR CODE HERE
+    return undefined;
+  }
+
+  peekLast(): T | undefined {
+    // YOUR CODE HERE
+    return undefined;
+  }
+
+  clear(): void {
+    // YOUR CODE HERE
+  }
+
+  isFull(): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  isEmpty(): boolean {
+    // YOUR CODE HERE
+    return true;
+  }
+
+  get count(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  get capacity(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  /**
+   * Bonus: Enable/disable overwrite mode.
+   * When enabled, enqueue() always succeeds by removing oldest item if needed.
+   */
+  setOverwriteMode(enabled: boolean): void {
+    // YOUR CODE HERE
+  }
+
+  /**
+   * Bonus: Convert buffer contents to array (oldest to newest).
+   */
+  toArray(): T[] {
+    // YOUR CODE HERE
+    return [];
+  }
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { CircularBuffer } from './challenge';
+
+describe('Circular Buffer', () => {
+  it('creates buffer with given capacity', () => {
+    const buf = new CircularBuffer<number>(5);
+    expect(buf.capacity).toBe(5);
+    expect(buf.count).toBe(0);
+    expect(buf.isEmpty()).toBe(true);
+    expect(buf.isFull()).toBe(false);
+  });
+
+  it('enqueues and dequeues items FIFO order', () => {
+    const buf = new CircularBuffer<string>(3);
+    expect(buf.enqueue('a')).toBe(true);
+    expect(buf.enqueue('b')).toBe(true);
+    expect(buf.count).toBe(2);
+    expect(buf.dequeue()).toBe('a');
+    expect(buf.dequeue()).toBe('b');
+    expect(buf.dequeue()).toBe(undefined);
+  });
+
+  it('peek returns oldest without removing', () => {
+    const buf = new CircularBuffer<number>(3);
+    buf.enqueue(1);
+    buf.enqueue(2);
+    expect(buf.peek()).toBe(1);
+    expect(buf.peek()).toBe(1);
+    expect(buf.count).toBe(2);
+  });
+
+  it('peekLast returns newest without removing', () => {
+    const buf = new CircularBuffer<number>(3);
+    buf.enqueue(1);
+    buf.enqueue(2);
+    expect(buf.peekLast()).toBe(2);
+    expect(buf.count).toBe(2);
+  });
+
+  it('returns undefined when peeking empty buffer', () => {
+    const buf = new CircularBuffer<number>(3);
+    expect(buf.peek()).toBe(undefined);
+    expect(buf.peekLast()).toBe(undefined);
+  });
+
+  it('isFull returns true at capacity', () => {
+    const buf = new CircularBuffer<number>(2);
+    buf.enqueue(1);
+    expect(buf.isFull()).toBe(false);
+    buf.enqueue(2);
+    expect(buf.isFull()).toBe(true);
+  });
+
+  it('enqueue returns false when full (no overwrite)', () => {
+    const buf = new CircularBuffer<number>(2);
+    buf.enqueue(1);
+    buf.enqueue(2);
+    expect(buf.enqueue(3)).toBe(false);
+    expect(buf.count).toBe(2);
+    expect(buf.dequeue()).toBe(1);
+  });
+
+  it('clear removes all items', () => {
+    const buf = new CircularBuffer<number>(5);
+    buf.enqueue(1);
+    buf.enqueue(2);
+    buf.enqueue(3);
+    buf.clear();
+    expect(buf.count).toBe(0);
+    expect(buf.isEmpty()).toBe(true);
+    expect(buf.dequeue()).toBe(undefined);
+  });
+
+  it('wraps around when dequeue makes room', () => {
+    const buf = new CircularBuffer<number>(3);
+    buf.enqueue(1);
+    buf.enqueue(2);
+    buf.enqueue(3);
+    expect(buf.isFull()).toBe(true);
+    expect(buf.dequeue()).toBe(1);
+    expect(buf.enqueue(4)).toBe(true);
+    expect(buf.dequeue()).toBe(2);
+    expect(buf.dequeue()).toBe(3);
+    expect(buf.dequeue()).toBe(4);
+  });
+
+  it('multiple wraparounds', () => {
+    const buf = new CircularBuffer<number>(3);
+    // Fill, drain, fill, drain pattern
+    buf.enqueue(1);
+    buf.enqueue(2);
+    buf.enqueue(3);
+    buf.dequeue();
+    buf.dequeue();
+    buf.enqueue(4);
+    buf.enqueue(5);
+    buf.enqueue(6);
+    expect(buf.dequeue()).toBe(3);
+    expect(buf.dequeue()).toBe(4);
+    expect(buf.dequeue()).toBe(5);
+    expect(buf.dequeue()).toBe(6);
+  });
+
+  it('single element buffer', () => {
+    const buf = new CircularBuffer<string>(1);
+    expect(buf.enqueue('a')).toBe(true);
+    expect(buf.isFull()).toBe(true);
+    expect(buf.enqueue('b')).toBe(false);
+    expect(buf.peek()).toBe('a');
+    expect(buf.dequeue()).toBe('a');
+    expect(buf.isEmpty()).toBe(true);
+  });
+
+  it('overwrite mode allows unlimited enqueue', () => {
+    const buf = new CircularBuffer<number>(3);
+    buf.setOverwriteMode(true);
+    buf.enqueue(1);
+    buf.enqueue(2);
+    buf.enqueue(3);
+    expect(buf.enqueue(4)).toBe(true);
+    expect(buf.enqueue(5)).toBe(true);
+    expect(buf.count).toBe(3);
+    expect(buf.dequeue()).toBe(3);
+    expect(buf.dequeue()).toBe(4);
+    expect(buf.dequeue()).toBe(5);
+  });
+
+  it('toArray returns items in order', () => {
+    const buf = new CircularBuffer<number>(5);
+    buf.enqueue(1);
+    buf.enqueue(2);
+    buf.enqueue(3);
+    expect(buf.toArray()).toEqual([1, 2, 3]);
+    buf.dequeue();
+    buf.enqueue(4);
+    expect(buf.toArray()).toEqual([2, 3, 4]);
+  });
+
+  it('toArray on empty buffer', () => {
+    const buf = new CircularBuffer<number>(3);
+    expect(buf.toArray()).toEqual([]);
+  });
+
+  it('handles objects as items', () => {
+    interface Item { id: number; name: string }
+    const buf = new CircularBuffer<Item>(2);
+    buf.enqueue({ id: 1, name: 'a' });
+    buf.enqueue({ id: 2, name: 'b' });
+    expect(buf.peek()).toEqual({ id: 1, name: 'a' });
+    expect(buf.peekLast()).toEqual({ id: 2, name: 'b' });
+  });
+
+  it('interleaved enqueue/dequeue maintains order', () => {
+    const buf = new CircularBuffer<number>(4);
+    for (let i = 0; i < 10; i++) {
+      buf.enqueue(i);
+      if (i % 3 === 0) {
+        buf.dequeue();
+      }
+    }
+    // At this point we should have some items remaining
+    expect(buf.count).toBeGreaterThan(0);
+    expect(buf.count).toBeLessThanOrEqual(4);
+  });
+
+  it('stress: many operations', () => {
+    const buf = new CircularBuffer<number>(100);
+    // Enqueue 500 items
+    for (let i = 0; i < 500; i++) {
+      if (!buf.isFull()) {
+        buf.enqueue(i);
+      } else {
+        buf.dequeue();
+        buf.enqueue(i);
+      }
+    }
+    expect(buf.count).toBe(100);
+    const arr = buf.toArray();
+    expect(arr[0]).toBe(400);
+    expect(arr[99]).toBe(499);
+  });
+
+  it('stress: alternating operations', () => {
+    const buf = new CircularBuffer<number>(10);
+    for (let i = 0; i < 1000; i++) {
+      buf.enqueue(i);
+      if (i % 2 === 0) {
+        buf.dequeue();
+      }
+    }
+    expect(buf.count).toBe(5);
+  });
+
+  it('capacity 1 overwrite mode', () => {
+    const buf = new CircularBuffer<number>(1);
+    buf.setOverwriteMode(true);
+    buf.enqueue(1);
+    buf.enqueue(2);
+    buf.enqueue(3);
+    expect(buf.count).toBe(1);
+    expect(buf.peek()).toBe(3);
+  });
+
+  it('peek does not affect count', () => {
+    const buf = new CircularBuffer<number>(3);
+    buf.enqueue(1);
+    buf.enqueue(2);
+    buf.peek();
+    buf.peekLast();
+    expect(buf.count).toBe(2);
+  });
+
+  it('isEmpty after all dequeued', () => {
+    const buf = new CircularBuffer<number>(3);
+    buf.enqueue(1);
+    buf.enqueue(2);
+    buf.dequeue();
+    buf.dequeue();
+    expect(buf.isEmpty()).toBe(true);
+    expect(buf.dequeue()).toBe(undefined);
+  });
+
+  it('clear in middle of operations', () => {
+    const buf = new CircularBuffer<number>(5);
+    buf.enqueue(1);
+    buf.enqueue(2);
+    buf.dequeue();
+    buf.enqueue(3);
+    buf.enqueue(4);
+    buf.clear();
+    expect(buf.enqueue(5)).toBe(true);
+    expect(buf.dequeue()).toBe(5);
+  });
+});
+]==],
+  },
 },
