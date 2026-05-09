@@ -3755,6 +3755,420 @@ describe('Longest Valid Parentheses', () => {
 ]==],
   },
   {
+    name = "Async Iterator with Backpressure",
+    difficulty = "hard",
+    stub = [==[
+/**
+ * Async Iterator with Backpressure
+ *
+ * Implement an async iterator that produces values from an async source with
+ * backpressure support — the source should pause producing when the consumer
+ * is slow, and resume when the consumer catches up.
+ *
+ * AsyncQueue class:
+ * - constructor(highWaterMark: number) — When buffer reaches this size,
+ *   enqueue() returns a Promise that resolves when space is available.
+ * - enqueue(value: T): Promise<void> — Add a value to the queue.
+ * - close(): void — Signal that no more values will be enqueued.
+ * - [Symbol.asyncIterator](): AsyncIterator<T> — Makes the queue iterable.
+ *
+ * The iterator should:
+ * - Yield values as they become available
+ * - Wait if the queue is empty but not closed
+ * - Return (end iteration) when the queue is closed and empty
+ * - Handle backpressure: slow consumers shouldn't cause unbounded memory growth
+ *
+ * Bonus: Implement map, filter, and take operators that work with the async iterator.
+ */
+
+export class AsyncQueue<T> {
+  private buffer: T[] = [];
+  private closed = false;
+  private waiters: Array<() => void> = [];
+  private enqueueWaiters: Array<() => void> = [];
+
+  constructor(private highWaterMark: number = 16) {
+    // YOUR CODE HERE
+  }
+
+  async enqueue(value: T): Promise<void> {
+    // YOUR CODE HERE
+    // If buffer >= highWaterMark, wait until space is available
+  }
+
+  close(): void {
+    // YOUR CODE HERE
+  }
+
+  async *[Symbol.asyncIterator](): AsyncGenerator<T> {
+    // YOUR CODE HERE
+    // Yield values from buffer, waiting if empty and not closed
+  }
+
+  get size(): number {
+    // YOUR CODE HERE
+    return this.buffer.length;
+  }
+
+  get isClosed(): boolean {
+    // YOUR CODE HERE
+    return this.closed;
+  }
+}
+
+/**
+ * Bonus: Map operator for async iterables
+ */
+export async function* map<T, R>(
+  source: AsyncIterable<T>,
+  fn: (value: T) => R | Promise<R>
+): AsyncGenerator<R> {
+  // YOUR CODE HERE
+}
+
+/**
+ * Bonus: Filter operator for async iterables
+ */
+export async function* filter<T>(
+  source: AsyncIterable<T>,
+  predicate: (value: T) => boolean | Promise<boolean>
+): AsyncGenerator<T> {
+  // YOUR CODE HERE
+}
+
+/**
+ * Bonus: Take first n values from async iterable
+ */
+export async function* take<T>(
+  source: AsyncIterable<T>,
+  count: number
+): AsyncGenerator<T> {
+  // YOUR CODE HERE
+}
+]==],
+    tests = [==[
+import { describe, it, expect, vi } from 'vitest';
+import { AsyncQueue, map, filter, take } from './challenge';
+
+const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+describe('AsyncQueue', () => {
+  it('yields enqueued values', async () => {
+    const queue = new AsyncQueue<number>();
+    await queue.enqueue(1);
+    await queue.enqueue(2);
+    await queue.enqueue(3);
+    queue.close();
+
+    const results: number[] = [];
+    for await (const val of queue) {
+      results.push(val);
+    }
+    expect(results).toEqual([1, 2, 3]);
+  });
+
+  it('waits for values to be enqueued', async () => {
+    const queue = new AsyncQueue<string>();
+
+    const consumer = (async () => {
+      const results: string[] = [];
+      for await (const val of queue) {
+        results.push(val);
+      }
+      return results;
+    })();
+
+    await delay(10);
+    await queue.enqueue('a');
+    await delay(10);
+    await queue.enqueue('b');
+    queue.close();
+
+    expect(await consumer).toEqual(['a', 'b']);
+  });
+
+  it('handles backpressure when buffer fills', async () => {
+    const queue = new AsyncQueue<number>(2); // Small buffer
+
+    const startTime = Date.now();
+    const enqueuePromise1 = queue.enqueue(1);
+    const enqueuePromise2 = queue.enqueue(2);
+
+    // Third enqueue should block (buffer full)
+    let thirdEnqueued = false;
+    const enqueuePromise3 = queue.enqueue(3).then(() => {
+      thirdEnqueued = true;
+    });
+
+    await delay(20);
+    expect(thirdEnqueued).toBe(false); // Should still be waiting
+
+    // Consume one item to free up space
+    const iterator = queue[Symbol.asyncIterator]();
+    await iterator.next();
+
+    await enqueuePromise3;
+    expect(thirdEnqueued).toBe(true);
+
+    queue.close();
+  });
+
+  it('tracks size correctly', async () => {
+    const queue = new AsyncQueue<number>();
+    expect(queue.size).toBe(0);
+    await queue.enqueue(1);
+    await queue.enqueue(2);
+    expect(queue.size).toBe(2);
+    queue.close();
+  });
+
+  it('empty queue returns when closed', async () => {
+    const queue = new AsyncQueue<number>();
+    queue.close();
+
+    const results: number[] = [];
+    for await (const val of queue) {
+      results.push(val);
+    }
+    expect(results).toEqual([]);
+  });
+
+  it('isClosed reflects close status', () => {
+    const queue = new AsyncQueue<number>();
+    expect(queue.isClosed).toBe(false);
+    queue.close();
+    expect(queue.isClosed).toBe(true);
+  });
+
+  it('handles slow consumer with fast producer', async () => {
+    const queue = new AsyncQueue<number>(5);
+
+    // Fast producer
+    const producer = (async () => {
+      for (let i = 0; i < 10; i++) {
+        await queue.enqueue(i);
+      }
+      queue.close();
+    })();
+
+    // Slow consumer
+    const results: number[] = [];
+    for await (const val of queue) {
+      results.push(val);
+      await delay(5); // Slow down consumption
+    }
+
+    await producer;
+    expect(results).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  });
+
+  it('handles multiple iterator consumers (sequential)', async () => {
+    const queue = new AsyncQueue<number>();
+    await queue.enqueue(1);
+    await queue.enqueue(2);
+    queue.close();
+
+    const first: number[] = [];
+    for await (const val of queue) {
+      first.push(val);
+    }
+
+    // Queue was consumed, second iterator gets nothing
+    const second: number[] = [];
+    for await (const val of queue) {
+      second.push(val);
+    }
+
+    expect(first).toEqual([1, 2]);
+    expect(second).toEqual([]);
+  });
+
+  it('stress: many values', async () => {
+    const queue = new AsyncQueue<number>(100);
+    const count = 1000;
+
+    const producer = (async () => {
+      for (let i = 0; i < count; i++) {
+        await queue.enqueue(i);
+      }
+      queue.close();
+    })();
+
+    const results: number[] = [];
+    for await (const val of queue) {
+      results.push(val);
+    }
+
+    await producer;
+    expect(results.length).toBe(count);
+    expect(results[0]).toBe(0);
+    expect(results[count - 1]).toBe(count - 1);
+  });
+
+  it('enqueues can be concurrent', async () => {
+    const queue = new AsyncQueue<number>(10);
+
+    const producers = Array.from({ length: 5 }, async (_, i) => {
+      for (let j = 0; j < 10; j++) {
+        await queue.enqueue(i * 10 + j);
+      }
+    });
+
+    await Promise.all(producers);
+    queue.close();
+
+    const results = new Set<number>();
+    for await (const val of queue) {
+      results.add(val);
+    }
+
+    expect(results.size).toBe(50);
+  });
+});
+
+describe('map operator', () => {
+  it('transforms values', async () => {
+    async function* source() {
+      yield 1;
+      yield 2;
+      yield 3;
+    }
+
+    const results: number[] = [];
+    for await (const val of map(source(), x => x * 2)) {
+      results.push(val);
+    }
+    expect(results).toEqual([2, 4, 6]);
+  });
+
+  it('handles async mapper', async () => {
+    async function* source() {
+      yield 'a';
+      yield 'b';
+    }
+
+    const results: string[] = [];
+    for await (const val of map(source(), async x => x.toUpperCase())) {
+      results.push(val);
+    }
+    expect(results).toEqual(['A', 'B']);
+  });
+});
+
+describe('filter operator', () => {
+  it('selects matching values', async () => {
+    async function* source() {
+      yield 1;
+      yield 2;
+      yield 3;
+      yield 4;
+      yield 5;
+    }
+
+    const results: number[] = [];
+    for await (const val of filter(source(), x => x % 2 === 0)) {
+      results.push(val);
+    }
+    expect(results).toEqual([2, 4]);
+  });
+
+  it('handles async predicate', async () => {
+    async function* source() {
+      yield 'apple';
+      yield 'banana';
+      yield 'cherry';
+    }
+
+    const results: string[] = [];
+    for await (const val of filter(source(), async s => s.length > 5)) {
+      results.push(val);
+    }
+    expect(results).toEqual(['banana', 'cherry']);
+  });
+
+  it('handles empty source', async () => {
+    async function* source() {}
+
+    const results: number[] = [];
+    for await (const val of filter(source(), () => true)) {
+      results.push(val);
+    }
+    expect(results).toEqual([]);
+  });
+});
+
+describe('take operator', () => {
+  it('takes first n values', async () => {
+    async function* source() {
+      for (let i = 0; i < 100; i++) {
+        yield i;
+      }
+    }
+
+    const results: number[] = [];
+    for await (const val of take(source(), 5)) {
+      results.push(val);
+    }
+    expect(results).toEqual([0, 1, 2, 3, 4]);
+  });
+
+  it('handles source with fewer values', async () => {
+    async function* source() {
+      yield 1;
+      yield 2;
+    }
+
+    const results: number[] = [];
+    for await (const val of take(source(), 10)) {
+      results.push(val);
+    }
+    expect(results).toEqual([1, 2]);
+  });
+
+  it('handles take(0)', async () => {
+    async function* source() {
+      yield 1;
+      yield 2;
+    }
+
+    const results: number[] = [];
+    for await (const val of take(source(), 0)) {
+      results.push(val);
+    }
+    expect(results).toEqual([]);
+  });
+});
+
+describe('operator composition', () => {
+  it('chains map, filter, and take', async () => {
+    async function* source() {
+      for (let i = 1; i <= 20; i++) {
+        yield i;
+      }
+    }
+
+    const results: number[] = [];
+    const pipeline = take(
+      filter(
+        map(source(), x => x * x),
+        x => x > 10
+      ),
+      5
+    );
+
+    for await (const val of pipeline) {
+      results.push(val);
+    }
+    // Squares: 1, 4, 9, 16, 25, 36, 49, 64, 81, 100, ...
+    // Filter > 10: 16, 25, 36, 49, 64, 81, 100, ...
+    // Take 5: 16, 25, 36, 49, 64
+    expect(results).toEqual([16, 25, 36, 49, 64]);
+  });
+});
+]==],
+  },
+
+  {
     name = "Graph Shortest Path (Dijkstra)",
     difficulty = "hard",
     stub = [==[
