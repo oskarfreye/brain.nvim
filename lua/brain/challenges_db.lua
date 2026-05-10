@@ -12279,6 +12279,275 @@ describe('Spiral Order', () => {
   },
 
   {
+    name = "String Diff (Myers' Algorithm)",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * String Diff (Myers' Algorithm)
+ *
+ * Implement a diff algorithm to find the minimal edit script between two strings.
+ * This is the core algorithm used by Git, VS Code, and other tools for showing changes.
+ *
+ * Myers' diff algorithm finds the shortest edit script (SES) using a graph search
+ * approach. It models the problem as finding the shortest path in an edit graph.
+ *
+ * Implement:
+ * - diff(oldStr: string, newStr: string): Edit[]
+ *   Returns an array of edit operations that transform oldStr into newStr.
+ *   Each edit has: { type: 'equal' | 'insert' | 'delete', value: string }
+ *
+ * - diffLines(oldText: string, newText: string): Edit[]
+ *   Bonus: Diff line-by-line instead of character-by-character.
+ *
+ * - createPatch(oldStr: string, newStr: string): string
+ *   Bonus: Generate a unified diff patch format string.
+ *
+ * Example:
+ *   diff("ABC", "ACD") => [
+ *     { type: 'equal', value: 'A' },
+ *     { type: 'delete', value: 'B' },
+ *     { type: 'equal', value: 'C' },
+ *     { type: 'insert', value: 'D' }
+ *   ]
+ *
+ * Complexity target: O(N * D) where N is the sum of lengths and D is the edit distance.
+ */
+
+export interface Edit {
+  type: 'equal' | 'insert' | 'delete';
+  value: string;
+}
+
+export function diff(oldStr: string, newStr: string): Edit[] {
+  // YOUR CODE HERE
+  return [];
+}
+
+/**
+ * Bonus: Diff line by line. Split inputs by newline, then diff the arrays.
+ */
+export function diffLines(oldText: string, newText: string): Edit[] {
+  // YOUR CODE HERE
+  return [];
+}
+
+/**
+ * Bonus: Generate unified diff format:
+ *   --- old
+ *   +++ new
+ *   @@ -1,3 +1,3 @@
+ *    A
+ *   -B
+ *    C
+ *   +D
+ */
+export function createPatch(oldStr: string, newStr: string, oldName = 'old', newName = 'new'): string {
+  // YOUR CODE HERE
+  return '';
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { diff, diffLines, createPatch, type Edit } from './challenge';
+
+describe('String Diff - Basic Cases', () => {
+  it('identical strings have only equal ops', () => {
+    const edits = diff('hello', 'hello');
+    expect(edits).toHaveLength(1);
+    expect(edits[0]).toEqual({ type: 'equal', value: 'hello' });
+  });
+
+  it('empty to string', () => {
+    const edits = diff('', 'abc');
+    expect(edits).toEqual([{ type: 'insert', value: 'abc' }]);
+  });
+
+  it('string to empty', () => {
+    const edits = diff('abc', '');
+    expect(edits).toEqual([{ type: 'delete', value: 'abc' }]);
+  });
+
+  it('single character insertion', () => {
+    const edits = diff('ac', 'abc');
+    expect(edits).toEqual([
+      { type: 'equal', value: 'a' },
+      { type: 'insert', value: 'b' },
+      { type: 'equal', value: 'c' },
+    ]);
+  });
+
+  it('single character deletion', () => {
+    const edits = diff('abc', 'ac');
+    expect(edits).toEqual([
+      { type: 'equal', value: 'a' },
+      { type: 'delete', value: 'b' },
+      { type: 'equal', value: 'c' },
+    ]);
+  });
+
+  it('single character replacement', () => {
+    const edits = diff('cat', 'cut');
+    expect(edits).toEqual([
+      { type: 'equal', value: 'c' },
+      { type: 'delete', value: 'a' },
+      { type: 'insert', value: 'u' },
+      { type: 'equal', value: 't' },
+    ]);
+  });
+
+  it('complex diff', () => {
+    const edits = diff('ABC', 'ACD');
+    expect(edits).toEqual([
+      { type: 'equal', value: 'A' },
+      { type: 'delete', value: 'B' },
+      { type: 'equal', value: 'C' },
+      { type: 'insert', value: 'D' },
+    ]);
+  });
+});
+
+describe('String Diff - Edge Cases', () => {
+  it('empty to empty', () => {
+    expect(diff('', '')).toEqual([]);
+  });
+
+  it('completely different strings', () => {
+    const edits = diff('abc', 'xyz');
+    expect(edits).toEqual([
+      { type: 'delete', value: 'abc' },
+      { type: 'insert', value: 'xyz' },
+    ]);
+  });
+
+  it('insertion at start', () => {
+    const edits = diff('world', 'hello world');
+    expect(edits[0]).toEqual({ type: 'insert', value: 'hello ' });
+    expect(edits[1]).toEqual({ type: 'equal', value: 'world' });
+  });
+
+  it('deletion at end', () => {
+    const edits = diff('hello world', 'hello');
+    expect(edits[0]).toEqual({ type: 'equal', value: 'hello' });
+    expect(edits[1]).toEqual({ type: 'delete', value: ' world' });
+  });
+
+  it('insertion at end', () => {
+    const edits = diff('hello', 'hello world');
+    expect(edits[0]).toEqual({ type: 'equal', value: 'hello' });
+    expect(edits[1]).toEqual({ type: 'insert', value: ' world' });
+  });
+
+  it('repeated characters', () => {
+    const edits = diff('aaa', 'aaaa');
+    expect(edits).toEqual([
+      { type: 'equal', value: 'aaa' },
+      { type: 'insert', value: 'a' },
+    ]);
+  });
+
+  it('unicode characters', () => {
+    const edits = diff('hello 世界', 'hello 世界!');
+    expect(edits[0]).toEqual({ type: 'equal', value: 'hello 世界' });
+    expect(edits[1]).toEqual({ type: 'insert', value: '!' });
+  });
+});
+
+describe('String Diff - Patch Applications', () => {
+  it('applying diff reconstructs new string', () => {
+    const oldStr = 'The quick brown fox';
+    const newStr = 'The slow brown dog';
+    const edits = diff(oldStr, newStr);
+
+    let reconstructed = '';
+    for (const edit of edits) {
+      if (edit.type === 'equal' || edit.type === 'insert') {
+        reconstructed += edit.value;
+      }
+    }
+    expect(reconstructed).toBe(newStr);
+  });
+
+  it('diff is minimal for simple cases', () => {
+    const edits = diff('kitten', 'sitting');
+    const editCount = edits.filter(e => e.type !== 'equal').length;
+    expect(editCount).toBeLessThanOrEqual(4);
+  });
+});
+
+describe('diffLines (Bonus)', () => {
+  it('identical lines', () => {
+    const edits = diffLines('line1\nline2', 'line1\nline2');
+    expect(edits).toHaveLength(1);
+    expect(edits[0]).toEqual({ type: 'equal', value: 'line1\nline2' });
+  });
+
+  it('inserted line', () => {
+    const edits = diffLines('a\nb', 'a\nc\nb');
+    expect(edits).toContainEqual({ type: 'equal', value: 'a\n' });
+    expect(edits).toContainEqual({ type: 'insert', value: 'c\n' });
+    expect(edits).toContainEqual({ type: 'equal', value: 'b' });
+  });
+
+  it('deleted line', () => {
+    const edits = diffLines('a\nb\nc', 'a\nc');
+    expect(edits).toContainEqual({ type: 'equal', value: 'a\n' });
+    expect(edits).toContainEqual({ type: 'delete', value: 'b\n' });
+    expect(edits).toContainEqual({ type: 'equal', value: 'c' });
+  });
+
+  it('empty text', () => {
+    expect(diffLines('', '')).toEqual([]);
+    expect(diffLines('', 'new')).toEqual([{ type: 'insert', value: 'new' }]);
+    expect(diffLines('old', '')).toEqual([{ type: 'delete', value: 'old' }]);
+  });
+});
+
+describe('createPatch (Bonus)', () => {
+  it('generates patch header', () => {
+    const patch = createPatch('a\nb', 'a\nc', 'old.txt', 'new.txt');
+    expect(patch).toContain('--- old.txt');
+    expect(patch).toContain('+++ new.txt');
+  });
+
+  it('includes context lines', () => {
+    const patch = createPatch('line1\nline2\nline3', 'line1\nmodified\nline3');
+    expect(patch).toContain(' line1');
+    expect(patch).toContain('-line2');
+    expect(patch).toContain('+modified');
+    expect(patch).toContain(' line3');
+  });
+
+  it('handles empty inputs', () => {
+    const patch = createPatch('', 'new content');
+    expect(patch).toContain('+++');
+    expect(patch).toContain('+new content');
+  });
+});
+
+describe('String Diff - Stress Tests', () => {
+  it('handles 100 character strings', () => {
+    const oldStr = 'a'.repeat(50) + 'b'.repeat(50);
+    const newStr = 'a'.repeat(50) + 'c'.repeat(50);
+    const edits = diff(oldStr, newStr);
+    const reconstructed = edits.filter(e => e.type !== 'delete').map(e => e.value).join('');
+    expect(reconstructed).toBe(newStr);
+  });
+
+  it('handles long common prefix and suffix', () => {
+    const prefix = 'prefix_'.repeat(20);
+    const suffix = '_suffix'.repeat(20);
+    const oldStr = prefix + 'MIDDLE_OLD' + suffix;
+    const newStr = prefix + 'MIDDLE_NEW' + suffix;
+    const edits = diff(oldStr, newStr);
+
+    const reconstructed = edits.filter(e => e.type !== 'delete').map(e => e.value).join('');
+    expect(reconstructed).toBe(newStr);
+  });
+});
+]==],
+  },
+
+  {
     name = "Circular Buffer (Ring Buffer)",
     difficulty = "medium",
     stub = [==[
