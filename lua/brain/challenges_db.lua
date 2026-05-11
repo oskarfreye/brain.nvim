@@ -12880,4 +12880,317 @@ describe('Circular Buffer', () => {
 });
 ]==],
   },
-},
+  {
+    name = "Immutable Vector (HAMT)",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * Immutable Vector (HAMT-based)
+ *
+ * Implement a persistent/immutable vector data structure using the Hash Array Mapped
+ * Trie (HAMT) approach, similar to Clojure's vectors and Immutable.js.
+ *
+ * In a persistent data structure, every update creates a new version without
+ * modifying the original. This enables efficient structural sharing between versions.
+ *
+ * Vector operations:
+ * - push(value): Vector — Returns a new vector with value appended
+ * - pop(): Vector — Returns a new vector with last element removed
+ * - get(index): T | undefined — Access element at index
+ * - set(index, value): Vector — Returns new vector with updated element
+ * - size(): number — Current element count
+ * - toArray(): T[] — Convert to plain array (for testing/debugging)
+ *
+ * Implementation notes:
+ * - Use a branching factor of 32 (array chunks)
+ * - Tree depth grows logarithmically: O(log₃₂ n) for all operations
+ * - Structural sharing: unchanged parts of the tree are shared between versions
+ * - Root can be a simple array for small vectors (< 32 elements)
+ *
+ * Bonus: Implement slice(start, end) to extract a sub-vector efficiently.
+ */
+
+export class Vector<T> {
+  // YOUR CODE HERE
+  // Hint: You'll need a root node, size, and shift/height tracking
+
+  constructor(
+    private root: any = null,
+    private tail: T[] = [],
+    private _size: number = 0,
+    private shift: number = 0
+  ) {
+    // YOUR CODE HERE
+  }
+
+  push(value: T): Vector<T> {
+    // YOUR CODE HERE
+    return this;
+  }
+
+  pop(): Vector<T> {
+    // YOUR CODE HERE
+    return this;
+  }
+
+  get(index: number): T | undefined {
+    // YOUR CODE HERE
+    return undefined;
+  }
+
+  set(index: number, value: T): Vector<T> {
+    // YOUR CODE HERE
+    return this;
+  }
+
+  size(): number {
+    // YOUR CODE HERE
+    return this._size;
+  }
+
+  toArray(): T[] {
+    // YOUR CODE HERE
+    return [];
+  }
+
+  /**
+   * Bonus: Create a new vector containing elements from start to end (exclusive)
+   */
+  slice(start: number, end?: number): Vector<T> {
+    // YOUR CODE HERE
+    return new Vector<T>();
+  }
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { Vector } from './challenge';
+
+describe('Immutable Vector - Basic Operations', () => {
+  it('creates empty vector', () => {
+    const v = new Vector<number>();
+    expect(v.size()).toBe(0);
+    expect(v.toArray()).toEqual([]);
+  });
+
+  it('pushes single element', () => {
+    const v1 = new Vector<number>();
+    const v2 = v1.push(42);
+    expect(v2.size()).toBe(1);
+    expect(v2.get(0)).toBe(42);
+    expect(v1.size()).toBe(0); // Original unchanged
+  });
+
+  it('pushes multiple elements', () => {
+    let v = new Vector<number>();
+    v = v.push(1).push(2).push(3);
+    expect(v.size()).toBe(3);
+    expect(v.toArray()).toEqual([1, 2, 3]);
+  });
+
+  it('gets elements by index', () => {
+    let v = new Vector<string>();
+    v = v.push('a').push('b').push('c');
+    expect(v.get(0)).toBe('a');
+    expect(v.get(1)).toBe('b');
+    expect(v.get(2)).toBe('c');
+    expect(v.get(3)).toBeUndefined();
+    expect(v.get(-1)).toBeUndefined();
+  });
+
+  it('sets element at index', () => {
+    let v = new Vector<number>();
+    v = v.push(1).push(2).push(3);
+    const v2 = v.set(1, 99);
+    expect(v2.get(1)).toBe(99);
+    expect(v.get(1)).toBe(2); // Original unchanged
+    expect(v2.toArray()).toEqual([1, 99, 3]);
+  });
+
+  it('pops last element', () => {
+    let v = new Vector<number>();
+    v = v.push(1).push(2).push(3);
+    const v2 = v.pop();
+    expect(v2.size()).toBe(2);
+    expect(v2.toArray()).toEqual([1, 2]);
+    expect(v.toArray()).toEqual([1, 2, 3]); // Original unchanged
+  });
+
+  it('pop on empty vector returns empty', () => {
+    const v = new Vector<number>();
+    expect(v.pop().size()).toBe(0);
+  });
+
+  it('maintains immutability through operations', () => {
+    const v1 = new Vector<number>().push(1).push(2);
+    const v2 = v1.push(3);
+    const v3 = v1.set(0, 99);
+
+    expect(v1.toArray()).toEqual([1, 2]);
+    expect(v2.toArray()).toEqual([1, 2, 3]);
+    expect(v3.toArray()).toEqual([99, 2]);
+  });
+});
+
+describe('Immutable Vector - Large Vectors', () => {
+  it('handles more than 32 elements (tree depth > 0)', () => {
+    let v = new Vector<number>();
+    for (let i = 0; i < 50; i++) {
+      v = v.push(i);
+    }
+    expect(v.size()).toBe(50);
+    expect(v.get(0)).toBe(0);
+    expect(v.get(31)).toBe(31);
+    expect(v.get(49)).toBe(49);
+  });
+
+  it('handles hundreds of elements', () => {
+    let v = new Vector<number>();
+    for (let i = 0; i < 200; i++) {
+      v = v.push(i * 2);
+    }
+    expect(v.size()).toBe(200);
+    expect(v.get(100)).toBe(200);
+    expect(v.get(199)).toBe(398);
+  });
+
+  it('handles thousands of elements efficiently', () => {
+    let v = new Vector<number>();
+    for (let i = 0; i < 1000; i++) {
+      v = v.push(i);
+    }
+    expect(v.size()).toBe(1000);
+    expect(v.get(500)).toBe(500);
+    expect(v.get(999)).toBe(999);
+  });
+
+  it('can set values in large vectors', () => {
+    let v = new Vector<number>();
+    for (let i = 0; i < 100; i++) {
+      v = v.push(i);
+    }
+    const v2 = v.set(50, 9999);
+    expect(v2.get(50)).toBe(9999);
+    expect(v.get(50)).toBe(50);
+  });
+
+  it('can pop from large vectors', () => {
+    let v = new Vector<number>();
+    for (let i = 0; i < 100; i++) {
+      v = v.push(i);
+    }
+    const v2 = v.pop().pop().pop();
+    expect(v2.size()).toBe(97);
+    expect(v2.get(96)).toBe(96);
+  });
+});
+
+describe('Immutable Vector - Slice (Bonus)', () => {
+  it('slices from start', () => {
+    let v = new Vector<number>();
+    for (let i = 0; i < 10; i++) {
+      v = v.push(i);
+    }
+    const sliced = v.slice(0, 5);
+    expect(sliced.toArray()).toEqual([0, 1, 2, 3, 4]);
+  });
+
+  it('slices from middle', () => {
+    let v = new Vector<number>();
+    for (let i = 0; i < 10; i++) {
+      v = v.push(i);
+    }
+    const sliced = v.slice(3, 7);
+    expect(sliced.toArray()).toEqual([3, 4, 5, 6]);
+  });
+
+  it('slices to end when end omitted', () => {
+    let v = new Vector<number>();
+    for (let i = 0; i < 10; i++) {
+      v = v.push(i);
+    }
+    const sliced = v.slice(5);
+    expect(sliced.toArray()).toEqual([5, 6, 7, 8, 9]);
+  });
+
+  it('slice beyond bounds clamps', () => {
+    let v = new Vector<number>();
+    v = v.push(1).push(2).push(3);
+    expect(v.slice(0, 10).toArray()).toEqual([1, 2, 3]);
+    expect(v.slice(5, 10).toArray()).toEqual([]);
+  });
+
+  it('slice maintains immutability', () => {
+    let v = new Vector<number>();
+    for (let i = 0; i < 20; i++) {
+      v = v.push(i);
+    }
+    const sliced = v.slice(5, 15);
+    expect(v.size()).toBe(20);
+    expect(sliced.size()).toBe(10);
+  });
+});
+
+describe('Immutable Vector - Complex Scenarios', () => {
+  it('interleaved push/pop/set operations', () => {
+    let v = new Vector<number>();
+    v = v.push(1).push(2).push(3);
+    v = v.set(1, 20);
+    v = v.pop();
+    v = v.push(4).push(5);
+
+    expect(v.toArray()).toEqual([1, 20, 4, 5]);
+  });
+
+  it('works with objects', () => {
+    type Item = { id: number; name: string };
+    let v = new Vector<Item>();
+    v = v.push({ id: 1, name: 'Alice' });
+    v = v.push({ id: 2, name: 'Bob' });
+
+    const v2 = v.set(0, { id: 1, name: 'Alicia' });
+    expect(v.get(0)!.name).toBe('Alice');
+    expect(v2.get(0)!.name).toBe('Alicia');
+  });
+
+  it('multiple versions coexist', () => {
+    const base = new Vector<number>().push(0).push(1).push(2);
+    const v1 = base.push(3);
+    const v2 = base.set(0, 100);
+    const v3 = base.pop();
+
+    expect(base.toArray()).toEqual([0, 1, 2]);
+    expect(v1.toArray()).toEqual([0, 1, 2, 3]);
+    expect(v2.toArray()).toEqual([100, 1, 2]);
+    expect(v3.toArray()).toEqual([0, 1]);
+  });
+
+  it('builds and reads large vector', () => {
+    let v = new Vector<number>();
+    const size = 5000;
+
+    for (let i = 0; i < size; i++) {
+      v = v.push(i);
+    }
+
+    expect(v.size()).toBe(size);
+
+    // Spot check various positions
+    expect(v.get(0)).toBe(0);
+    expect(v.get(31)).toBe(31);
+    expect(v.get(32)).toBe(32);
+    expect(v.get(1023)).toBe(1023);
+    expect(v.get(1024)).toBe(1024);
+    expect(v.get(size - 1)).toBe(size - 1);
+  });
+
+  it('empty vector operations are safe', () => {
+    const v = new Vector<number>();
+    expect(v.get(0)).toBeUndefined();
+    expect(v.pop().size()).toBe(0);
+    expect(v.slice(0, 10).size()).toBe(0);
+  });
+});
+]==],
+  },
+}
