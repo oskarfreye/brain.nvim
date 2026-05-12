@@ -12881,6 +12881,336 @@ describe('Circular Buffer', () => {
 ]==],
   },
   {
+    name = "Breadth-First Search Shortest Path",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * Breadth-First Search (BFS) - Shortest Path
+ *
+ * Implement BFS to find shortest paths in an unweighted graph.
+ *
+ * Graph representation: adjacency list where edges[i] = [neighbors of node i]
+ *
+ * Implement:
+ * - bfs(numNodes, edges, start): number[]
+ *   Returns array of shortest distances from start to every node.
+ *   Use -1 for unreachable nodes.
+ *
+ * - shortestPath(numNodes, edges, start, end): number[] | null
+ *   Returns the actual shortest path as array of node indices from start to end,
+ *   or null if no path exists.
+ *
+ * - isBipartite(numNodes, edges): boolean
+ *   Bonus: Check if graph can be divided into two sets with no internal edges.
+ *
+ * - findConnectedComponents(numNodes, edges): number[][]
+ *   Bonus: Return all connected components as arrays of nodes.
+ *
+ * Constraints:
+ * - Graph is undirected (edges go both ways)
+ * - All edges have equal weight (unweighted graph)
+ * - BFS guarantees shortest path in unweighted graphs
+ */
+
+export function bfs(
+  numNodes: number,
+  edges: number[][],
+  start: number
+): number[] {
+  // YOUR CODE HERE
+  return [];
+}
+
+export function shortestPath(
+  numNodes: number,
+  edges: number[][],
+  start: number,
+  end: number
+): number[] | null {
+  // YOUR CODE HERE
+  return null;
+}
+
+/**
+ * Bonus: Check if graph is bipartite (2-colorable)
+ */
+export function isBipartite(numNodes: number, edges: number[][]): boolean {
+  // YOUR CODE HERE
+  return true;
+}
+
+/**
+ * Bonus: Find all connected components
+ */
+export function findConnectedComponents(
+  numNodes: number,
+  edges: number[][]
+): number[][] {
+  // YOUR CODE HERE
+  return [];
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { bfs, shortestPath, isBipartite, findConnectedComponents } from './challenge';
+
+describe('BFS - Shortest Distances', () => {
+  it('single node graph', () => {
+    const edges: number[][] = [[]];
+    expect(bfs(1, edges, 0)).toEqual([0]);
+  });
+
+  it('simple linear path', () => {
+    // 0 -- 1 -- 2 -- 3
+    const edges: number[][] = [
+      [1], [0, 2], [1, 3], [2]
+    ];
+    expect(bfs(4, edges, 0)).toEqual([0, 1, 2, 3]);
+  });
+
+  it('star graph', () => {
+    // 0 is center connected to 1, 2, 3, 4
+    const edges: number[][] = [
+      [1, 2, 3, 4], [0], [0], [0], [0]
+    ];
+    expect(bfs(5, edges, 0)).toEqual([0, 1, 1, 1, 1]);
+  });
+
+  it('unreachable nodes get -1', () => {
+    // 0-1-2 disconnected from 3-4
+    const edges: number[][] = [
+      [1], [0, 2], [1], [4], [3]
+    ];
+    expect(bfs(5, edges, 0)).toEqual([0, 1, 2, -1, -1]);
+  });
+
+  it('cycle graph', () => {
+    // 0 -- 1
+    // |    |
+    // 3 -- 2
+    const edges: number[][] = [
+      [1, 3], [0, 2], [1, 3], [0, 2]
+    ];
+    expect(bfs(4, edges, 0)).toEqual([0, 1, 2, 1]);
+  });
+
+  it('complete graph', () => {
+    // All nodes connected to all others
+    const edges: number[][] = [
+      [1, 2, 3], [0, 2, 3], [0, 1, 3], [0, 1, 2]
+    ];
+    expect(bfs(4, edges, 0)).toEqual([0, 1, 1, 1]);
+  });
+
+  it('empty graph', () => {
+    const edges: number[][] = [[], [], []];
+    expect(bfs(3, edges, 1)).toEqual([-1, 0, -1]);
+  });
+
+  it('disconnected components', () => {
+    const edges: number[][] = [
+      [1], [0], [], [4, 5], [3, 5], [3, 4]
+    ];
+    const dist = bfs(6, edges, 3);
+    expect(dist[3]).toBe(0);
+    expect(dist[4]).toBe(1);
+    expect(dist[5]).toBe(1);
+    expect(dist[0]).toBe(-1);
+    expect(dist[2]).toBe(-1);
+  });
+
+  it('stress: chain of 1000 nodes', () => {
+    const n = 1000;
+    const edges: number[][] = Array.from({ length: n }, () => []);
+    for (let i = 0; i < n - 1; i++) {
+      edges[i].push(i + 1);
+      edges[i + 1].push(i);
+    }
+    const dist = bfs(n, edges, 0);
+    expect(dist[0]).toBe(0);
+    expect(dist[999]).toBe(999);
+    expect(dist[500]).toBe(500);
+  });
+
+  it('stress: dense graph', () => {
+    const n = 100;
+    const edges: number[][] = Array.from({ length: n }, () => []);
+    // Create dense connections
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n && j < i + 10; j++) {
+        edges[i].push(j);
+        edges[j].push(i);
+      }
+    }
+    const dist = bfs(n, edges, 0);
+    expect(dist[0]).toBe(0);
+    expect(dist[50]).toBeLessThanOrEqual(6);
+  });
+});
+
+describe('BFS - Shortest Path Reconstruction', () => {
+  it('path to self is just [start]', () => {
+    const edges: number[][] = [[1], [0]];
+    expect(shortestPath(2, edges, 0, 0)).toEqual([0]);
+  });
+
+  it('direct neighbor', () => {
+    const edges: number[][] = [[1], [0, 2], [1]];
+    expect(shortestPath(3, edges, 0, 1)).toEqual([0, 1]);
+  });
+
+  it('two-hop path', () => {
+    const edges: number[][] = [[1], [0, 2], [1]];
+    expect(shortestPath(3, edges, 0, 2)).toEqual([0, 1, 2]);
+  });
+
+  it('chooses shortest path', () => {
+    // 0 -- 1 -- 2
+    //  \        /
+    //   +-- 3 -+
+    const edges: number[][] = [
+      [1, 3], [0, 2], [1, 3], [0, 2]
+    ];
+    const path = shortestPath(4, edges, 0, 2);
+    expect(path).toHaveLength(3); // 0 -> 1 -> 2 or 0 -> 3 -> 2
+    expect(path![0]).toBe(0);
+    expect(path![2]).toBe(2);
+  });
+
+  it('returns null for unreachable target', () => {
+    const edges: number[][] = [[1], [0], []];
+    expect(shortestPath(3, edges, 0, 2)).toBeNull();
+  });
+
+  it('complex graph path', () => {
+    // Grid-like: 0-1-2
+    //            | | |
+    //            3-4-5
+    const edges: number[][] = [
+      [1, 3], [0, 2, 4], [1, 5],
+      [0, 4], [1, 3, 5], [2, 4]
+    ];
+    const path = shortestPath(6, edges, 0, 5);
+    expect(path).toHaveLength(4);
+    expect(path![0]).toBe(0);
+    expect(path![3]).toBe(5);
+  });
+
+  it('multiple paths same length', () => {
+    const edges: number[][] = [
+      [1, 2], [0, 3], [0, 3], [1, 2]
+    ];
+    const path = shortestPath(4, edges, 0, 3);
+    expect(path).toHaveLength(3);
+    expect(path![0]).toBe(0);
+    expect(path![2]).toBe(3);
+  });
+});
+
+describe('BFS - Bipartite Check (Bonus)', () => {
+  it('single node is bipartite', () => {
+    expect(isBipartite(1, [[]])).toBe(true);
+  });
+
+  it('two nodes connected is bipartite', () => {
+    expect(isBipartite(2, [[1], [0]])).toBe(true);
+  });
+
+  it('triangle is not bipartite', () => {
+    // 0 -- 1
+    //  \  /
+    //   2
+    const edges: number[][] = [
+      [1, 2], [0, 2], [0, 1]
+    ];
+    expect(isBipartite(3, edges)).toBe(false);
+  });
+
+  it('square is bipartite', () => {
+    // 0 -- 1
+    // |    |
+    // 3 -- 2
+    const edges: number[][] = [
+      [1, 3], [0, 2], [1, 3], [0, 2]
+    ];
+    expect(isBipartite(4, edges)).toBe(true);
+  });
+
+  it('disconnected bipartite components', () => {
+    // Two separate edges: (0-1) and (2-3)
+    const edges: number[][] = [
+      [1], [0], [3], [2]
+    ];
+    expect(isBipartite(4, edges)).toBe(true);
+  });
+
+  it('odd cycle is not bipartite', () => {
+    // 0-1-2-3-4-0 (5-cycle)
+    const edges: number[][] = [
+      [1, 4], [0, 2], [1, 3], [2, 4], [3, 0]
+    ];
+    expect(isBipartite(5, edges)).toBe(false);
+  });
+
+  it('even cycle is bipartite', () => {
+    // 0-1-2-3-4-5-0 (6-cycle)
+    const edges: number[][] = [
+      [1, 5], [0, 2], [1, 3], [2, 4], [3, 5], [4, 0]
+    ];
+    expect(isBipartite(6, edges)).toBe(true);
+  });
+});
+
+describe('BFS - Connected Components (Bonus)', () => {
+  it('single component fully connected', () => {
+    const edges: number[][] = [[1], [0, 2], [1]];
+    const comps = findConnectedComponents(3, edges);
+    expect(comps).toHaveLength(1);
+    expect(comps[0].sort()).toEqual([0, 1, 2]);
+  });
+
+  it('all isolated nodes', () => {
+    const edges: number[][] = [[], [], [], []];
+    const comps = findConnectedComponents(4, edges);
+    expect(comps).toHaveLength(4);
+    comps.forEach((c, i) => expect(c).toEqual([i]));
+  });
+
+  it('two separate components', () => {
+    const edges: number[][] = [
+      [1], [0], [3, 4], [2, 4], [2, 3]
+    ];
+    const comps = findConnectedComponents(5, edges);
+    expect(comps).toHaveLength(2);
+    expect(comps.some(c => c.includes(0) && c.includes(1))).toBe(true);
+    expect(comps.some(c => c.includes(2) && c.includes(3))).toBe(true);
+  });
+
+  it('three components', () => {
+    const edges: number[][] = [
+      [1], [0], [], [4], [3], [5], [5]
+    ];
+    const comps = findConnectedComponents(7, edges);
+    expect(comps).toHaveLength(3);
+  });
+
+  it('large component detection', () => {
+    const n = 100;
+    const edges: number[][] = Array.from({ length: n }, () => []);
+    // Connect 0-50 in one component
+    for (let i = 0; i < 50; i++) {
+      edges[i].push((i + 1) % 50);
+      edges[(i + 1) % 50].push(i);
+    }
+    // 51-99 are isolated
+    const comps = findConnectedComponents(n, edges);
+    expect(comps).toHaveLength(51); // 1 big + 50 singletons
+  });
+});
+]==],
+  },
+
+  {
     name = "Immutable Vector (HAMT)",
     difficulty = "medium",
     stub = [==[
