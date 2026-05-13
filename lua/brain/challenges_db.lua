@@ -13524,3 +13524,402 @@ describe('Immutable Vector - Complex Scenarios', () => {
 ]==],
   },
 }
+,
+  {
+    name = "Lazy Iterator Chain",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * Lazy Iterator Chain
+ *
+ * Build a lazy evaluation system for processing sequences without creating
+ * intermediate arrays. Each operation is deferred until values are consumed.
+ *
+ * LazySequence class:
+ * - from(iterable) — static factory to create a LazySequence from any iterable
+ * - map(fn) — transform each element (lazy)
+ * - filter(predicate) — keep only matching elements (lazy)
+ * - take(n) — limit to first n elements (lazy)
+ * - drop(n) — skip first n elements (lazy)
+ * - flatMap(fn) — map then flatten one level (lazy)
+ * - reduce(fn, initial) — eagerly reduce to a single value
+ * - toArray() — eagerly collect all values into array
+ * - first() — eagerly get first value or undefined
+ * - forEach(fn) — eagerly consume each value
+ * - [Symbol.iterator]() — make the sequence iterable
+ *
+ * All lazy operations return a new LazySequence. No computation happens
+ * until an eager terminal method is called.
+ *
+ * Example:
+ *   LazySequence.from([1, 2, 3, 4, 5])
+ *     .filter(x => x % 2 === 0)
+ *     .map(x => x * 10)
+ *     .take(2)
+ *     .toArray()
+ *   // => [20, 40]
+ *
+ * Bonus: Implement distinct() to remove duplicates (using Set internally).
+ */
+
+export class LazySequence<T> {
+  private constructor(private source: () => Generator<T>) {
+    // YOUR CODE HERE
+  }
+
+  static from<U>(iterable: Iterable<U>): LazySequence<U> {
+    // YOUR CODE HERE
+    return new LazySequence<U>(function* () { yield* iterable; });
+  }
+
+  map<U>(fn: (value: T) => U): LazySequence<U> {
+    // YOUR CODE HERE
+    return new LazySequence<U>(function* () { return; });
+  }
+
+  filter(predicate: (value: T) => boolean): LazySequence<T> {
+    // YOUR CODE HERE
+    return new LazySequence<T>(function* () { return; });
+  }
+
+  take(n: number): LazySequence<T> {
+    // YOUR CODE HERE
+    return new LazySequence<T>(function* () { return; });
+  }
+
+  drop(n: number): LazySequence<T> {
+    // YOUR CODE HERE
+    return new LazySequence<T>(function* () { return; });
+  }
+
+  flatMap<U>(fn: (value: T) => Iterable<U>): LazySequence<U> {
+    // YOUR CODE HERE
+    return new LazySequence<U>(function* () { return; });
+  }
+
+  reduce<U>(fn: (acc: U, value: T) => U, initial: U): U {
+    // YOUR CODE HERE
+    return initial;
+  }
+
+  toArray(): T[] {
+    // YOUR CODE HERE
+    return [];
+  }
+
+  first(): T | undefined {
+    // YOUR CODE HERE
+    return undefined;
+  }
+
+  forEach(fn: (value: T) => void): void {
+    // YOUR CODE HERE
+  }
+
+  *[Symbol.iterator](): Generator<T> {
+    // YOUR CODE HERE
+  }
+
+  /**
+   * Bonus: Return only distinct elements (using Set)
+   */
+  distinct(): LazySequence<T> {
+    // YOUR CODE HERE
+    return new LazySequence<T>(function* () { return; });
+  }
+}
+]==],
+    tests = [==[
+import { describe, it, expect, vi } from 'vitest';
+import { LazySequence } from './challenge';
+
+describe('LazySequence - Basic Operations', () => {
+  it('creates from array', () => {
+    const seq = LazySequence.from([1, 2, 3]);
+    expect(seq.toArray()).toEqual([1, 2, 3]);
+  });
+
+  it('creates from string', () => {
+    const seq = LazySequence.from('abc');
+    expect(seq.toArray()).toEqual(['a', 'b', 'c']);
+  });
+
+  it('creates from Set', () => {
+    const seq = LazySequence.from(new Set([1, 2, 3]));
+    expect(seq.toArray()).toEqual([1, 2, 3]);
+  });
+
+  it('empty iterable', () => {
+    const seq = LazySequence.from([]);
+    expect(seq.toArray()).toEqual([]);
+    expect(seq.first()).toBeUndefined();
+  });
+});
+
+describe('LazySequence - Map', () => {
+  it('transforms each element', () => {
+    const seq = LazySequence.from([1, 2, 3]).map(x => x * 2);
+    expect(seq.toArray()).toEqual([2, 4, 6]);
+  });
+
+  it('chaining maps', () => {
+    const seq = LazySequence.from([1, 2, 3])
+      .map(x => x + 1)
+      .map(x => x * 10);
+    expect(seq.toArray()).toEqual([20, 30, 40]);
+  });
+
+  it('map with index not required', () => {
+    const seq = LazySequence.from(['a', 'b', 'c']).map(s => s.toUpperCase());
+    expect(seq.toArray()).toEqual(['A', 'B', 'C']);
+  });
+});
+
+describe('LazySequence - Filter', () => {
+  it('keeps matching elements', () => {
+    const seq = LazySequence.from([1, 2, 3, 4, 5]).filter(x => x % 2 === 0);
+    expect(seq.toArray()).toEqual([2, 4]);
+  });
+
+  it('returns empty when nothing matches', () => {
+    const seq = LazySequence.from([1, 3, 5]).filter(x => x % 2 === 0);
+    expect(seq.toArray()).toEqual([]);
+  });
+
+  it('filter then map', () => {
+    const seq = LazySequence.from([1, 2, 3, 4])
+      .filter(x => x > 2)
+      .map(x => x * 10);
+    expect(seq.toArray()).toEqual([30, 40]);
+  });
+});
+
+describe('LazySequence - Take', () => {
+  it('limits to first n elements', () => {
+    const seq = LazySequence.from([1, 2, 3, 4, 5]).take(3);
+    expect(seq.toArray()).toEqual([1, 2, 3]);
+  });
+
+  it('take more than available', () => {
+    const seq = LazySequence.from([1, 2]).take(5);
+    expect(seq.toArray()).toEqual([1, 2]);
+  });
+
+  it('take zero', () => {
+    const seq = LazySequence.from([1, 2, 3]).take(0);
+    expect(seq.toArray()).toEqual([]);
+  });
+
+  it('take from infinite-like sequence', () => {
+    function* naturals() { let n = 1; while (true) yield n++; }
+    const seq = LazySequence.from(naturals()).take(5);
+    expect(seq.toArray()).toEqual([1, 2, 3, 4, 5]);
+  });
+});
+
+describe('LazySequence - Drop', () => {
+  it('skips first n elements', () => {
+    const seq = LazySequence.from([1, 2, 3, 4, 5]).drop(2);
+    expect(seq.toArray()).toEqual([3, 4, 5]);
+  });
+
+  it('drop more than available', () => {
+    const seq = LazySequence.from([1, 2]).drop(5);
+    expect(seq.toArray()).toEqual([]);
+  });
+
+  it('drop then take', () => {
+    const seq = LazySequence.from([1, 2, 3, 4, 5, 6, 7])
+      .drop(2)
+      .take(3);
+    expect(seq.toArray()).toEqual([3, 4, 5]);
+  });
+});
+
+describe('LazySequence - FlatMap', () => {
+  it('maps and flattens one level', () => {
+    const seq = LazySequence.from([1, 2, 3]).flatMap(x => [x, x * 10]);
+    expect(seq.toArray()).toEqual([1, 10, 2, 20, 3, 30]);
+  });
+
+  it('handles empty inner arrays', () => {
+    const seq = LazySequence.from([1, 2, 3]).flatMap(x => x % 2 === 0 ? [x] : []);
+    expect(seq.toArray()).toEqual([2]);
+  });
+
+  it('flatMap with strings', () => {
+    const seq = LazySequence.from(['a', 'b']).flatMap(s => [s, s.toUpperCase()]);
+    expect(seq.toArray()).toEqual(['a', 'A', 'b', 'B']);
+  });
+});
+
+describe('LazySequence - Reduce', () => {
+  it('sums all elements', () => {
+    const sum = LazySequence.from([1, 2, 3, 4]).reduce((a, b) => a + b, 0);
+    expect(sum).toBe(10);
+  });
+
+  it('concatenates strings', () => {
+    const result = LazySequence.from(['a', 'b', 'c']).reduce((a, b) => a + b, '');
+    expect(result).toBe('abc');
+  });
+
+  it('reduce empty sequence returns initial', () => {
+    const sum = LazySequence.from([]).reduce((a, b) => a + b, 42);
+    expect(sum).toBe(42);
+  });
+});
+
+describe('LazySequence - First', () => {
+  it('returns first element', () => {
+    expect(LazySequence.from([10, 20, 30]).first()).toBe(10);
+  });
+
+  it('returns undefined for empty', () => {
+    expect(LazySequence.from([]).first()).toBeUndefined();
+  });
+
+  it('returns first after filter', () => {
+    const first = LazySequence.from([1, 3, 5, 6, 7])
+      .filter(x => x % 2 === 0)
+      .first();
+    expect(first).toBe(6);
+  });
+});
+
+describe('LazySequence - ForEach', () => {
+  it('calls function for each element', () => {
+    const fn = vi.fn();
+    LazySequence.from([1, 2, 3]).forEach(fn);
+    expect(fn).toHaveBeenCalledTimes(3);
+    expect(fn).toHaveBeenNthCalledWith(1, 1);
+    expect(fn).toHaveBeenNthCalledWith(2, 2);
+    expect(fn).toHaveBeenNthCalledWith(3, 3);
+  });
+
+  it('works with empty sequence', () => {
+    const fn = vi.fn();
+    LazySequence.from([]).forEach(fn);
+    expect(fn).not.toHaveBeenCalled();
+  });
+});
+
+describe('LazySequence - Iterator Protocol', () => {
+  it('is iterable with for...of', () => {
+    const seq = LazySequence.from([1, 2, 3]).map(x => x * 2);
+    const result: number[] = [];
+    for (const val of seq) {
+      result.push(val);
+    }
+    expect(result).toEqual([2, 4, 6]);
+  });
+
+  it('spread operator works', () => {
+    const seq = LazySequence.from([1, 2, 3]).filter(x => x > 1);
+    expect([...seq]).toEqual([2, 3]);
+  });
+});
+
+describe('LazySequence - Lazy Evaluation', () => {
+  it('does not evaluate until terminal operation', () => {
+    const mapFn = vi.fn(x => x * 2);
+    const filterFn = vi.fn(x => x > 2);
+
+    const seq = LazySequence.from([1, 2, 3, 4, 5])
+      .map(mapFn)
+      .filter(filterFn);
+
+    // No evaluation yet
+    expect(mapFn).not.toHaveBeenCalled();
+    expect(filterFn).not.toHaveBeenCalled();
+
+    // Evaluate
+    seq.take(2).toArray();
+
+    // Should only evaluate what's needed
+    expect(mapFn).toHaveBeenCalledTimes(4); // 1, 2, 3, 4 mapped, then 4 > 2, stop at 2 elements
+    expect(filterFn).toHaveBeenCalledTimes(4);
+  });
+
+  it('short-circuits with take', () => {
+    let count = 0;
+    function* countCalls() { while (true) { count++; yield count; } }
+
+    const result = LazySequence.from(countCalls())
+      .map(x => x * 10)
+      .take(3)
+      .toArray();
+
+    expect(result).toEqual([10, 20, 30]);
+    expect(count).toBe(3);
+  });
+});
+
+describe('LazySequence - Distinct (Bonus)', () => {
+  it('removes duplicates', () => {
+    const seq = LazySequence.from([1, 2, 2, 3, 3, 3, 4]).distinct();
+    expect(seq.toArray()).toEqual([1, 2, 3, 4]);
+  });
+
+  it('preserves first occurrence order', () => {
+    const seq = LazySequence.from([3, 1, 4, 1, 5, 9, 2, 6]).distinct();
+    expect(seq.toArray()).toEqual([3, 1, 4, 5, 9, 2, 6]);
+  });
+
+  it('works with strings', () => {
+    const seq = LazySequence.from(['a', 'b', 'a', 'c', 'b']).distinct();
+    expect(seq.toArray()).toEqual(['a', 'b', 'c']);
+  });
+});
+
+describe('LazySequence - Complex Pipelines', () => {
+  it('filters, maps, takes', () => {
+    const result = LazySequence.from([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+      .filter(x => x % 2 === 0)
+      .map(x => x * x)
+      .take(3)
+      .toArray();
+    expect(result).toEqual([4, 16, 36]);
+  });
+
+  it('handles nested lazy sequences', () => {
+    const result = LazySequence.from([[1, 2], [3, 4], [5, 6]])
+      .flatMap(arr => arr)
+      .filter(x => x > 2)
+      .toArray();
+    expect(result).toEqual([3, 4, 5, 6]);
+  });
+
+  it('drop, take, map combination', () => {
+    const result = LazySequence.from([1, 2, 3, 4, 5, 6, 7, 8, 9])
+      .drop(3)
+      .take(4)
+      .map(x => x * 10)
+      .toArray();
+    expect(result).toEqual([40, 50, 60, 70]);
+  });
+});
+
+describe('LazySequence - Stress Tests', () => {
+  it('handles large sequences efficiently', () => {
+    const result = LazySequence.from(Array.from({ length: 10000 }, (_, i) => i))
+      .filter(x => x % 2 === 0)
+      .map(x => x * 2)
+      .take(10)
+      .toArray();
+    expect(result).toEqual([0, 4, 8, 12, 16, 20, 24, 28, 32, 36]);
+  });
+
+  it('chains many operations', () => {
+    let seq = LazySequence.from([1, 2, 3, 4, 5]);
+    for (let i = 0; i < 10; i++) {
+      seq = seq.map(x => x + 1);
+    }
+    expect(seq.toArray()).toEqual([11, 12, 13, 14, 15]);
+  });
+});
+]==],
+  },
+}
+
+return M
