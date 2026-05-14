@@ -3589,6 +3589,244 @@ describe('TextEditor', () => {
   },
 
   {
+    name = "LRU Cache with TTL",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * LRU Cache with TTL
+ *
+ * Implement an LRU (Least Recently Used) cache with time-to-live (TTL) support.
+ *
+ * This combines two important caching strategies:
+ * 1. LRU eviction — when cache is full, remove the least recently accessed item
+ * 2. TTL expiration — items expire after a specified time (lazy cleanup on access)
+ *
+ * Requirements:
+ * - get(key): Return value if exists and not expired, else return undefined.
+ *   Accessing an item makes it "recently used".
+ * - put(key, value, ttlMs): Store value with optional TTL in milliseconds.
+ *   If TTL is not provided, item never expires.
+ *   If cache is at capacity, evict LRU item before adding new one.
+ * - delete(key): Remove item from cache. Returns true if item existed.
+ * - has(key): Return true if key exists and not expired (does NOT update usage).
+ * - clear(): Remove all items from cache.
+ * - size: Current number of non-expired items (getter).
+ *
+ * All operations should be O(1) average time complexity.
+ */
+
+export class LRUCacheTTL<K, V> {
+  constructor(capacity: number) {
+    // YOUR CODE HERE
+  }
+
+  get(key: K): V | undefined {
+    // YOUR CODE HERE
+    return undefined;
+  }
+
+  put(key: K, value: V, ttlMs?: number): void {
+    // YOUR CODE HERE
+  }
+
+  delete(key: K): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  has(key: K): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  clear(): void {
+    // YOUR CODE HERE
+  }
+
+  get size(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+}
+]==],
+    tests = [==[
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { LRUCacheTTL } from './challenge';
+
+describe('LRU Cache with TTL', () => {
+  beforeEach(() => { vi.useFakeTimers(); });
+  afterEach(() => { vi.restoreAllTimers(); });
+
+  it('basic get and put without TTL', () => {
+    const cache = new LRUCacheTTL<string, number>(2);
+    cache.put('a', 1);
+    expect(cache.get('a')).toBe(1);
+  });
+
+  it('returns undefined for missing key', () => {
+    const cache = new LRUCacheTTL<string, number>(2);
+    expect(cache.get('missing')).toBe(undefined);
+  });
+
+  it('LRU eviction when capacity exceeded', () => {
+    const cache = new LRUCacheTTL<string, number>(2);
+    cache.put('a', 1);
+    cache.put('b', 2);
+    cache.put('c', 3); // evicts 'a'
+    expect(cache.get('a')).toBe(undefined);
+    expect(cache.get('b')).toBe(2);
+    expect(cache.get('c')).toBe(3);
+  });
+
+  it('access updates recency', () => {
+    const cache = new LRUCacheTTL<string, number>(2);
+    cache.put('a', 1);
+    cache.put('b', 2);
+    cache.get('a'); // makes 'a' recently used
+    cache.put('c', 3); // should evict 'b', not 'a'
+    expect(cache.get('a')).toBe(1);
+    expect(cache.get('b')).toBe(undefined);
+    expect(cache.get('c')).toBe(3);
+  });
+
+  it('put updates recency', () => {
+    const cache = new LRUCacheTTL<string, number>(2);
+    cache.put('a', 1);
+    cache.put('b', 2);
+    cache.put('a', 10); // updates 'a' and makes it recently used
+    cache.put('c', 3); // should evict 'b'
+    expect(cache.get('a')).toBe(10);
+    expect(cache.get('b')).toBe(undefined);
+  });
+
+  it('TTL expiration', () => {
+    const cache = new LRUCacheTTL<string, number>(2);
+    cache.put('a', 1, 100); // expires in 100ms
+    expect(cache.get('a')).toBe(1);
+    vi.advanceTimersByTime(101);
+    expect(cache.get('a')).toBe(undefined);
+  });
+
+  it('TTL not affected by access', () => {
+    const cache = new LRUCacheTTL<string, number>(2);
+    cache.put('a', 1, 100);
+    vi.advanceTimersByTime(50);
+    cache.get('a'); // access doesn't extend TTL
+    vi.advanceTimersByTime(51);
+    expect(cache.get('a')).toBe(undefined);
+  });
+
+  it('items without TTL never expire', () => {
+    const cache = new LRUCacheTTL<string, number>(2);
+    cache.put('a', 1);
+    vi.advanceTimersByTime(1000000);
+    expect(cache.get('a')).toBe(1);
+  });
+
+  it('delete removes item', () => {
+    const cache = new LRUCacheTTL<string, number>(2);
+    cache.put('a', 1);
+    expect(cache.delete('a')).toBe(true);
+    expect(cache.get('a')).toBe(undefined);
+    expect(cache.delete('a')).toBe(false);
+  });
+
+  it('delete expired item returns false', () => {
+    const cache = new LRUCacheTTL<string, number>(2);
+    cache.put('a', 1, 100);
+    vi.advanceTimersByTime(101);
+    expect(cache.delete('a')).toBe(false);
+  });
+
+  it('has checks existence without updating recency', () => {
+    const cache = new LRUCacheTTL<string, number>(2);
+    cache.put('a', 1);
+    cache.put('b', 2);
+    expect(cache.has('a')).toBe(true);
+    cache.put('c', 3); // should still evict 'a' since has() doesn't update recency
+    expect(cache.get('a')).toBe(undefined);
+  });
+
+  it('has returns false for expired items', () => {
+    const cache = new LRUCacheTTL<string, number>(2);
+    cache.put('a', 1, 100);
+    vi.advanceTimersByTime(101);
+    expect(cache.has('a')).toBe(false);
+  });
+
+  it('clear removes all items', () => {
+    const cache = new LRUCacheTTL<string, number>(3);
+    cache.put('a', 1);
+    cache.put('b', 2);
+    cache.put('c', 3);
+    cache.clear();
+    expect(cache.get('a')).toBe(undefined);
+    expect(cache.get('b')).toBe(undefined);
+    expect(cache.get('c')).toBe(undefined);
+    expect(cache.size).toBe(0);
+  });
+
+  it('size reflects non-expired items', () => {
+    const cache = new LRUCacheTTL<string, number>(3);
+    cache.put('a', 1, 100);
+    cache.put('b', 2);
+    cache.put('c', 3, 200);
+    expect(cache.size).toBe(3);
+    vi.advanceTimersByTime(101);
+    expect(cache.size).toBe(2); // 'a' expired
+  });
+
+  it('mixed TTL and non-TTL items', () => {
+    const cache = new LRUCacheTTL<string, number>(3);
+    cache.put('a', 1, 50);
+    cache.put('b', 2);
+    cache.put('c', 3, 100);
+    vi.advanceTimersByTime(75);
+    expect(cache.get('a')).toBe(undefined);
+    expect(cache.get('b')).toBe(2);
+    expect(cache.get('c')).toBe(3);
+  });
+
+  it('eviction with expired items', () => {
+    const cache = new LRUCacheTTL<string, number>(2);
+    cache.put('a', 1, 50);
+    cache.put('b', 2);
+    vi.advanceTimersByTime(75);
+    // 'a' is expired but still in cache structure
+    // Adding 'c' should work without issues
+    cache.put('c', 3);
+    expect(cache.get('a')).toBe(undefined);
+    expect(cache.get('b')).toBe(2);
+    expect(cache.get('c')).toBe(3);
+  });
+
+  it('capacity of 1', () => {
+    const cache = new LRUCacheTTL<string, number>(1);
+    cache.put('a', 1);
+    cache.put('b', 2);
+    expect(cache.get('a')).toBe(undefined);
+    expect(cache.get('b')).toBe(2);
+  });
+
+  it('stress: many operations', () => {
+    const cache = new LRUCacheTTL<number, number>(100);
+    for (let i = 0; i < 200; i++) {
+      cache.put(i, i * 2, i % 2 === 0 ? 1000 : undefined);
+    }
+    expect(cache.size).toBe(100);
+    // Check that we kept the most recent 100 items (100-199)
+    for (let i = 0; i < 100; i++) {
+      expect(cache.get(i)).toBe(undefined);
+    }
+    for (let i = 100; i < 200; i++) {
+      expect(cache.get(i)).toBe(i * 2);
+    }
+  });
+});
+]==],
+  },
+
+  {
     name = "Valid Parentheses",
     difficulty = "easy",
     stub = [==[
