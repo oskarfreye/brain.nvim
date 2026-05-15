@@ -14158,6 +14158,285 @@ describe('LazySequence - Stress Tests', () => {
 });
 ]==],
   },
+  {
+    name = "Union-Find (Disjoint Set)",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * Union-Find (Disjoint Set Union)
+ *
+ * Implement a Disjoint Set Union (DSU) / Union-Find data structure.
+ *
+ * This is a classic data structure for tracking connected components
+ * and detecting cycles in undirected graphs.
+ *
+ * Requirements:
+ * - find(x): Returns the representative (root) of the set containing x.
+ *            Uses path compression for O(alpha(n)) amortized time.
+ * - union(x, y): Merges the sets containing x and y. Returns true if
+ *                they were in different sets, false if already connected.
+ * - connected(x, y): Returns true if x and y are in the same set.
+ * - count(): Returns the number of distinct connected components.
+ *
+ * Union by rank/size optimization is required for efficient union operations.
+ *
+ * Bonus: Implement detectCycle(edges) that returns true if adding all
+ * edges would create a cycle (useful for Kruskal's MST algorithm).
+ */
+
+export class UnionFind {
+  constructor(size: number) {
+    // YOUR CODE HERE
+  }
+
+  find(x: number): number {
+    // YOUR CODE HERE
+    return -1;
+  }
+
+  union(x: number, y: number): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  connected(x: number, y: number): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  count(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+}
+
+/**
+ * Bonus: Given a list of undirected edges [u, v], determine if the graph
+ * contains a cycle. Returns true if a cycle exists.
+ *
+ * A cycle exists if you can reach a node from itself through >= 2 edges.
+ */
+export function detectCycle(n: number, edges: [number, number][]): boolean {
+  // YOUR CODE HERE
+  return false;
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { UnionFind, detectCycle } from './challenge';
+
+describe('UnionFind', () => {
+  it('initially, each element is its own set', () => {
+    const uf = new UnionFind(5);
+    expect(uf.count()).toBe(5);
+    for (let i = 0; i < 5; i++) {
+      expect(uf.find(i)).toBe(i);
+    }
+  });
+
+  it('union merges two sets', () => {
+    const uf = new UnionFind(5);
+    expect(uf.union(0, 1)).toBe(true);
+    expect(uf.count()).toBe(4);
+    expect(uf.connected(0, 1)).toBe(true);
+  });
+
+  it('union returns false for already connected elements', () => {
+    const uf = new UnionFind(5);
+    uf.union(0, 1);
+    expect(uf.union(0, 1)).toBe(false);
+    expect(uf.union(1, 0)).toBe(false);
+  });
+
+  it('union is transitive', () => {
+    const uf = new UnionFind(5);
+    uf.union(0, 1);
+    uf.union(1, 2);
+    expect(uf.connected(0, 2)).toBe(true);
+    expect(uf.connected(0, 1)).toBe(true);
+    expect(uf.connected(1, 2)).toBe(true);
+    expect(uf.count()).toBe(3);
+  });
+
+  it('find with path compression', () => {
+    const uf = new UnionFind(6);
+    // Create a chain: 0 -> 1 -> 2 -> 3
+    uf.union(0, 1);
+    uf.union(1, 2);
+    uf.union(2, 3);
+    // Find should compress the path
+    const root = uf.find(0);
+    expect(uf.connected(0, 3)).toBe(true);
+    expect(uf.find(1)).toBe(root);
+    expect(uf.find(2)).toBe(root);
+    expect(uf.find(3)).toBe(root);
+  });
+
+  it('union by rank/size keeps tree flat', () => {
+    const uf = new UnionFind(10);
+    // Create two separate components
+    uf.union(0, 1);
+    uf.union(2, 3);
+    uf.union(0, 2); // Merge components of equal size
+    // All should be connected
+    expect(uf.connected(0, 3)).toBe(true);
+    expect(uf.connected(1, 2)).toBe(true);
+  });
+
+  it('elements not unioned remain separate', () => {
+    const uf = new UnionFind(5);
+    uf.union(0, 1);
+    uf.union(2, 3);
+    expect(uf.connected(0, 2)).toBe(false);
+    expect(uf.connected(1, 3)).toBe(false);
+    expect(uf.connected(0, 4)).toBe(false);
+  });
+
+  it('single element', () => {
+    const uf = new UnionFind(1);
+    expect(uf.count()).toBe(1);
+    expect(uf.find(0)).toBe(0);
+    expect(uf.connected(0, 0)).toBe(true);
+  });
+
+  it('union same element', () => {
+    const uf = new UnionFind(5);
+    expect(uf.union(2, 2)).toBe(false);
+    expect(uf.count()).toBe(5);
+  });
+
+  it('complex union sequence', () => {
+    const uf = new UnionFind(10);
+    // Create multiple components then merge them
+    uf.union(0, 1);
+    uf.union(2, 3);
+    uf.union(4, 5);
+    expect(uf.count()).toBe(7);
+    
+    uf.union(1, 2);
+    uf.union(3, 4);
+    expect(uf.count()).toBe(5);
+    
+    // 0,1,2,3,4,5 should all be connected
+    expect(uf.connected(0, 5)).toBe(true);
+    expect(uf.connected(5, 0)).toBe(true);
+  });
+
+  it('stress: many unions', () => {
+    const n = 1000;
+    const uf = new UnionFind(n);
+    // Connect all elements in a chain
+    for (let i = 0; i < n - 1; i++) {
+      uf.union(i, i + 1);
+    }
+    expect(uf.count()).toBe(1);
+    // All should be connected
+    for (let i = 0; i < n; i++) {
+      expect(uf.connected(0, i)).toBe(true);
+    }
+  });
+
+  it('stress: random unions', () => {
+    const n = 500;
+    const uf = new UnionFind(n);
+    // Random unions
+    for (let i = 0; i < 1000; i++) {
+      const a = Math.floor(Math.random() * n);
+      const b = Math.floor(Math.random() * n);
+      uf.union(a, b);
+    }
+    // Verify consistency: connected elements have same root
+    for (let i = 0; i < 100; i++) {
+      const a = Math.floor(Math.random() * n);
+      const b = Math.floor(Math.random() * n);
+      if (uf.connected(a, b)) {
+        expect(uf.find(a)).toBe(uf.find(b));
+      }
+    }
+  });
+});
+
+describe('detectCycle', () => {
+  it('no edges means no cycle', () => {
+    expect(detectCycle(3, [])).toBe(false);
+  });
+
+  it('single edge has no cycle', () => {
+    expect(detectCycle(2, [[0, 1]])).toBe(false);
+  });
+
+  it('simple triangle is a cycle', () => {
+    const edges: [number, number][] = [[0, 1], [1, 2], [2, 0]];
+    expect(detectCycle(3, edges)).toBe(true);
+  });
+
+  it('square is a cycle', () => {
+    const edges: [number, number][] = [[0, 1], [1, 2], [2, 3], [3, 0]];
+    expect(detectCycle(4, edges)).toBe(true);
+  });
+
+  it('path is not a cycle', () => {
+    const edges: [number, number][] = [[0, 1], [1, 2], [2, 3]];
+    expect(detectCycle(4, edges)).toBe(false);
+  });
+
+  it('cycle with extra connections', () => {
+    const edges: [number, number][] = [[0, 1], [1, 2], [2, 3], [3, 0], [1, 3]];
+    expect(detectCycle(4, edges)).toBe(true);
+  });
+
+  it('tree structure has no cycle', () => {
+    // Star topology
+    const edges: [number, number][] = [[0, 1], [0, 2], [0, 3], [0, 4]];
+    expect(detectCycle(5, edges)).toBe(false);
+  });
+
+  it('adding edge creates cycle', () => {
+    const edges: [number, number][] = [[0, 1], [1, 2], [2, 3]];
+    expect(detectCycle(4, edges)).toBe(false);
+    // Add edge that completes the cycle
+    edges.push([0, 3]);
+    expect(detectCycle(4, edges)).toBe(true);
+  });
+
+  it('disconnected components with cycle', () => {
+    // Component 0-1-2 forms cycle, 3-4 is separate
+    const edges: [number, number][] = [[0, 1], [1, 2], [2, 0], [3, 4]];
+    expect(detectCycle(5, edges)).toBe(true);
+  });
+
+  it('disconnected components without cycle', () => {
+    const edges: [number, number][] = [[0, 1], [2, 3], [4, 5]];
+    expect(detectCycle(6, edges)).toBe(false);
+  });
+
+  it('self-loop is a cycle', () => {
+    expect(detectCycle(1, [[0, 0]])).toBe(true);
+  });
+
+  it('parallel edges not considered in simple graph', () => {
+    // Parallel edges between same nodes - still no cycle in undirected simple graph
+    // (though multiple edges create multi-graph cycle)
+    const edges: [number, number][] = [[0, 1], [0, 1]];
+    // This creates a cycle of length 2 in multigraph
+    expect(detectCycle(2, edges)).toBe(true);
+  });
+
+  it('stress: large graph with cycle', () => {
+    const n = 1000;
+    const edges: [number, number][] = [];
+    // Create a path
+    for (let i = 0; i < n - 1; i++) {
+      edges.push([i, i + 1]);
+    }
+    expect(detectCycle(n, edges)).toBe(false);
+    // Add edge to create cycle
+    edges.push([0, n - 1]);
+    expect(detectCycle(n, edges)).toBe(true);
+  });
+});
+]==],
+  },
 }
 
 return M
