@@ -14159,6 +14159,370 @@ describe('LazySequence - Stress Tests', () => {
 ]==],
   },
   {
+    name = "Distributed ID Generator",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * Distributed ID Generator (Snowflake-style)
+ *
+ * Implement a distributed unique ID generator inspired by Twitter's Snowflake.
+ * Generates 64-bit unique IDs that are sortable by time and unique across distributed nodes.
+ *
+ * ID Structure (64 bits total):
+ * - 1 bit: Reserved (sign bit, always 0 for positive numbers)
+ * - 41 bits: Timestamp (milliseconds since custom epoch)
+ * - 10 bits: Node ID (worker/machine identifier, 0-1023)
+ * - 12 bits: Sequence number (0-4095, for IDs within same millisecond)
+ *
+ * This structure allows:
+ * - ~69 years of unique IDs from the epoch
+ * - 1024 different nodes/machines
+ * - 4096 IDs per millisecond per node (4 million IDs/second/node)
+ * - Roughly sortable by time (within 1ms precision)
+ *
+ * SnowflakeGenerator class:
+ * - constructor(nodeId: number, epoch?: number)
+ *   nodeId must be 0-1023. epoch defaults to 2024-01-01.
+ * - nextId(): bigint — Generate the next unique ID
+ * - getTimestampFromId(id: bigint): number — Extract timestamp from an ID
+ * - getNodeIdFromId(id: bigint): number — Extract node ID from an ID
+ * - parseId(id: bigint): { timestamp: number; nodeId: number; sequence: number }
+ *
+ * Requirements:
+ * - IDs must be strictly increasing within a single node
+ * - Handle sequence rollover when generating >4096 IDs in one millisecond
+ * - Wait for next millisecond if sequence overflows
+ * - Thread-safe consideration: only one ID generated at a time per instance
+ *
+ * Bonus: Implement batchGenerate(count: number): bigint[] for efficient bulk generation.
+ */
+
+export class SnowflakeGenerator {
+  private lastTimestamp: number = -1;
+  private sequence: number = 0;
+  private readonly epoch: number;
+  private readonly nodeId: number;
+
+  // Bit lengths for each component
+  private static readonly TIMESTAMP_BITS = 41;
+  private static readonly NODE_ID_BITS = 10;
+  private static readonly SEQUENCE_BITS = 12;
+
+  // Maximum values (masks)
+  private static readonly MAX_NODE_ID = (1 << SnowflakeGenerator.NODE_ID_BITS) - 1;
+  private static readonly MAX_SEQUENCE = (1 << SnowflakeGenerator.SEQUENCE_BITS) - 1;
+
+  // Shifts for each component
+  private static readonly TIMESTAMP_SHIFT = SnowflakeGenerator.NODE_ID_BITS + SnowflakeGenerator.SEQUENCE_BITS;
+  private static readonly NODE_ID_SHIFT = SnowflakeGenerator.SEQUENCE_BITS;
+
+  constructor(nodeId: number, epoch?: number) {
+    // YOUR CODE HERE
+    // Validate nodeId is 0-1023
+    // Set epoch (default: January 1, 2024)
+    this.nodeId = nodeId;
+    this.epoch = epoch ?? Date.UTC(2024, 0, 1);
+  }
+
+  nextId(): bigint {
+    // YOUR CODE HERE
+    // 1. Get current timestamp (relative to epoch)
+    // 2. Handle same millisecond: increment sequence
+    // 3. Handle new millisecond: reset sequence
+    // 4. Wait for next millisecond if sequence overflows
+    // 5. Compose ID: (timestamp << 22) | (nodeId << 12) | sequence
+    return BigInt(0);
+  }
+
+  getTimestampFromId(id: bigint): number {
+    // YOUR CODE HERE
+    // Extract timestamp bits and add epoch
+    return 0;
+  }
+
+  getNodeIdFromId(id: bigint): number {
+    // YOUR CODE HERE
+    // Extract node ID bits
+    return 0;
+  }
+
+  parseId(id: bigint): { timestamp: number; nodeId: number; sequence: number } {
+    // YOUR CODE HERE
+    // Extract all three components
+    return { timestamp: 0, nodeId: 0, sequence: 0 };
+  }
+
+  /**
+   * Bonus: Generate multiple IDs efficiently in a single call.
+   */
+  batchGenerate(count: number): bigint[] {
+    // YOUR CODE HERE
+    // Generate count unique IDs, handling millisecond boundaries
+    return [];
+  }
+}
+]==],
+    tests = [==[
+import { describe, it, expect, vi } from 'vitest';
+import { SnowflakeGenerator } from './challenge';
+
+describe('Snowflake Generator - Basic Functionality', () => {
+  it('creates generator with valid node ID', () => {
+    const gen = new SnowflakeGenerator(1);
+    expect(gen).toBeDefined();
+  });
+
+  it('throws or handles invalid node ID', () => {
+    // Node ID must be 0-1023
+    expect(() => new SnowflakeGenerator(-1)).toThrow();
+    expect(() => new SnowflakeGenerator(1024)).toThrow();
+    expect(() => new SnowflakeGenerator(2000)).toThrow();
+  });
+
+  it('generates unique IDs', () => {
+    const gen = new SnowflakeGenerator(5);
+    const id1 = gen.nextId();
+    const id2 = gen.nextId();
+    expect(id1).not.toBe(id2);
+  });
+
+  it('generates strictly increasing IDs', () => {
+    const gen = new SnowflakeGenerator(7);
+    const ids: bigint[] = [];
+    for (let i = 0; i < 100; i++) {
+      ids.push(gen.nextId());
+    }
+    for (let i = 1; i < ids.length; i++) {
+      expect(ids[i] > ids[i - 1]).toBe(true);
+    }
+  });
+
+  it('generates many unique IDs', () => {
+    const gen = new SnowflakeGenerator(10);
+    const ids = new Set<bigint>();
+    for (let i = 0; i < 10000; i++) {
+      ids.add(gen.nextId());
+    }
+    expect(ids.size).toBe(10000);
+  });
+});
+
+describe('Snowflake Generator - ID Parsing', () => {
+  it('extracts correct node ID from generated ID', () => {
+    const nodeId = 42;
+    const gen = new SnowflakeGenerator(nodeId);
+    const id = gen.nextId();
+    expect(gen.getNodeIdFromId(id)).toBe(nodeId);
+  });
+
+  it('extracts reasonable timestamp from ID', () => {
+    const before = Date.now();
+    const gen = new SnowflakeGenerator(1);
+    const id = gen.nextId();
+    const extractedTime = gen.getTimestampFromId(id);
+    const after = Date.now();
+    
+    // Extracted time should be close to current time (within a few seconds)
+    expect(extractedTime).toBeGreaterThanOrEqual(before - 5000);
+    expect(extractedTime).toBeLessThanOrEqual(after + 5000);
+  });
+
+  it('parseId returns all components', () => {
+    const nodeId = 99;
+    const gen = new SnowflakeGenerator(nodeId);
+    const id = gen.nextId();
+    const parsed = gen.parseId(id);
+    
+    expect(parsed.nodeId).toBe(nodeId);
+    expect(parsed.sequence).toBeGreaterThanOrEqual(0);
+    expect(parsed.sequence).toBeLessThanOrEqual(4095);
+    expect(parsed.timestamp).toBeGreaterThan(0);
+  });
+
+  it('parses sequence correctly for sequential IDs', () => {
+    const gen = new SnowflakeGenerator(1);
+    const id1 = gen.nextId();
+    const id2 = gen.nextId();
+    
+    const parsed1 = gen.parseId(id1);
+    const parsed2 = gen.parseId(id2);
+    
+    // Sequence should increment by 1 for same-millisecond IDs
+    if (parsed1.timestamp === parsed2.timestamp) {
+      expect(parsed2.sequence).toBe(parsed1.sequence + 1);
+    }
+  });
+});
+
+describe('Snowflake Generator - Different Nodes', () => {
+  it('generates unique IDs across different nodes', () => {
+    const gen1 = new SnowflakeGenerator(1);
+    const gen2 = new SnowflakeGenerator(2);
+    const ids1: bigint[] = [];
+    const ids2: bigint[] = [];
+    
+    for (let i = 0; i < 1000; i++) {
+      ids1.push(gen1.nextId());
+      ids2.push(gen2.nextId());
+    }
+    
+    // No overlap between different nodes
+    const set1 = new Set(ids1);
+    const set2 = new Set(ids2);
+    for (const id of set2) {
+      expect(set1.has(id)).toBe(false);
+    }
+  });
+
+  it('node ID is encoded in high bits of ID', () => {
+    const gen0 = new SnowflakeGenerator(0);
+    const gen1023 = new SnowflakeGenerator(1023);
+    
+    const id0 = gen0.nextId();
+    const id1023 = gen1023.nextId();
+    
+    // Node 1023's IDs should have higher values in node bits
+    const parsed0 = gen0.parseId(id0);
+    const parsed1023 = gen1023.parseId(id1023);
+    
+    expect(parsed0.nodeId).toBe(0);
+    expect(parsed1023.nodeId).toBe(1023);
+  });
+});
+
+describe('Snowflake Generator - Sequence Rollover', () => {
+  it('handles many IDs in same millisecond', () => {
+    const gen = new SnowflakeGenerator(1);
+    // Generate more IDs than sequence bits allow (4096)
+    const ids: bigint[] = [];
+    for (let i = 0; i < 5000; i++) {
+      ids.push(gen.nextId());
+    }
+    
+    // All should be unique
+    expect(new Set(ids).size).toBe(5000);
+    
+    // All should be strictly increasing
+    for (let i = 1; i < ids.length; i++) {
+      expect(ids[i] > ids[i - 1]).toBe(true);
+    }
+  });
+
+  it('sequence resets on new millisecond', async () => {
+    const gen = new SnowflakeGenerator(1);
+    const id1 = gen.nextId();
+    
+    // Wait for next millisecond
+    await new Promise(r => setTimeout(r, 2));
+    
+    const id2 = gen.nextId();
+    const parsed1 = gen.parseId(id1);
+    const parsed2 = gen.parseId(id2);
+    
+    // If new millisecond, sequence should have reset
+    if (parsed1.timestamp !== parsed2.timestamp) {
+      expect(parsed2.sequence).toBe(0);
+    }
+  });
+});
+
+describe('Snowflake Generator - Custom Epoch', () => {
+  it('accepts custom epoch', () => {
+    const customEpoch = Date.UTC(2020, 0, 1);
+    const gen = new SnowflakeGenerator(1, customEpoch);
+    const id = gen.nextId();
+    const timestamp = gen.getTimestampFromId(id);
+    
+    // Should be relative to custom epoch
+    expect(timestamp).toBeGreaterThan(customEpoch);
+  });
+});
+
+describe('Snowflake Generator - Batch Generation', () => {
+  it('batch generates multiple IDs', () => {
+    const gen = new SnowflakeGenerator(5);
+    const ids = gen.batchGenerate(100);
+    
+    expect(ids).toHaveLength(100);
+    
+    // All unique
+    expect(new Set(ids).size).toBe(100);
+    
+    // Strictly increasing
+    for (let i = 1; i < ids.length; i++) {
+      expect(ids[i] > ids[i - 1]).toBe(true);
+    }
+  });
+
+  it('batch generate with large count', () => {
+    const gen = new SnowflakeGenerator(7);
+    const ids = gen.batchGenerate(10000);
+    
+    expect(ids).toHaveLength(10000);
+    expect(new Set(ids).size).toBe(10000);
+  });
+});
+
+describe('Snowflake Generator - Edge Cases', () => {
+  it('handles node ID 0', () => {
+    const gen = new SnowflakeGenerator(0);
+    const id = gen.nextId();
+    expect(gen.getNodeIdFromId(id)).toBe(0);
+  });
+
+  it('handles node ID 1023 (max)', () => {
+    const gen = new SnowflakeGenerator(1023);
+    const id = gen.nextId();
+    expect(gen.getNodeIdFromId(id)).toBe(1023);
+  });
+
+  it('generates correct ID structure', () => {
+    const gen = new SnowflakeGenerator(42);
+    const id = gen.nextId();
+    const parsed = gen.parseId(id);
+    
+    // Reconstruct ID and verify
+    const reconstructed = (BigInt(parsed.timestamp - gen['epoch']) << BigInt(22)) |
+                         (BigInt(parsed.nodeId) << BigInt(12)) |
+                         BigInt(parsed.sequence);
+    
+    expect(reconstructed).toBe(id);
+  });
+});
+
+describe('Snowflake Generator - Stress Tests', () => {
+  it('generates 100k IDs efficiently', () => {
+    const gen = new SnowflakeGenerator(1);
+    const start = Date.now();
+    
+    const ids: bigint[] = [];
+    for (let i = 0; i < 100000; i++) {
+      ids.push(gen.nextId());
+    }
+    
+    const duration = Date.now() - start;
+    expect(duration).toBeLessThan(1000); // Should complete within 1 second
+    expect(new Set(ids).size).toBe(100000);
+  });
+
+  it('maintains uniqueness across time boundaries', async () => {
+    const gen = new SnowflakeGenerator(1);
+    const ids: bigint[] = [];
+    
+    // Generate IDs across multiple seconds
+    for (let i = 0; i < 10; i++) {
+      for (let j = 0; j < 1000; j++) {
+        ids.push(gen.nextId());
+      }
+      await new Promise(r => setTimeout(r, 10));
+    }
+    
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+});
+]==],
+  },
+  {
     name = "Union-Find (Disjoint Set)",
     difficulty = "medium",
     stub = [==[
