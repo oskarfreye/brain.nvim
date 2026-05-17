@@ -13761,8 +13761,367 @@ describe('Immutable Vector - Complex Scenarios', () => {
 });
 ]==],
   },
+  {
+    name = "Expression Evaluator",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * Expression Evaluator
+ *
+ * Build a mathematical expression evaluator that parses and evaluates arithmetic
+ * expressions with proper operator precedence, parentheses, variables, and functions.
+ *
+ * Supported operators (in order of precedence):
+ *   1. Parentheses: ( )
+ *   2. Exponentiation: ^ (right-associative)
+ *   3. Unary minus: - (e.g., -5, -(3+2))
+ *   4. Multiplication, Division, Modulo: *, /, %
+ *   5. Addition, Subtraction: +, -
+ *
+ * Built-in functions (bonus):
+ *   - sqrt(x), abs(x), round(x)
+ *   - min(a, b, ...), max(a, b, ...)
+ *   - sin(x), cos(x) (x in radians)
+ *
+ * Variables:
+ *   - Pass an optional context object: evaluate("x + y", { x: 5, y: 10 })
+ *   - Undefined variables should throw ReferenceError
+ *
+ * Error handling:
+ *   - Division by zero throws Error
+ *   - Mismatched parentheses throws SyntaxError
+ *   - Invalid syntax throws SyntaxError with position info
+ *
+ * evaluate(expression: string, context?: Record<string, number>): number
+ *   Parse and evaluate the expression, returning the numeric result.
+ *
+ * Bonus: Implement compile(expression) that returns a reusable function
+ * which can be called with different contexts for better performance
+ * when evaluating the same expression multiple times.
+ */
+
+export function evaluate(expression: string, context?: Record<string, number>): number {
+  // YOUR CODE HERE
+  // Tokenize, parse with recursive descent or shunting yard, then evaluate
+  return 0;
 }
-,
+
+/**
+ * Bonus: Compile an expression into a reusable function.
+ * This avoids re-parsing on each evaluation.
+ */
+export function compile(expression: string): (context?: Record<string, number>) => number {
+  // YOUR CODE HERE
+  // Return a function that evaluates the pre-parsed expression
+  return () => 0;
+}
+
+/**
+ * Bonus: Tokenize an expression into an array of tokens.
+ * Useful for debugging and testing.
+ */
+export type Token =
+  | { type: 'number'; value: number }
+  | { type: 'identifier'; name: string }
+  | { type: 'operator'; op: string }
+  | { type: 'paren'; value: '(' | ')' }
+  | { type: 'comma' };
+
+export function tokenize(expression: string): Token[] {
+  // YOUR CODE HERE
+  return [];
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { evaluate, compile, tokenize } from './challenge';
+
+describe('Expression Evaluator - Basic Arithmetic', () => {
+  it('evaluates single numbers', () => {
+    expect(evaluate('42')).toBe(42);
+    expect(evaluate('3.14159')).toBeCloseTo(3.14159);
+    expect(evaluate('0')).toBe(0);
+  });
+
+  it('evaluates addition and subtraction', () => {
+    expect(evaluate('2 + 3')).toBe(5);
+    expect(evaluate('10 - 4')).toBe(6);
+    expect(evaluate('1 + 2 + 3')).toBe(6);
+    expect(evaluate('10 - 3 - 2')).toBe(5);
+  });
+
+  it('evaluates multiplication and division', () => {
+    expect(evaluate('4 * 5')).toBe(20);
+    expect(evaluate('20 / 4')).toBe(5);
+    expect(evaluate('2 * 3 * 4')).toBe(24);
+    expect(evaluate('100 / 10 / 2')).toBe(5);
+  });
+
+  it('follows operator precedence', () => {
+    expect(evaluate('2 + 3 * 4')).toBe(14);
+    expect(evaluate('10 - 2 * 3')).toBe(4);
+    expect(evaluate('20 / 4 + 3')).toBe(8);
+    expect(evaluate('2 * 3 + 4 * 5')).toBe(26);
+  });
+
+  it('respects parentheses', () => {
+    expect(evaluate('(2 + 3) * 4')).toBe(20);
+    expect(evaluate('10 / (5 - 3)')).toBe(5);
+    expect(evaluate('((1 + 2) * (3 + 4))')).toBe(21);
+    expect(evaluate('2 * (3 + (4 - 1))')).toBe(12);
+  });
+
+  it('handles whitespace', () => {
+    expect(evaluate('  2  +  3  ')).toBe(5);
+    expect(evaluate('10*5')).toBe(50);
+    expect(evaluate('( 1 + 2 ) * 3')).toBe(9);
+  });
+
+  it('handles negative numbers (unary minus)', () => {
+    expect(evaluate('-5')).toBe(-5);
+    expect(evaluate('3 + -2')).toBe(1);
+    expect(evaluate('-3 + -2')).toBe(-5);
+    expect(evaluate('-(3 + 2)')).toBe(-5);
+    expect(evaluate('2 * -3')).toBe(-6);
+  });
+
+  it('handles modulo operator', () => {
+    expect(evaluate('10 % 3')).toBe(1);
+    expect(evaluate('15 % 5')).toBe(0);
+    expect(evaluate('17 % 4')).toBe(1);
+  });
+});
+
+describe('Expression Evaluator - Exponentiation', () => {
+  it('evaluates exponentiation', () => {
+    expect(evaluate('2 ^ 3')).toBe(8);
+    expect(evaluate('3 ^ 2')).toBe(9);
+    expect(evaluate('10 ^ 0')).toBe(1);
+  });
+
+  it('is right-associative', () => {
+    expect(evaluate('2 ^ 3 ^ 2')).toBe(512); // 2 ^ (3 ^ 2) = 2 ^ 9 = 512
+  });
+
+  it('has higher precedence than multiplication', () => {
+    expect(evaluate('2 * 3 ^ 2')).toBe(18);
+    expect(evaluate('(2 * 3) ^ 2')).toBe(36);
+  });
+
+  it('handles fractional exponents', () => {
+    expect(evaluate('4 ^ 0.5')).toBe(2);
+    expect(evaluate('27 ^ (1/3)')).toBeCloseTo(3);
+  });
+});
+
+describe('Expression Evaluator - Variables', () => {
+  it('evaluates with single variable', () => {
+    expect(evaluate('x + 5', { x: 10 })).toBe(15);
+    expect(evaluate('x * x', { x: 4 })).toBe(16);
+  });
+
+  it('evaluates with multiple variables', () => {
+    expect(evaluate('x + y', { x: 3, y: 7 })).toBe(10);
+    expect(evaluate('a * b + c', { a: 2, b: 3, c: 4 })).toBe(10);
+  });
+
+  it('handles variables in complex expressions', () => {
+    expect(evaluate('(x + y) * (x - y)', { x: 5, y: 3 })).toBe(16);
+    expect(evaluate('-x + y', { x: 5, y: 3 })).toBe(-2);
+  });
+
+  it('throws for undefined variables', () => {
+    expect(() => evaluate('x + 5')).toThrow(/undefined|reference|variable/i);
+    expect(() => evaluate('x + y', { x: 5 })).toThrow(/undefined|reference|variable/i);
+  });
+
+  it('variable names can be multiple characters', () => {
+    expect(evaluate('price * quantity', { price: 10, quantity: 5 })).toBe(50);
+    expect(evaluate('base + offset', { base: 100, offset: 25 })).toBe(125);
+  });
+});
+
+describe('Expression Evaluator - Functions', () => {
+  it('evaluates sqrt function', () => {
+    expect(evaluate('sqrt(16)')).toBe(4);
+    expect(evaluate('sqrt(9) + sqrt(16)')).toBe(7);
+  });
+
+  it('evaluates abs function', () => {
+    expect(evaluate('abs(-5)')).toBe(5);
+    expect(evaluate('abs(5)')).toBe(5);
+    expect(evaluate('abs(3 - 8)')).toBe(5);
+  });
+
+  it('evaluates min and max functions', () => {
+    expect(evaluate('min(3, 7, 2, 9)')).toBe(2);
+    expect(evaluate('max(3, 7, 2, 9)')).toBe(9);
+    expect(evaluate('min(5, 10) + max(5, 10)')).toBe(15);
+  });
+
+  it('evaluates round function', () => {
+    expect(evaluate('round(3.7)')).toBe(4);
+    expect(evaluate('round(3.2)')).toBe(3);
+  });
+
+  it('handles nested function calls', () => {
+    expect(evaluate('sqrt(abs(-16))')).toBe(4);
+    expect(evaluate('max(min(5, 10), 3)')).toBe(5);
+  });
+
+  it('functions with expressions as arguments', () => {
+    expect(evaluate('sqrt(2 + 2)')).toBe(2);
+    expect(evaluate('abs(5 - 10)')).toBe(5);
+    expect(evaluate('max(2 + 3, 4 + 5)')).toBe(9);
+  });
+
+  it('functions with variables', () => {
+    expect(evaluate('sqrt(x)', { x: 25 })).toBe(5);
+    expect(evaluate('max(a, b, c)', { a: 1, b: 5, c: 3 })).toBe(5);
+  });
+});
+
+describe('Expression Evaluator - Error Handling', () => {
+  it('throws on division by zero', () => {
+    expect(() => evaluate('10 / 0')).toThrow(/division|zero/i);
+    expect(() => evaluate('10 % 0')).toThrow(/division|zero|modulo/i);
+  });
+
+  it('throws on mismatched parentheses', () => {
+    expect(() => evaluate('(1 + 2')).toThrow(/parenthes|mismatch/i);
+    expect(() => evaluate('1 + 2)')).toThrow(/parenthes|mismatch/i);
+    expect(() => evaluate('((1 + 2))')).not.toThrow();
+  });
+
+  it('throws on empty expression', () => {
+    expect(() => evaluate('')).toThrow(/empty|invalid/i);
+    expect(() => evaluate('   ')).toThrow(/empty|invalid/i);
+  });
+
+  it('throws on invalid syntax', () => {
+    expect(() => evaluate('1 + + 2')).toThrow(/syntax|invalid/i);
+    expect(() => evaluate('1 2 + 3')).toThrow(/syntax|invalid/i);
+    expect(() => evaluate('1 + * 2')).toThrow(/syntax|invalid/i);
+  });
+
+  it('throws on unknown functions', () => {
+    expect(() => evaluate('unknown(5)')).toThrow(/unknown|function|undefined/i);
+    expect(() => evaluate('foo(1, 2)')).toThrow(/unknown|function|undefined/i);
+  });
+});
+
+describe('Expression Evaluator - Complex Expressions', () => {
+  it('evaluates quadratic formula', () => {
+    // x = (-b + sqrt(b^2 - 4ac)) / (2a)
+    const expr = '(-b + sqrt(b ^ 2 - 4 * a * c)) / (2 * a)';
+    const context = { a: 1, b: -5, c: 6 }; // x^2 - 5x + 6 = 0, roots at 2 and 3
+    expect(evaluate(expr, context)).toBeCloseTo(3);
+  });
+
+  it('evaluates compound interest formula', () => {
+    // A = P * (1 + r/n)^(nt)
+    const expr = 'P * (1 + r / n) ^ (n * t)';
+    const context = { P: 1000, r: 0.05, n: 12, t: 10 };
+    const result = evaluate(expr, context);
+    expect(result).toBeGreaterThan(1640);
+    expect(result).toBeLessThan(1650);
+  });
+
+  it('evaluates distance formula', () => {
+    // d = sqrt((x2-x1)^2 + (y2-y1)^2)
+    const expr = 'sqrt((x2 - x1) ^ 2 + (y2 - y1) ^ 2)';
+    const context = { x1: 0, y1: 0, x2: 3, y2: 4 };
+    expect(evaluate(expr, context)).toBe(5);
+  });
+
+  it('handles deeply nested expressions', () => {
+    expect(evaluate('((((1 + 2) * 3) - 4) / 5)')).toBe(1);
+  });
+});
+
+describe('Expression Evaluator - Compile (Bonus)', () => {
+  it('compiles to reusable function', () => {
+    const compiled = compile('x * 2 + 1');
+    expect(compiled({ x: 5 })).toBe(11);
+    expect(compiled({ x: 10 })).toBe(21);
+  });
+
+  it('compiled function is faster for repeated use', () => {
+    const expr = 'x ^ 2 + 2 * x + 1';
+    const compiled = compile(expr);
+
+    // Multiple evaluations with compiled function
+    for (let i = 0; i < 100; i++) {
+      expect(compiled({ x: i })).toBe(i * i + 2 * i + 1);
+    }
+  });
+
+  it('compiled function handles multiple variables', () => {
+    const compiled = compile('(a + b) * (a - b)');
+    expect(compiled({ a: 5, b: 3 })).toBe(16);
+    expect(compiled({ a: 10, b: 2 })).toBe(96);
+  });
+
+  it('compiled function throws on undefined variables', () => {
+    const compiled = compile('x + y');
+    expect(() => compiled({ x: 5 })).toThrow();
+    expect(() => compiled()).toThrow();
+  });
+});
+
+describe('Expression Evaluator - Tokenize (Bonus)', () => {
+  it('tokenizes simple expression', () => {
+    const tokens = tokenize('2 + 3');
+    expect(tokens).toHaveLength(3);
+    expect(tokens[0]).toEqual({ type: 'number', value: 2 });
+    expect(tokens[1]).toEqual({ type: 'operator', op: '+' });
+    expect(tokens[2]).toEqual({ type: 'number', value: 3 });
+  });
+
+  it('tokenizes variables and functions', () => {
+    const tokens = tokenize('sqrt(x)');
+    expect(tokens.some(t => t.type === 'identifier' && t.name === 'sqrt')).toBe(true);
+    expect(tokens.some(t => t.type === 'identifier' && t.name === 'x')).toBe(true);
+  });
+
+  it('tokenizes parentheses', () => {
+    const tokens = tokenize('(1 + 2) * 3');
+    const parens = tokens.filter(t => t.type === 'paren');
+    expect(parens).toHaveLength(2);
+  });
+
+  it('tokenizes decimal numbers', () => {
+    const tokens = tokenize('3.14159');
+    expect(tokens[0]).toEqual({ type: 'number', value: 3.14159 });
+  });
+});
+
+describe('Expression Evaluator - Edge Cases', () => {
+  it('handles very small numbers', () => {
+    expect(evaluate('0.0001 * 0.0001')).toBeCloseTo(0.00000001);
+  });
+
+  it('handles very large numbers', () => {
+    expect(evaluate('1e10 * 1e10')).toBe(1e20);
+  });
+
+  it('handles consecutive unary minus', () => {
+    expect(evaluate('--5')).toBe(5);
+    expect(evaluate('---5')).toBe(-5);
+  });
+
+  it('handles unary plus', () => {
+    expect(evaluate('+5')).toBe(5);
+    expect(evaluate('+(3 + 2)')).toBe(5);
+  });
+
+  it('handles empty function arguments', () => {
+    expect(() => evaluate('max()')).not.toThrow();
+    expect(evaluate('max(5)')).toBe(5);
+  });
+});
+]==],
+  },
   {
     name = "Lazy Iterator Chain",
     difficulty = "medium",
