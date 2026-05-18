@@ -15162,4 +15162,239 @@ describe('detectCycle', () => {
   },
 }
 
+  {
+    name = "Group Anagrams",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * Group Anagrams
+ *
+ * Given an array of strings, group the anagrams together.
+ * An anagram is a word formed by rearranging the letters of another word.
+ *
+ * All inputs consist of lowercase English letters.
+ *
+ * Example:
+ *   groupAnagrams(["eat", "tea", "tan", "ate", "nat", "bat"])
+ *   => [["eat", "tea", "ate"], ["tan", "nat"], ["bat"]]
+ *
+ * Return type can be in any order, but anagrams must be grouped together.
+ *
+ * Bonus: Implement isAnagram(s, t) to check if two strings are anagrams.
+ * Bonus: Implement findAnagrams(s, p) to find all start indices of p's anagrams in s.
+ */
+
+export function groupAnagrams(strs: string[]): string[][] {
+  // YOUR CODE HERE
+  return [];
+}
+
+/**
+ * Bonus: Check if two strings are anagrams of each other.
+ * Must be O(n) time and O(1) space (ignoring the character set size).
+ */
+export function isAnagram(s: string, t: string): boolean {
+  // YOUR CODE HERE
+  return false;
+}
+
+/**
+ * Bonus: Find all start indices of p's anagrams in s.
+ * Returns an array of starting indices where an anagram of p begins in s.
+ * Example: findAnagrams("cbaebabacd", "abc") => [0, 6]
+ */
+export function findAnagrams(s: string, p: string): number[] {
+  // YOUR CODE HERE
+  return [];
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { groupAnagrams, isAnagram, findAnagrams } from './challenge';
+
+describe('Group Anagrams', () => {
+  it('basic grouping', () => {
+    const result = groupAnagrams(["eat", "tea", "tan", "ate", "nat", "bat"]);
+    expect(result).toHaveLength(3);
+    // Check that anagrams are grouped together
+    const sortedResult = result.map(group => group.sort()).sort((a, b) => a[0].localeCompare(b[0]));
+    expect(sortedResult).toEqual([["bat"], ["nat", "tan"], ["ate", "eat", "tea"]]);
+  });
+
+  it('single string', () => {
+    const result = groupAnagrams(["hello"]);
+    expect(result).toEqual([["hello"]]);
+  });
+
+  it('no anagrams', () => {
+    const result = groupAnagrams(["abc", "def", "ghi"]);
+    expect(result).toHaveLength(3);
+    result.forEach(group => expect(group).toHaveLength(1));
+  });
+
+  it('all same anagram', () => {
+    const result = groupAnagrams(["abc", "bca", "cab", "cba", "bac", "acb"]);
+    expect(result).toHaveLength(1);
+    expect(result[0]).toHaveLength(6);
+  });
+
+  it('empty string array', () => {
+    expect(groupAnagrams([])).toEqual([]);
+  });
+
+  it('array with empty strings', () => {
+    const result = groupAnagrams(["", "", ""]);
+    expect(result).toHaveLength(1);
+    expect(result[0]).toEqual(["", "", ""]);
+  });
+
+  it('single character strings', () => {
+    const result = groupAnagrams(["a", "b", "a", "c", "b"]);
+    expect(result).toHaveLength(3);
+    const sorted = result.map(g => g.sort()).sort((a, b) => a[0].localeCompare(b[0]));
+    expect(sorted).toEqual([["a", "a"], ["b", "b"], ["c"]]);
+  });
+
+  it('long strings', () => {
+    const result = groupAnagrams(["aaaaaaaaaa", "aaaaaaaaaa", "aaaaaaaaab"]);
+    expect(result).toHaveLength(2);
+    expect(result.find(g => g.includes("aaaaaaaaaa"))?.length).toBe(2);
+  });
+
+  it('mixed lengths', () => {
+    const result = groupAnagrams(["a", "ab", "ba", "abc", "bca", "cab"]);
+    expect(result).toHaveLength(3);
+    const groupsByLength = result.sort((a, b) => a[0].length - b[0].length);
+    expect(groupsByLength[0][0].length).toBe(1);
+    expect(groupsByLength[1][0].length).toBe(2);
+    expect(groupsByLength[2][0].length).toBe(3);
+  });
+
+  it('stress: many strings', () => {
+    const strs = Array.from({ length: 1000 }, (_, i) => {
+      const base = "listen";
+      // Create variations
+      if (i % 3 === 0) return base;
+      if (i % 3 === 1) return "silent";  // anagram of listen
+      return "hello" + i;  // unique
+    });
+    const result = groupAnagrams(strs);
+    const listenGroup = result.find(g => g.includes("listen"));
+    expect(listenGroup?.length).toBeGreaterThan(600);
+  });
+
+  it('unicode-like but still lowercase ascii', () => {
+    const result = groupAnagrams(["rat", "tar", "art"]);
+    expect(result).toHaveLength(1);
+    expect(result[0].sort()).toEqual(["art", "rat", "tar"]);
+  });
+
+  it('anagrams with repeated letters', () => {
+    const result = groupAnagrams(["aab", "baa", "aba", "abb", "bab", "bba"]);
+    const aabGroup = result.find(g => g.includes("aab"));
+    expect(aabGroup?.sort()).toEqual(["aab", "aba", "baa"]);
+    const abbGroup = result.find(g => g.includes("abb"));
+    expect(abbGroup?.sort()).toEqual(["abb", "bab", "bba"]);
+  });
+});
+
+describe('isAnagram', () => {
+  it('identical strings are anagrams', () => {
+    expect(isAnagram("abc", "abc")).toBe(true);
+  });
+
+  it('simple anagram', () => {
+    expect(isAnagram("listen", "silent")).toBe(true);
+  });
+
+  it('not anagrams - different letters', () => {
+    expect(isAnagram("hello", "world")).toBe(false);
+  });
+
+  it('not anagrams - different lengths', () => {
+    expect(isAnagram("abc", "abcd")).toBe(false);
+    expect(isAnagram("abc", "ab")).toBe(false);
+  });
+
+  it('empty strings are anagrams', () => {
+    expect(isAnagram("", "")).toBe(true);
+  });
+
+  it('single character', () => {
+    expect(isAnagram("a", "a")).toBe(true);
+    expect(isAnagram("a", "b")).toBe(false);
+  });
+
+  it('anagram with repeated characters', () => {
+    expect(isAnagram("aabbcc", "abcabc")).toBe(true);
+    expect(isAnagram("aabbcc", "abcccd")).toBe(false);
+  });
+
+  it('case sensitivity (lowercase only per constraints)', () => {
+    expect(isAnagram("anagram", "nagaram")).toBe(true);
+  });
+
+  it('long strings', () => {
+    const s1 = "a".repeat(1000) + "b".repeat(1000);
+    const s2 = "b".repeat(1000) + "a".repeat(1000);
+    expect(isAnagram(s1, s2)).toBe(true);
+  });
+});
+
+describe('findAnagrams', () => {
+  it('finds single anagram', () => {
+    expect(findAnagrams("cbaebabacd", "abc")).toEqual([0, 6]);
+  });
+
+  it('overlapping anagrams', () => {
+    expect(findAnagrams("abab", "ab")).toEqual([0, 1, 2]);
+  });
+
+  it('no anagrams found', () => {
+    expect(findAnagrams("abcdef", "xyz")).toEqual([]);
+  });
+
+  it('pattern longer than string', () => {
+    expect(findAnagrams("abc", "abcd")).toEqual([]);
+  });
+
+  it('pattern equals string', () => {
+    expect(findAnagrams("abc", "abc")).toEqual([0]);
+  });
+
+  it('pattern at end', () => {
+    expect(findAnagrams("abcabc", "abc")).toEqual([0, 3]);
+  });
+
+  it('repeated characters in pattern', () => {
+    expect(findAnagrams("abababab", "aba")).toEqual([0, 2, 4]);
+  });
+
+  it('single character pattern', () => {
+    expect(findAnagrams("aaaa", "a")).toEqual([0, 1, 2, 3]);
+  });
+
+  it('empty string', () => {
+    expect(findAnagrams("", "abc")).toEqual([]);
+  });
+
+  it('stress: long string', () => {
+    const s = "ab".repeat(1000);
+    const result = findAnagrams(s, "ab");
+    expect(result.length).toBe(2000);
+    expect(result[0]).toBe(0);
+    expect(result[1999]).toBe(1999);
+  });
+
+  it('pattern not present', () => {
+    expect(findAnagrams("aaaaaaaaaa", "abc")).toEqual([]);
+  });
+
+  it('anagram with distinct pattern', () => {
+    expect(findAnagrams("bacdgabcda", "abcd")).toEqual([0, 5, 6]);
+  });
+});
+]==],
+  },
+
 return M
