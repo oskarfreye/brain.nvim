@@ -15160,6 +15160,235 @@ describe('detectCycle', () => {
 });
 ]==],
   },
+
+  {
+    name = "LFU Cache",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * LFU Cache (Least Frequently Used)
+ *
+ * Design and implement a data structure for a Least Frequently Used (LFU) cache.
+ *
+ * Implement the LFUCache class:
+ * - LFUCache(capacity: number) — Initialize the cache with positive size capacity.
+ * - get(key: number): number — Return the value of the key if it exists, otherwise return -1.
+ *   Both get and put count as "uses" and update the frequency.
+ * - put(key: number, value: number): void — Update or insert the value. When the cache reaches
+ *   capacity, evict the least frequently used key. If there's a tie (multiple keys with same
+ *   min frequency), evict the least recently used among them.
+ *
+ * All operations must run in O(1) average time complexity.
+ *
+ * Example:
+ *   const cache = new LFUCache(2);
+ *   cache.put(1, 1);
+ *   cache.put(2, 2);
+ *   cache.get(1);      // returns 1, frequency of 1 is now 2
+ *   cache.put(3, 3);   // evicts key 2 (frequency 1), cache is {1:1, 3:3}
+ *   cache.get(2);      // returns -1 (not found)
+ *   cache.get(3);      // returns 3, frequency of 3 is now 2
+ *   cache.put(4, 4);   // evicts key 1 (both have freq 2, but 1 is older), cache is {3:3, 4:4}
+ *
+ * Hint: You'll need to track frequency buckets. Consider using a Map of doubly-linked lists.
+ */
+
+export class LFUCache {
+  constructor(capacity: number) {
+    // YOUR CODE HERE
+  }
+
+  get(key: number): number {
+    // YOUR CODE HERE
+    return -1;
+  }
+
+  put(key: number, value: number): void {
+    // YOUR CODE HERE
+  }
+
+  /**
+   * Bonus: Return the current frequency of a key, or 0 if not in cache.
+   */
+  getFrequency(key: number): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { LFUCache } from './challenge';
+
+describe('LFU Cache', () => {
+  it('basic get and put', () => {
+    const cache = new LFUCache(2);
+    cache.put(1, 1);
+    cache.put(2, 2);
+    expect(cache.get(1)).toBe(1);
+    expect(cache.get(2)).toBe(2);
+  });
+
+  it('returns -1 for missing keys', () => {
+    const cache = new LFUCache(2);
+    expect(cache.get(99)).toBe(-1);
+  });
+
+  it('updates existing key', () => {
+    const cache = new LFUCache(2);
+    cache.put(1, 1);
+    cache.put(1, 10);
+    expect(cache.get(1)).toBe(10);
+  });
+
+  it('evicts least frequently used', () => {
+    const cache = new LFUCache(2);
+    cache.put(1, 1);
+    cache.put(2, 2);
+    cache.get(1); // freq[1] = 2
+    cache.put(3, 3); // should evict 2 (freq = 1)
+    expect(cache.get(1)).toBe(1);
+    expect(cache.get(2)).toBe(-1);
+    expect(cache.get(3)).toBe(3);
+  });
+
+  it('evicts LRU when frequencies tie', () => {
+    const cache = new LFUCache(2);
+    cache.put(1, 1);
+    cache.put(2, 2);
+    // Both have freq 1, but 1 was inserted first
+    cache.put(3, 3); // should evict 1
+    expect(cache.get(1)).toBe(-1);
+    expect(cache.get(2)).toBe(2);
+    expect(cache.get(3)).toBe(3);
+  });
+
+  it('handles capacity of 1', () => {
+    const cache = new LFUCache(1);
+    cache.put(1, 1);
+    cache.put(2, 2);
+    expect(cache.get(1)).toBe(-1);
+    expect(cache.get(2)).toBe(2);
+  });
+
+  it('put increases frequency', () => {
+    const cache = new LFUCache(2);
+    cache.put(1, 1); // freq[1] = 1
+    cache.put(1, 10); // freq[1] = 2 (update counts as use)
+    cache.put(2, 2); // freq[2] = 1
+    cache.put(3, 3); // should evict 2
+    expect(cache.get(1)).toBe(10);
+    expect(cache.get(2)).toBe(-1);
+  });
+
+  it('complex eviction sequence', () => {
+    const cache = new LFUCache(2);
+    cache.put(1, 1);
+    cache.put(2, 2);
+    expect(cache.get(1)).toBe(1); // freq[1] = 2
+    cache.put(3, 3); // evicts 2
+    expect(cache.get(2)).toBe(-1);
+    expect(cache.get(3)).toBe(3); // freq[3] = 2
+    cache.put(4, 4); // 1 and 3 both have freq 2, evict 1 (LRU)
+    expect(cache.get(1)).toBe(-1);
+    expect(cache.get(3)).toBe(3);
+    expect(cache.get(4)).toBe(4);
+  });
+
+  it('multiple operations maintain correctness', () => {
+    const cache = new LFUCache(3);
+    cache.put(1, 1);
+    cache.put(2, 2);
+    cache.put(3, 3);
+    cache.get(1); // freq[1] = 2
+    cache.get(2); // freq[2] = 2
+    cache.put(4, 4); // evicts 3 (freq 1)
+    expect(cache.get(1)).toBe(1);
+    expect(cache.get(2)).toBe(2);
+    expect(cache.get(3)).toBe(-1);
+    expect(cache.get(4)).toBe(4);
+  });
+
+  it('frequency tracking after multiple gets', () => {
+    const cache = new LFUCache(2);
+    cache.put(1, 1);
+    cache.put(2, 2);
+    cache.get(1);
+    cache.get(1);
+    cache.get(1); // freq[1] = 4
+    cache.get(2); // freq[2] = 2
+    cache.put(3, 3); // evicts 2
+    expect(cache.get(1)).toBe(1);
+    expect(cache.get(2)).toBe(-1);
+    expect(cache.get(3)).toBe(3);
+  });
+
+  it('re-inserting evicted key works', () => {
+    const cache = new LFUCache(2);
+    cache.put(1, 1);
+    cache.put(2, 2);
+    cache.put(3, 3); // evicts 1
+    expect(cache.get(1)).toBe(-1);
+    cache.put(1, 10); // re-insert 1
+    expect(cache.get(1)).toBe(10);
+  });
+
+  it('getFrequency bonus method', () => {
+    const cache = new LFUCache(2);
+    expect(cache.getFrequency(1)).toBe(0);
+    cache.put(1, 1);
+    expect(cache.getFrequency(1)).toBe(1);
+    cache.get(1);
+    expect(cache.getFrequency(1)).toBe(2);
+    cache.put(1, 10);
+    expect(cache.getFrequency(1)).toBe(3);
+  });
+
+  it('stress: many operations', () => {
+    const cache = new LFUCache(10);
+    for (let i = 0; i < 100; i++) {
+      cache.put(i, i * 2);
+    }
+    // Access some items multiple times
+    for (let i = 90; i < 100; i++) {
+      for (let j = 0; j < 5; j++) {
+        cache.get(i);
+      }
+    }
+    // Add more items to trigger evictions
+    for (let i = 100; i < 110; i++) {
+      cache.put(i, i * 2);
+    }
+    // Frequently accessed items should still be there
+    for (let i = 90; i < 100; i++) {
+      expect(cache.get(i)).toBe(i * 2);
+    }
+    // Less frequently accessed items should be evicted
+    for (let i = 0; i < 80; i++) {
+      expect(cache.get(i)).toBe(-1);
+    }
+  });
+
+  it('alternating access pattern', () => {
+    const cache = new LFUCache(3);
+    cache.put(1, 1);
+    cache.put(2, 2);
+    cache.put(3, 3);
+    // Alternate between 1 and 2
+    for (let i = 0; i < 10; i++) {
+      cache.get(1);
+      cache.get(2);
+    }
+    cache.put(4, 4); // should evict 3
+    expect(cache.get(1)).toBe(1);
+    expect(cache.get(2)).toBe(2);
+    expect(cache.get(3)).toBe(-1);
+    expect(cache.get(4)).toBe(4);
+  });
+});
+]==],
+  },
+
 }
 
   {
