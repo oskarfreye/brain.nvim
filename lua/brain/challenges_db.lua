@@ -15626,4 +15626,229 @@ describe('findAnagrams', () => {
 ]==],
   },
 
+  {
+    name = "Edit Distance (Levenshtein)",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * Edit Distance (Levenshtein Distance)
+ *
+ * Calculate the minimum number of operations required to transform one string
+ * into another. The allowed operations are:
+ * - Insert a character
+ * - Delete a character  
+ * - Replace a character
+ *
+ * This is a classic dynamic programming problem with applications in:
+ * - Spell checking and autocorrect
+ * - DNA sequence alignment
+ * - Diff algorithms (file comparison)
+ * - Fuzzy string matching
+ *
+ * levenshtein(s1, s2): number
+ *   Returns the minimum edit distance between s1 and s2.
+ *   Example: levenshtein("kitten", "sitting") → 3
+ *     kitten → sitten (replace 'k' with 's')
+ *     sitten → sittin (replace 'e' with 'i')
+ *     sittin → sitting (insert 'g')
+ *
+ * Bonus: Implement getEditOperations(s1, s2) that returns the actual sequence
+ * of operations needed to transform s1 into s2.
+ */
+
+export function levenshtein(s1: string, s2: string): number {
+  // YOUR CODE HERE
+  return 0;
+}
+
+export interface EditOperation {
+  type: 'insert' | 'delete' | 'replace' | 'match';
+  from?: string;
+  to?: string;
+  index: number;
+}
+
+/**
+ * Bonus: Return the sequence of operations to transform s1 into s2.
+ * The operations should be applied left-to-right on s1.
+ */
+export function getEditOperations(s1: string, s2: string): EditOperation[] {
+  // YOUR CODE HERE
+  return [];
+}
+
+/**
+ * Bonus: Calculate normalized similarity score (0-100) based on edit distance.
+ * 100 = identical, 0 = completely different
+ */
+export function similarityScore(s1: string, s2: string): number {
+  // YOUR CODE HERE
+  return 0;
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { levenshtein, getEditOperations, similarityScore } from './challenge';
+
+describe('levenshtein', () => {
+  it('identical strings', () => {
+    expect(levenshtein('hello', 'hello')).toBe(0);
+    expect(levenshtein('', '')).toBe(0);
+  });
+
+  it('empty string transformations', () => {
+    expect(levenshtein('', 'abc')).toBe(3);
+    expect(levenshtein('abc', '')).toBe(3);
+  });
+
+  it('single character operations', () => {
+    expect(levenshtein('a', 'b')).toBe(1);
+    expect(levenshtein('a', '')).toBe(1);
+    expect(levenshtein('', 'a')).toBe(1);
+  });
+
+  it('classic kitten → sitting example', () => {
+    expect(levenshtein('kitten', 'sitting')).toBe(3);
+  });
+
+  it('insertion only', () => {
+    expect(levenshtein('cat', 'cart')).toBe(1);
+    expect(levenshtein('top', 'stop')).toBe(1);
+  });
+
+  it('deletion only', () => {
+    expect(levenshtein('cart', 'cat')).toBe(1);
+    expect(levenshtein('stop', 'top')).toBe(1);
+  });
+
+  it('replacement only', () => {
+    expect(levenshtein('cat', 'cut')).toBe(1);
+    expect(levenshtein('book', 'back')).toBe(2);
+  });
+
+  it('multiple operations', () => {
+    expect(levenshtein('intention', 'execution')).toBe(5);
+    expect(levenshtein('saturday', 'sunday')).toBe(3);
+  });
+
+  it('completely different strings', () => {
+    expect(levenshtein('abc', 'xyz')).toBe(3);
+  });
+
+  it('case sensitivity', () => {
+    expect(levenshtein('Hello', 'hello')).toBe(1);
+  });
+
+  it('unicode characters', () => {
+    expect(levenshtein('hello', 'hello')).toBe(0);
+    expect(levenshtein('世界', '世界!')).toBe(1);
+  });
+
+  it('long strings with small diff', () => {
+    expect(levenshtein('abcdefghij', 'abcdefghi')).toBe(1);
+    expect(levenshtein('abcdefghij', 'abxdefghij')).toBe(1);
+  });
+
+  it('repeated patterns', () => {
+    expect(levenshtein('aaaa', 'aa')).toBe(2);
+    expect(levenshtein('ababab', 'bababa')).toBe(2);
+  });
+
+  it('stress: longer strings', () => {
+    const s1 = 'a'.repeat(100);
+    const s2 = 'a'.repeat(50) + 'b'.repeat(50);
+    expect(levenshtein(s1, s2)).toBe(50);
+  });
+});
+
+describe('getEditOperations', () => {
+  it('identical strings have only matches', () => {
+    const ops = getEditOperations('abc', 'abc');
+    expect(ops.every(op => op.type === 'match')).toBe(true);
+    expect(ops).toHaveLength(3);
+  });
+
+  it('single insertion', () => {
+    const ops = getEditOperations('ac', 'abc');
+    const insertOp = ops.find(op => op.type === 'insert');
+    expect(insertOp).toBeDefined();
+    expect(insertOp!.to).toBe('b');
+  });
+
+  it('single deletion', () => {
+    const ops = getEditOperations('abc', 'ac');
+    const deleteOp = ops.find(op => op.type === 'delete');
+    expect(deleteOp).toBeDefined();
+    expect(deleteOp!.from).toBe('b');
+  });
+
+  it('single replacement', () => {
+    const ops = getEditOperations('cat', 'cut');
+    const replaceOp = ops.find(op => op.type === 'replace');
+    expect(replaceOp).toBeDefined();
+    expect(replaceOp!.from).toBe('a');
+    expect(replaceOp!.to).toBe('u');
+  });
+
+  it('operations transform string correctly', () => {
+    const ops = getEditOperations('kitten', 'sitting');
+    const transformCount = ops.filter(op => op.type !== 'match').length;
+    expect(transformCount).toBe(3);
+  });
+
+  it('empty to string', () => {
+    const ops = getEditOperations('', 'abc');
+    expect(ops).toHaveLength(3);
+    expect(ops.every(op => op.type === 'insert')).toBe(true);
+  });
+
+  it('string to empty', () => {
+    const ops = getEditOperations('abc', '');
+    expect(ops).toHaveLength(3);
+    expect(ops.every(op => op.type === 'delete')).toBe(true);
+  });
+
+  it('returns valid indices', () => {
+    const ops = getEditOperations('hello', 'hallo');
+    ops.forEach(op => {
+      expect(op.index).toBeGreaterThanOrEqual(0);
+      expect(op.index).toBeLessThanOrEqual(5);
+    });
+  });
+});
+
+describe('similarityScore', () => {
+  it('identical strings score 100', () => {
+    expect(similarityScore('hello', 'hello')).toBe(100);
+  });
+
+  it('completely different short strings', () => {
+    expect(similarityScore('a', 'b')).toBe(0);
+  });
+
+  it('partial similarity', () => {
+    const score = similarityScore('hello', 'hallo');
+    expect(score).toBeGreaterThan(50);
+    expect(score).toBeLessThan(100);
+  });
+
+  it('empty strings are identical', () => {
+    expect(similarityScore('', '')).toBe(100);
+  });
+
+  it('one empty string', () => {
+    expect(similarityScore('hello', '')).toBe(0);
+    expect(similarityScore('', 'hello')).toBe(0);
+  });
+
+  it('similar long strings', () => {
+    const s1 = 'the quick brown fox jumps over the lazy dog';
+    const s2 = 'the quik brown fox jumps over the lazy dog';
+    expect(similarityScore(s1, s2)).toBeGreaterThan(90);
+  });
+});
+]==],
+  },
+}
+
 return M
