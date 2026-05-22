@@ -16085,6 +16085,244 @@ describe('similarityScore', () => {
 });
 ]==],
   },
+  },
+  {
+    name = "Fuzzy Finder",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * Fuzzy Finder
+ *
+ * Build a fuzzy string matcher inspired by VS Code's command palette and fzf.
+ * Given a query pattern and a list of candidate strings, find and score matches.
+ *
+ * Scoring rules:
+ * - Every matched query character contributes +10 base points
+ * - Consecutive matches (query chars map to consecutive target chars): +15 bonus each
+ * - Word boundary matches (start of string or after space / - / _ / /): +20 bonus each
+ * - CamelCase boundary matches (lowercase -> uppercase transition): +15 bonus each
+ * - Earlier matches in the target are preferred: -1 point per match position index
+ * - Case-insensitive matching; case-exact matches get a +5 bonus per character
+ *
+ * A match is valid only if ALL query characters appear in order in the target.
+ *
+ * Implement:
+ * - fuzzyMatch(query, target): MatchResult | null
+ *   Returns null if no match. Otherwise: { score, indices }
+ *   where indices are the character positions in target that matched the query.
+ *
+ * - fuzzyFilter(query, candidates): string[]
+ *   Returns candidates sorted by score (highest first). Exclude non-matches.
+ *
+ * Bonus: fuzzyFilterWithHighlight(query, candidates) wraps matched chars in <mark>.
+ */
+
+export interface MatchResult {
+  score: number;
+  indices: number[];
+}
+
+export function fuzzyMatch(query: string, target: string): MatchResult | null {
+  // YOUR CODE HERE
+  return null;
+}
+
+export function fuzzyFilter(query: string, candidates: string[]): string[] {
+  // YOUR CODE HERE
+  return [];
+}
+
+/**
+ * Bonus: Return candidates with matched characters wrapped in <mark> tags,
+ * sorted by score descending. Non-matches are excluded.
+ */
+export function fuzzyFilterWithHighlight(
+  query: string,
+  candidates: string[]
+): { html: string; score: number }[] {
+  // YOUR CODE HERE
+  return [];
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { fuzzyMatch, fuzzyFilter, fuzzyFilterWithHighlight } from './challenge';
+
+describe('fuzzyMatch', () => {
+  it('exact match gets highest score', () => {
+    const result = fuzzyMatch('abc', 'abc');
+    expect(result).not.toBeNull();
+    expect(result!.indices).toEqual([0, 1, 2]);
+    expect(result!.score).toBeGreaterThan(0);
+  });
+
+  it('simple ordered match', () => {
+    const result = fuzzyMatch('abc', 'aXbXc');
+    expect(result).not.toBeNull();
+    expect(result!.indices).toEqual([0, 2, 4]);
+  });
+
+  it('no match returns null', () => {
+    expect(fuzzyMatch('xyz', 'abc')).toBeNull();
+    expect(fuzzyMatch('aaa', 'a')).toBeNull();
+  });
+
+  it('case-insensitive matching', () => {
+    const result = fuzzyMatch('abc', 'ABC');
+    expect(result).not.toBeNull();
+    expect(result!.indices).toEqual([0, 1, 2]);
+  });
+
+  it('word boundary bonus', () => {
+    const lower = fuzzyMatch('gm', 'getMe')!;
+    const upper = fuzzyMatch('gm', 'get_me')!;
+    // underscore provides a word boundary bonus
+    expect(upper.score).toBeGreaterThan(lower.score);
+  });
+
+  it('consecutive bonus', () => {
+    const spread = fuzzyMatch('abc', 'aXbXc')!;
+    const together = fuzzyMatch('abc', 'abc')!;
+    expect(together.score).toBeGreaterThan(spread.score);
+  });
+
+  it('prefers earlier matches', () => {
+    const early = fuzzyMatch('foo', 'fooBar')!;
+    const late = fuzzyMatch('foo', 'barFoo')!;
+    expect(early.score).toBeGreaterThan(late.score);
+  });
+
+  it('empty query matches everything with score 0', () => {
+    const result = fuzzyMatch('', 'hello');
+    expect(result).not.toBeNull();
+    expect(result!.score).toBe(0);
+    expect(result!.indices).toEqual([]);
+  });
+
+  it('camelCase boundary bonus', () => {
+    const camel = fuzzyMatch('gb', 'getButton')!;
+    const plain = fuzzyMatch('gb', 'getbutton')!;
+    expect(camel.score).toBeGreaterThan(plain.score);
+  });
+
+  it('stress: long target and query', () => {
+    const target = 'theQuickBrownFoxJumpsOverTheLazyDog';
+    const query = 'qkbfjotld';
+    const result = fuzzyMatch(query, target);
+    expect(result).not.toBeNull();
+    expect(result!.indices.length).toBe(query.length);
+    // indices must be strictly increasing
+    for (let i = 1; i < result!.indices.length; i++) {
+      expect(result!.indices[i]).toBeGreaterThan(result!.indices[i - 1]);
+    }
+  });
+
+  it('multiple valid matches picks highest score', () => {
+    const result = fuzzyMatch('ab', 'aabb');
+    expect(result).not.toBeNull();
+    // Should match indices [0,1] or [0,2] or [1,2] or [1,3] — best scoring wins
+    expect(result!.indices.length).toBe(2);
+  });
+});
+
+describe('fuzzyFilter', () => {
+  it('filters and sorts by score', () => {
+    const candidates = ['zebra', 'apple', 'apricot', 'banana'];
+    const result = fuzzyFilter('ap', candidates);
+    expect(result).toContain('apple');
+    expect(result).toContain('apricot');
+    expect(result).not.toContain('zebra');
+    expect(result).not.toContain('banana');
+    // 'apple' should score higher than 'apricot' (earlier full match)
+    expect(result.indexOf('apple')).toBeLessThan(result.indexOf('apricot'));
+  });
+
+  it('empty query returns all candidates', () => {
+    const candidates = ['zebra', 'apple'];
+    const result = fuzzyFilter('', candidates);
+    expect(result).toEqual(candidates);
+  });
+
+  it('no matches returns empty array', () => {
+    const candidates = ['hello', 'world'];
+    expect(fuzzyFilter('xyz', candidates)).toEqual([]);
+  });
+
+  it('case-insensitive filtering', () => {
+    const candidates = ['HELLO', 'World'];
+    const result = fuzzyFilter('he', candidates);
+    expect(result).toContain('HELLO');
+    expect(result).not.toContain('World');
+  });
+
+  it('preserves original casing in output', () => {
+    const candidates = ['ApplePie', 'apricotJam'];
+    const result = fuzzyFilter('ap', candidates);
+    expect(result).toContain('ApplePie');
+    expect(result).toContain('apricotJam');
+  });
+
+  it('handles empty candidates', () => {
+    expect(fuzzyFilter('test', [])).toEqual([]);
+  });
+
+  it('ranks exact matches highest', () => {
+    const candidates = ['application', 'app', 'apple', 'approve'];
+    const result = fuzzyFilter('app', candidates);
+    expect(result[0]).toBe('app');
+  });
+
+  it('ranks word boundary matches higher', () => {
+    const candidates = ['getMax', 'getmax', 'idgetMax'];
+    const result = fuzzyFilter('gm', candidates);
+    // getMax should rank higher due to camelCase boundary
+    expect(result[0]).toBe('getMax');
+  });
+
+  it('stress: many candidates', () => {
+    const candidates = Array.from({ length: 1000 }, (_, i) => `item${i}`);
+    const result = fuzzyFilter('item', candidates);
+    expect(result.length).toBe(1000);
+    expect(result[0]).toBe('item0');
+  });
+});
+
+describe('fuzzyFilterWithHighlight', () => {
+  it('wraps matched characters in mark tags', () => {
+    const candidates = ['apple', 'application'];
+    const result = fuzzyFilterWithHighlight('app', candidates);
+    expect(result.length).toBe(2);
+    expect(result[0].html).toBe('<mark>a</mark><mark>p</mark><mark>p</mark>le');
+    expect(result[0].score).toBeGreaterThan(0);
+  });
+
+  it('returns empty for no matches', () => {
+    expect(fuzzyFilterWithHighlight('xyz', ['abc'])).toEqual([]);
+  });
+
+  it('handles empty query', () => {
+    const result = fuzzyFilterWithHighlight('', ['abc']);
+    expect(result[0].html).toBe('abc');
+    expect(result[0].score).toBe(0);
+  });
+
+  it('handles adjacent matches correctly', () => {
+    const result = fuzzyFilterWithHighlight('abc', ['abc']);
+    expect(result[0].html).toBe('<mark>a</mark><mark>b</mark><mark>c</mark>');
+  });
+
+  it('preserves unmatched characters', () => {
+    const result = fuzzyFilterWithHighlight('bf', 'abcdef');
+    // Only 'b' at index 1 and 'f' at index 5 match
+    const html = fuzzyFilterWithHighlight('bf', ['abcdef'])[0].html;
+    expect(html).toContain('a');
+    expect(html).toContain('<mark>b</mark>');
+    expect(html).toContain('cde');
+    expect(html).toContain('<mark>f</mark>');
+  });
+});
+]==],
+  },
 }
 
 return M
