@@ -11964,25 +11964,6 @@ describe('Stress test', () => {
 ]==],
   },
 
---- Deterministic challenge selection based on date.
---- Cycles sequentially through challenges using day-of-year.
-function M.get_challenge_for_date(date_str)
-  local y, m, d = date_str:match('(%d+)-(%d+)-(%d+)')
-  if y and m and d then
-    local t = os.time({ year = tonumber(y), month = tonumber(m), day = tonumber(d) })
-    local jan1 = os.time({ year = tonumber(y), month = 1, day = 1 })
-    local day_of_year = math.floor((t - jan1) / 86400)
-    local idx = (day_of_year % #M.challenges) + 1
-    return M.challenges[idx]
-  end
-  local seed = 0
-  for i = 1, #date_str do
-    seed = seed * 31 + string.byte(date_str, i)
-  end
-  local idx = (seed % #M.challenges) + 1
-  return M.challenges[idx]
-end
-
   {
     name = "Edit Distance (Levenshtein)",
     difficulty = "medium",
@@ -15624,9 +15605,6 @@ describe('LFU Cache', () => {
 });
 ]==],
   },
-
-}
-
   {
     name = "Group Anagrams",
     difficulty = "medium",
@@ -16085,7 +16063,6 @@ describe('similarityScore', () => {
 });
 ]==],
   },
-  },
   {
     name = "Fuzzy Finder",
     difficulty = "medium",
@@ -16323,6 +16300,136 @@ describe('fuzzyFilterWithHighlight', () => {
 });
 ]==],
   },
+  {
+    name = "Version Vector",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * Version Vector
+ *
+ * Implement a small version-vector utility for distributed systems.
+ * A version vector tracks one counter per replica so you can compare
+ * concurrent edits without relying on wall-clock timestamps.
+ *
+ * Implement:
+ * - increment(vector, replicaId): returns a new vector with replicaId + 1
+ * - merge(a, b): returns a new vector with max counter per replica
+ * - compare(a, b): returns one of:
+ *   - "equal" if all counters match
+ *   - "before" if a <= b and at least one counter is lower
+ *   - "after" if a >= b and at least one counter is higher
+ *   - "concurrent" if each vector has a counter higher than the other
+ *
+ * Missing replica counters count as 0. Do not mutate inputs.
+ */
+
+export type VersionVector = Record<string, number>;
+export type VectorOrder = "equal" | "before" | "after" | "concurrent";
+
+export function increment(vector: VersionVector, replicaId: string): VersionVector {
+  // YOUR CODE HERE
+  return {};
 }
+
+export function merge(a: VersionVector, b: VersionVector): VersionVector {
+  // YOUR CODE HERE
+  return {};
+}
+
+export function compare(a: VersionVector, b: VersionVector): VectorOrder {
+  // YOUR CODE HERE
+  return "equal";
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { increment, merge, compare, type VersionVector } from './challenge';
+
+describe('Version Vector', () => {
+  it('increments a missing replica from zero', () => {
+    expect(increment({}, 'node-a')).toEqual({ 'node-a': 1 });
+  });
+
+  it('increments an existing replica counter', () => {
+    expect(increment({ 'node-a': 2 }, 'node-a')).toEqual({ 'node-a': 3 });
+  });
+
+  it('does not mutate the input vector when incrementing', () => {
+    const original = { 'node-a': 1 };
+    const next = increment(original, 'node-b');
+    expect(original).toEqual({ 'node-a': 1 });
+    expect(next).toEqual({ 'node-a': 1, 'node-b': 1 });
+  });
+
+  it('merges by taking the maximum counter per replica', () => {
+    expect(merge({ a: 2, b: 1 }, { a: 1, c: 4 })).toEqual({ a: 2, b: 1, c: 4 });
+  });
+
+  it('does not mutate inputs when merging', () => {
+    const a = { a: 1 };
+    const b = { b: 2 };
+    merge(a, b);
+    expect(a).toEqual({ a: 1 });
+    expect(b).toEqual({ b: 2 });
+  });
+
+  it('detects equal vectors even with explicit zero counters', () => {
+    expect(compare({ a: 1 }, { a: 1, b: 0 })).toBe('equal');
+  });
+
+  it('detects before ordering', () => {
+    expect(compare({ a: 1 }, { a: 2, b: 1 })).toBe('before');
+  });
+
+  it('detects after ordering', () => {
+    expect(compare({ a: 3, b: 1 }, { a: 2 })).toBe('after');
+  });
+
+  it('detects concurrent vectors', () => {
+    expect(compare({ a: 2, b: 1 }, { a: 1, b: 2 })).toBe('concurrent');
+  });
+
+  it('handles empty vectors', () => {
+    expect(compare({}, {})).toBe('equal');
+    expect(merge({}, {})).toEqual({});
+  });
+
+  it('handles many replicas', () => {
+    const a: VersionVector = {};
+    const b: VersionVector = {};
+    for (let i = 0; i < 100; i++) {
+      a[`node-${i}`] = i;
+      b[`node-${i}`] = i + (i === 50 ? 1 : 0);
+    }
+    expect(compare(a, b)).toBe('before');
+  });
+
+  it('normalizes missing counters as zero during comparison', () => {
+    expect(compare({ a: 0 }, {})).toBe('equal');
+    expect(compare({ a: 1 }, {})).toBe('after');
+  });
+});
+]==],
+  },
+}
+
+--- Deterministic challenge selection based on date.
+--- Cycles sequentially through challenges using day-of-year.
+function M.get_challenge_for_date(date_str)
+  local y, m, d = date_str:match('(%d+)-(%d+)-(%d+)')
+  if y and m and d then
+    local t = os.time({ year = tonumber(y), month = tonumber(m), day = tonumber(d) })
+    local jan1 = os.time({ year = tonumber(y), month = 1, day = 1 })
+    local day_of_year = math.floor((t - jan1) / 86400)
+    local idx = (day_of_year % #M.challenges) + 1
+    return M.challenges[idx]
+  end
+  local seed = 0
+  for i = 1, #date_str do
+    seed = seed * 31 + string.byte(date_str, i)
+  end
+  local idx = (seed % #M.challenges) + 1
+  return M.challenges[idx]
+end
 
 return M
