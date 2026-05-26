@@ -16411,6 +16411,230 @@ describe('Version Vector', () => {
 });
 ]==],
   },
+  {
+    name = "Dependency Injection Container",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * Dependency Injection Container
+ *
+ * Implement a lightweight DI container that manages service registration
+ * and automatic dependency resolution.
+ *
+ * Container class:
+ * - register<T>(token: string, factory: (ctx: ResolveCtx) => T, options?: ServiceOptions): void
+ *   Registers a factory for a service token.
+ *   Options: { singleton?: boolean } — if true, cache the instance.
+ * - resolve<T>(token: string): T
+ *   Resolve a service by token. Automatically resolves its dependencies.
+ * - has(token: string): boolean
+ *   Check if a service is registered.
+ * - deregister(token: string): boolean
+ *   Remove a service. Returns true if it existed.
+ *
+ * Dependencies are declared via the factory's use of ctx.resolve():
+ *   container.register('db', (ctx) => new Database(ctx.resolve('config')));
+ *
+ * Throw Error('Circular dependency detected: <tokens>') when circular
+ * dependencies are detected.
+ *
+ * Throw Error('No service registered for token: <token>') when
+ * resolving an unregistered token.
+ */
+
+interface ServiceOptions {
+  singleton?: boolean;
+}
+
+interface ResolveCtx {
+  resolve<T>(token: string): T;
+}
+
+export class Container {
+  constructor() {
+    // YOUR CODE HERE
+  }
+
+  register<T>(token: string, factory: (ctx: ResolveCtx) => T, options?: ServiceOptions): void {
+    // YOUR CODE HERE
+  }
+
+  resolve<T>(token: string): T {
+    // YOUR CODE HERE
+    throw new Error(`No service registered for token: ${token}`);
+  }
+
+  has(token: string): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  deregister(token: string): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  get registeredTokens(): string[] {
+    // YOUR CODE HERE
+    return [];
+  }
+}
+]==],
+    tests = [==[
+import { describe, it, expect, vi } from 'vitest';
+import { Container } from './challenge';
+
+describe('Dependency Injection Container', () => {
+  it('registers and resolves a simple service', () => {
+    const container = new Container();
+    container.register('logger', () => ({ log: (msg: string) => console.log(msg) }));
+    const logger = container.resolve('logger');
+    expect(logger).toHaveProperty('log');
+    expect(typeof logger.log).toBe('function');
+  });
+
+  it('throws on unregistered token', () => {
+    const container = new Container();
+    expect(() => container.resolve('missing')).toThrow('No service registered for token: missing');
+  });
+
+  it('has returns correct boolean', () => {
+    const container = new Container();
+    expect(container.has('logger')).toBe(false);
+    container.register('logger', () => ({}));
+    expect(container.has('logger')).toBe(true);
+  });
+
+  it('deregister removes service', () => {
+    const container = new Container();
+    container.register('logger', () => ({}));
+    expect(container.deregister('logger')).toBe(true);
+    expect(container.has('logger')).toBe(false);
+    expect(() => container.resolve('logger')).toThrow();
+  });
+
+  it('deregister non-existent returns false', () => {
+    const container = new Container();
+    expect(container.deregister('nope')).toBe(false);
+  });
+
+  it('resolves dependencies automatically', () => {
+    const container = new Container();
+    container.register('config', () => ({ host: 'localhost', port: 3000 }));
+    container.register('db', (ctx) => {
+      const config = ctx.resolve('config');
+      return { connect: () => `${config.host}:${config.port}` };
+    });
+    const db = container.resolve('db');
+    expect(db.connect()).toBe('localhost:3000');
+  });
+
+  it('deep dependency chain', () => {
+    const container = new Container();
+    container.register('a', () => 'a');
+    container.register('b', (ctx) => `b+${ctx.resolve('a')}`);
+    container.register('c', (ctx) => `c+${ctx.resolve('b')}`);
+    container.register('d', (ctx) => `d+${ctx.resolve('c')}`);
+    expect(container.resolve('d')).toBe('d+c+b+a');
+  });
+
+  it('singleton caches the instance', () => {
+    const container = new Container();
+    let callCount = 0;
+    container.register('counter', () => {
+      callCount++;
+      return { value: callCount };
+    }, { singleton: true });
+
+    const a = container.resolve('counter');
+    const b = container.resolve('counter');
+    expect(a).toBe(b);
+    expect(callCount).toBe(1);
+  });
+
+  it('non-singleton creates new instance each time', () => {
+    const container = new Container();
+    container.register('service', () => ({}));
+    const a = container.resolve('service');
+    const b = container.resolve('service');
+    expect(a).not.toBe(b);
+  });
+
+  it('detects circular dependency', () => {
+    const container = new Container();
+    container.register('a', (ctx) => ctx.resolve('b'));
+    container.register('b', (ctx) => ctx.resolve('a'));
+    expect(() => container.resolve('a')).toThrow('Circular dependency');
+  });
+
+  it('detects three-way circular dependency', () => {
+    const container = new Container();
+    container.register('a', (ctx) => ctx.resolve('b'));
+    container.register('b', (ctx) => ctx.resolve('c'));
+    container.register('c', (ctx) => ctx.resolve('a'));
+    expect(() => container.resolve('a')).toThrow('Circular dependency');
+  });
+
+  it('registeredTokens lists all tokens', () => {
+    const container = new Container();
+    container.register('x', () => 1);
+    container.register('y', () => 2);
+    container.register('z', () => 3);
+    expect(container.registeredTokens.sort()).toEqual(['x', 'y', 'z']);
+  });
+
+  it('registeredTokens updates after deregister', () => {
+    const container = new Container();
+    container.register('a', () => 1);
+    container.register('b', () => 2);
+    container.deregister('a');
+    expect(container.registeredTokens).toEqual(['b']);
+  });
+
+  it('singleton with dependencies resolves correctly', () => {
+    const container = new Container();
+    container.register('db', () => ({ query: () => 'data' }), { singleton: true });
+    container.register('repo', (ctx) => ({
+      findAll: () => ctx.resolve('db').query(),
+    }), { singleton: true });
+    const repo1 = container.resolve('repo');
+    const repo2 = container.resolve('repo');
+    expect(repo1).toBe(repo2);
+    expect(repo1.findAll()).toBe('data');
+  });
+
+  it('stress: many services', () => {
+    const container = new Container();
+    for (let i = 0; i < 100; i++) {
+      container.register(`service-${i}`, () => ({ id: i }));
+    }
+    expect(container.registeredTokens.length).toBe(100);
+    for (let i = 0; i < 100; i++) {
+      expect(container.resolve(`service-${i}`).id).toBe(i);
+    }
+  });
+
+  it('stress: diamond dependency resolves correctly', () => {
+    const container = new Container();
+    let baseCalls = 0;
+    container.register('base', () => {
+      baseCalls++;
+      return { value: 42 };
+    }, { singleton: true });
+    container.register('left', (ctx) => ({ ...ctx.resolve('base'), side: 'left' }));
+    container.register('right', (ctx) => ({ ...ctx.resolve('base'), side: 'right' }));
+    container.register('top', (ctx) => ({
+      left: ctx.resolve('left'),
+      right: ctx.resolve('right'),
+    }));
+    const top = container.resolve('top');
+    expect(top.left.value).toBe(42);
+    expect(top.right.value).toBe(42);
+    expect(baseCalls).toBe(1);
+  });
+});
+]==],
+  },
 }
 
 --- Deterministic challenge selection based on date.
