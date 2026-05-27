@@ -16635,6 +16635,321 @@ describe('Dependency Injection Container', () => {
 });
 ]==],
   },
+  {
+    name = "Union-Find (Disjoint Set Union)",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * Union-Find (Disjoint Set Union)
+ *
+ * Implement a Union-Find data structure with path compression and union by rank.
+ * This is essential for efficiently tracking connected components in graphs.
+ *
+ * UnionFind class:
+ * - constructor(n: number) — Initialize with n elements (0 to n-1), each in its own set.
+ * - find(x: number): number — Return the representative (root) of x's set.
+ *   Use path compression for O(α(n)) amortized time.
+ * - union(x: number, y: number): boolean — Merge the sets containing x and y.
+ *   Return true if they were in different sets, false if already in the same set.
+ *   Use union by rank (or size) for optimal performance.
+ * - connected(x: number, y: number): boolean — Check if x and y are in the same set.
+ * - size(x: number): number — Return the size of the set containing x.
+ * - count(): number — Return the total number of disjoint sets.
+ *
+ * Bonus: Implement undo() to rollback the last union operation.
+ */
+
+export class UnionFind {
+  constructor(n: number) {
+    // YOUR CODE HERE
+  }
+
+  find(x: number): number {
+    // YOUR CODE HERE
+    return x;
+  }
+
+  union(x: number, y: number): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  connected(x: number, y: number): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  size(x: number): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  count(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  undo(): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+}
+
+/**
+ * Bonus: Given a 2D grid of '1's (land) and '0's (water), count the islands.
+ */
+export function numIslands(grid: string[][]): number {
+  // YOUR CODE HERE
+  return 0;
+}
+
+/**
+ * Bonus: Find the first edge in a graph that creates a cycle.
+ * Return that edge, or null if no cycle exists.
+ */
+export function findRedundantConnection(n: number, edges: [number, number][]): [number, number] | null {
+  // YOUR CODE HERE
+  return null;
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { UnionFind, numIslands, findRedundantConnection } from './challenge';
+
+describe('UnionFind', () => {
+  it('initializes with n sets', () => {
+    const uf = new UnionFind(5);
+    expect(uf.count()).toBe(5);
+  });
+
+  it('each element is its own root initially', () => {
+    const uf = new UnionFind(5);
+    for (let i = 0; i < 5; i++) {
+      expect(uf.find(i)).toBe(i);
+    }
+  });
+
+  it('union merges two sets', () => {
+    const uf = new UnionFind(5);
+    expect(uf.union(0, 1)).toBe(true);
+    expect(uf.count()).toBe(4);
+    expect(uf.connected(0, 1)).toBe(true);
+  });
+
+  it('union returns false for already connected', () => {
+    const uf = new UnionFind(3);
+    uf.union(0, 1);
+    expect(uf.union(0, 1)).toBe(false);
+    expect(uf.union(1, 0)).toBe(false);
+  });
+
+  it('find uses path compression', () => {
+    const uf = new UnionFind(5);
+    uf.union(0, 1);
+    uf.union(1, 2);
+    uf.union(2, 3);
+    uf.union(3, 4);
+    const root = uf.find(4);
+    expect(uf.find(0)).toBe(root);
+    expect(uf.find(1)).toBe(root);
+    expect(uf.find(2)).toBe(root);
+    expect(uf.find(3)).toBe(root);
+  });
+
+  it('connected checks same set', () => {
+    const uf = new UnionFind(5);
+    expect(uf.connected(0, 1)).toBe(false);
+    uf.union(0, 1);
+    expect(uf.connected(0, 1)).toBe(true);
+    expect(uf.connected(0, 2)).toBe(false);
+  });
+
+  it('size returns correct set size', () => {
+    const uf = new UnionFind(5);
+    expect(uf.size(0)).toBe(1);
+    uf.union(0, 1);
+    expect(uf.size(0)).toBe(2);
+    expect(uf.size(1)).toBe(2);
+    uf.union(2, 3);
+    uf.union(0, 2);
+    expect(uf.size(0)).toBe(4);
+    expect(uf.size(4)).toBe(1);
+  });
+
+  it('count decreases with each successful union', () => {
+    const uf = new UnionFind(5);
+    expect(uf.count()).toBe(5);
+    uf.union(0, 1);
+    expect(uf.count()).toBe(4);
+    uf.union(2, 3);
+    expect(uf.count()).toBe(3);
+    uf.union(0, 2);
+    expect(uf.count()).toBe(2);
+  });
+
+  it('single element operations', () => {
+    const uf = new UnionFind(1);
+    expect(uf.find(0)).toBe(0);
+    expect(uf.size(0)).toBe(1);
+    expect(uf.count()).toBe(1);
+    expect(uf.connected(0, 0)).toBe(true);
+  });
+
+  it('union with self returns false', () => {
+    const uf = new UnionFind(3);
+    expect(uf.union(1, 1)).toBe(false);
+    expect(uf.count()).toBe(3);
+  });
+
+  it('stress: many unions', () => {
+    const uf = new UnionFind(1000);
+    for (let i = 0; i < 999; i++) {
+      expect(uf.union(i, i + 1)).toBe(true);
+    }
+    expect(uf.count()).toBe(1);
+    expect(uf.connected(0, 999)).toBe(true);
+    expect(uf.size(0)).toBe(1000);
+  });
+
+  it('stress: random unions', () => {
+    const uf = new UnionFind(100);
+    let unions = 0;
+    for (let i = 0; i < 500; i++) {
+      const x = Math.floor(Math.random() * 100);
+      const y = Math.floor(Math.random() * 100);
+      if (uf.union(x, y)) unions++;
+    }
+    expect(uf.count()).toBeLessThanOrEqual(100 - unions);
+  });
+});
+
+describe('UnionFind undo', () => {
+  it('undo reverts last union', () => {
+    const uf = new UnionFind(3);
+    uf.union(0, 1);
+    expect(uf.connected(0, 1)).toBe(true);
+    expect(uf.undo()).toBe(true);
+    expect(uf.connected(0, 1)).toBe(false);
+    expect(uf.count()).toBe(3);
+  });
+
+  it('undo returns false when nothing to undo', () => {
+    const uf = new UnionFind(3);
+    expect(uf.undo()).toBe(false);
+  });
+
+  it('multiple undos', () => {
+    const uf = new UnionFind(4);
+    uf.union(0, 1);
+    uf.union(2, 3);
+    uf.union(0, 2);
+    expect(uf.count()).toBe(1);
+    expect(uf.undo()).toBe(true);
+    expect(uf.count()).toBe(2);
+    expect(uf.undo()).toBe(true);
+    expect(uf.count()).toBe(3);
+    expect(uf.undo()).toBe(true);
+    expect(uf.count()).toBe(4);
+  });
+
+  it('undo does not affect earlier unions', () => {
+    const uf = new UnionFind(4);
+    uf.union(0, 1);
+    uf.union(2, 3);
+    uf.union(0, 2);
+    uf.undo();
+    expect(uf.connected(0, 1)).toBe(true);
+    expect(uf.connected(2, 3)).toBe(true);
+    expect(uf.connected(0, 2)).toBe(false);
+  });
+});
+
+describe('numIslands', () => {
+  it('single island', () => {
+    expect(numIslands([['1', '1'], ['1', '1']])).toBe(1);
+  });
+
+  it('multiple islands', () => {
+    const grid = [
+      ['1', '1', '0'],
+      ['0', '1', '0'],
+      ['0', '0', '1'],
+    ];
+    expect(numIslands(grid)).toBe(2);
+  });
+
+  it('all water', () => {
+    expect(numIslands([['0', '0'], ['0', '0']])).toBe(0);
+  });
+
+  it('all land', () => {
+    expect(numIslands([['1', '1'], ['1', '1']])).toBe(1);
+  });
+
+  it('empty grid', () => {
+    expect(numIslands([])).toBe(0);
+  });
+
+  it('single cell land', () => {
+    expect(numIslands([['1']])).toBe(1);
+  });
+
+  it('single cell water', () => {
+    expect(numIslands([['0']])).toBe(0);
+  });
+
+  it('diagonal does not connect', () => {
+    expect(numIslands([['1', '0'], ['0', '1']])).toBe(2);
+  });
+
+  it('complex grid', () => {
+    const grid = [
+      ['1', '1', '0', '0', '0'],
+      ['1', '1', '0', '0', '0'],
+      ['0',  '0', '1', '0', '0'],
+      ['0',  '0', '0', '1', '1'],
+    ];
+    expect(numIslands(grid)).toBe(3);
+  });
+});
+
+describe('findRedundantConnection', () => {
+  it('detects cycle in triangle', () => {
+    const edges: [number, number][] = [[1, 2], [2, 3], [3, 1]];
+    expect(findRedundantConnection(3, edges)).toEqual([3, 1]);
+  });
+
+  it('no cycle returns null', () => {
+    const edges: [number, number][] = [[1, 2], [2, 3], [3, 4]];
+    expect(findRedundantConnection(4, edges)).toBe(null);
+  });
+
+  it('detects cycle in larger graph', () => {
+    const edges: [number, number][] = [[1, 2], [1, 3], [2, 3]];
+    expect(findRedundantConnection(3, edges)).toEqual([2, 3]);
+  });
+
+  it('cycle at end of edge list', () => {
+    const edges: [number, number][] = [[1, 2], [2, 3], [3, 4], [1, 4]];
+    expect(findRedundantConnection(4, edges)).toEqual([1, 4]);
+  });
+
+  it('single edge no cycle', () => {
+    expect(findRedundantConnection(2, [[1, 2]])).toBe(null);
+  });
+
+  it('stress: large tree plus one edge', () => {
+    const n = 1000;
+    const edges: [number, number][] = [];
+    for (let i = 2; i <= n; i++) {
+      edges.push([i - 1, i]);
+    }
+    edges.push([1, n]);
+    expect(findRedundantConnection(n, edges)).toEqual([1, n]);
+  });
+});
+]==],
+  },
 }
 
 --- Deterministic challenge selection based on date.
