@@ -16950,6 +16950,124 @@ describe('findRedundantConnection', () => {
 });
 ]==],
   },
+  {
+    name = "Segment Tree",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * Segment Tree
+ *
+ * Implement a segment tree that supports:
+ * - build(nums: number[]) — Construct the tree from an initial array.
+ * - update(index: number, value: number) — Change the element at index to value.
+ * - query(left: number, right: number): number — Return the sum of elements in the inclusive range [left, right].
+ *
+ * Both update and query must run in O(log n) time.
+ * The initial build should run in O(n) time.
+ */
+
+export class SegmentTree {
+  constructor(nums: number[]) {
+    // YOUR CODE HERE
+  }
+
+  update(index: number, value: number): void {
+    // YOUR CODE HERE
+  }
+
+  query(left: number, right: number): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { SegmentTree } from './challenge';
+
+describe('Segment Tree', () => {
+  it('basic query on small array', () => {
+    const tree = new SegmentTree([1, 3, 5, 7, 9, 11]);
+    expect(tree.query(1, 3)).toBe(15);
+  });
+
+  it('query entire range', () => {
+    const tree = new SegmentTree([1, 2, 3, 4, 5]);
+    expect(tree.query(0, 4)).toBe(15);
+  });
+
+  it('query single element', () => {
+    const tree = new SegmentTree([10, 20, 30]);
+    expect(tree.query(1, 1)).toBe(20);
+  });
+
+  it('query first element', () => {
+    const tree = new SegmentTree([5, 10, 15, 20]);
+    expect(tree.query(0, 0)).toBe(5);
+  });
+
+  it('query last element', () => {
+    const tree = new SegmentTree([5, 10, 15, 20]);
+    expect(tree.query(3, 3)).toBe(20);
+  });
+
+  it('update then query', () => {
+    const tree = new SegmentTree([1, 2, 3, 4]);
+    expect(tree.query(0, 3)).toBe(10);
+    tree.update(2, 10);
+    expect(tree.query(0, 3)).toBe(17);
+  });
+
+  it('multiple updates', () => {
+    const tree = new SegmentTree([1, 1, 1, 1]);
+    tree.update(0, 5);
+    tree.update(3, 10);
+    expect(tree.query(0, 3)).toBe(17);
+  });
+
+  it('update at boundaries', () => {
+    const tree = new SegmentTree([1, 2, 3]);
+    tree.update(0, 100);
+    tree.update(2, 200);
+    expect(tree.query(0, 0)).toBe(100);
+    expect(tree.query(2, 2)).toBe(200);
+    expect(tree.query(0, 2)).toBe(302);
+  });
+
+  it('negative numbers', () => {
+    const tree = new SegmentTree([-1, -2, -3, -4]);
+    expect(tree.query(0, 3)).toBe(-10);
+    tree.update(1, 10);
+    expect(tree.query(0, 3)).toBe(3);
+  });
+
+  it('large array', () => {
+    const nums = Array.from({ length: 1000 }, (_, i) => i + 1);
+    const tree = new SegmentTree(nums);
+    expect(tree.query(0, 999)).toBe(500500);
+    tree.update(0, 10000);
+    expect(tree.query(0, 0)).toBe(10000);
+    expect(tree.query(0, 999)).toBe(509500);
+  });
+
+  it('single element array', () => {
+    const tree = new SegmentTree([42]);
+    expect(tree.query(0, 0)).toBe(42);
+    tree.update(0, 99);
+    expect(tree.query(0, 0)).toBe(99);
+  });
+
+  it('alternating update and query', () => {
+    const tree = new SegmentTree([1, 2, 3, 4, 5]);
+    expect(tree.query(1, 3)).toBe(9);
+    tree.update(2, 30);
+    expect(tree.query(1, 3)).toBe(36);
+    tree.update(4, 50);
+    expect(tree.query(0, 4)).toBe(87);
+  });
+});
+]==],
+  },
 }
 
 --- Deterministic challenge selection based on date.
