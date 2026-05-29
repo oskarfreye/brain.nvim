@@ -17068,6 +17068,163 @@ describe('Segment Tree', () => {
 });
 ]==],
   },
+  {
+    name = "Longest Common Subsequence",
+    difficulty = "medium",
+    stub = [=[
+/**
+ * Longest Common Subsequence (LCS)
+ *
+ * Given two strings text1 and text2, return the length of their longest
+ * common subsequence. If there is no common subsequence, return 0.
+ *
+ * A subsequence is a sequence that can be derived from the given sequence
+ * by deleting some or no elements without changing the order of the
+ * remaining elements.
+ *
+ * Examples:
+ *   lcs("ABCD", "ACBAD") → 3 ("ACD" or "ABD")
+ *   lcs("ABC", "DEF") → 0 (no common characters)
+ *   lcs("AGGTAB", "GXTXAYB") → 4 ("GTAB")
+ *
+ * Bonus: Implement lcsString that returns the actual subsequence string,
+ * not just the length.
+ *
+ * Constraint: Solve in O(m * n) time and O(m * n) space using dynamic programming.
+ */
+
+export function lcs(text1: string, text2: string): number {
+  // YOUR CODE HERE
+  return 0;
+}
+
+/**
+ * Bonus: Return the actual longest common subsequence string.
+ */
+export function lcsString(text1: string, text2: string): string {
+  // YOUR CODE HERE
+  return "";
+}
+
+/**
+ * Bonus: Find the longest common subsequence among THREE strings.
+ */
+export function lcsThree(text1: string, text2: string, text3: string): number {
+  // YOUR CODE HERE
+  return 0;
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { lcs, lcsString, lcsThree } from './challenge';
+
+describe('Longest Common Subsequence', () => {
+  it('basic example', () => {
+    expect(lcs("ABCD", "ACBAD")).toBe(3);
+  });
+
+  it('no common characters', () => {
+    expect(lcs("ABC", "DEF")).toBe(0);
+  });
+
+  it('identical strings', () => {
+    expect(lcs("ABCDEF", "ABCDEF")).toBe(6);
+  });
+
+  it('one string is subsequence of other', () => {
+    expect(lcs("ABC", "AABBCC")).toBe(3);
+  });
+
+  it('single character match', () => {
+    expect(lcs("A", "A")).toBe(1);
+    expect(lcs("A", "B")).toBe(0);
+  });
+
+  it('empty string', () => {
+    expect(lcs("", "ABC")).toBe(0);
+    expect(lcs("ABC", "")).toBe(0);
+    expect(lcs("", "")).toBe(0);
+  });
+
+  it('classic example', () => {
+    expect(lcs("AGGTAB", "GXTXAYB")).toBe(4);
+  });
+
+  it('reversed strings', () => {
+    expect(lcs("ABC", "CBA")).toBe(1);
+  });
+
+  it('repeated characters', () => {
+    expect(lcs("AAAA", "AA")).toBe(2);
+  });
+
+  it('longer example', () => {
+    expect(lcs("programming", "gaming")).toBe(5);
+  });
+
+  it('case sensitive', () => {
+    expect(lcs("ABC", "abc")).toBe(0);
+  });
+
+  it('unicode characters', () => {
+    expect(lcs("hello 世界", "world 世界")).toBe(2);
+  });
+});
+
+describe('lcsString (Bonus)', () => {
+  it('returns actual subsequence', () => {
+    const result = lcsString("ABCD", "ACBAD");
+    expect(result.length).toBe(3);
+    expect(["ACD", "ABD"].includes(result)).toBe(true);
+  });
+
+  it('empty result for no match', () => {
+    expect(lcsString("ABC", "DEF")).toBe("");
+  });
+
+  it('returns full string when identical', () => {
+    expect(lcsString("HELLO", "HELLO")).toBe("HELLO");
+  });
+
+  it('classic example', () => {
+    const result = lcsString("AGGTAB", "GXTXAYB");
+    expect(result).toBe("GTAB");
+  });
+});
+
+describe('lcsThree (Bonus)', () => {
+  it('three strings with common subsequence', () => {
+    expect(lcsThree("ABC", "ACB", "ABC")).toBe(2);
+  });
+
+  it('no common among three', () => {
+    expect(lcsThree("ABC", "DEF", "GHI")).toBe(0);
+  });
+
+  it('all identical', () => {
+    expect(lcsThree("XYZ", "XYZ", "XYZ")).toBe(3);
+  });
+
+  it('one empty string', () => {
+    expect(lcsThree("ABC", "", "ABC")).toBe(0);
+  });
+});
+
+describe('stress tests', () => {
+  it('long strings', () => {
+    const s1 = "A".repeat(100) + "B".repeat(100);
+    const s2 = "A".repeat(50) + "C".repeat(50) + "B".repeat(100);
+    expect(lcs(s1, s2)).toBe(150);
+  });
+
+  it('alternating pattern', () => {
+    const s1 = "AB".repeat(50);
+    const s2 = "BA".repeat(50);
+    expect(lcs(s1, s2)).toBe(50);
+  });
+});
+]=],
+  },
 }
 
 --- Deterministic challenge selection based on date.
