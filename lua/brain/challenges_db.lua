@@ -17225,6 +17225,216 @@ describe('stress tests', () => {
 });
 ]=],
   },
+  {
+    name = "Sudoku Solver",
+    difficulty = "hard",
+    stub = [==[
+/**
+ * Sudoku Solver
+ *
+ * Implement a Sudoku solver using backtracking.
+ *
+ * The board is a 9x9 grid represented as a 2D array.
+ * Empty cells are represented by 0 or '.'.
+ *
+ * Rules:
+ * - Each row must contain digits 1-9 without repetition
+ * - Each column must contain digits 1-9 without repetition
+ * - Each 3x3 sub-box must contain digits 1-9 without repetition
+ *
+ * solveSudoku(board: number[][]): number[][] | null
+ *   Return the solved board, or null if no solution exists.
+ *
+ * isValidSudoku(board: number[][]): boolean
+ *   Check if a board is valid (no conflicts, may have empty cells).
+ *
+ * Bonus: Implement solveSudokuMinimal(clues: string) that takes a compact
+ * string representation (81 chars, '.' for empty) and returns the solution.
+ */
+
+export function solveSudoku(board: number[][]): number[][] | null {
+  // YOUR CODE HERE
+  return null;
+}
+
+export function isValidSudoku(board: number[][]): boolean {
+  // YOUR CODE HERE
+  return false;
+}
+
+export function solveSudokuMinimal(clues: string): string | null {
+  // YOUR CODE HERE
+  return null;
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { solveSudoku, isValidSudoku, solveSudokuMinimal } from './challenge';
+
+describe('isValidSudoku', () => {
+  it('valid empty board', () => {
+    const board = Array(9).fill(null).map(() => Array(9).fill(0));
+    expect(isValidSudoku(board)).toBe(true);
+  });
+
+  it('valid partial board', () => {
+    const board = [
+      [5,3,0,0,7,0,0,0,0],
+      [6,0,0,1,9,5,0,0,0],
+      [0,9,8,0,0,0,0,6,0],
+      [8,0,0,0,6,0,0,0,3],
+      [4,0,0,8,0,3,0,0,1],
+      [7,0,0,0,2,0,0,0,6],
+      [0,6,0,0,0,0,2,8,0],
+      [0,0,0,4,1,9,0,0,5],
+      [0,0,0,0,8,0,0,7,9],
+    ];
+    expect(isValidSudoku(board)).toBe(true);
+  });
+
+  it('invalid - duplicate in row', () => {
+    const board = Array(9).fill(null).map(() => Array(9).fill(0));
+    board[0][0] = 5;
+    board[0][4] = 5;
+    expect(isValidSudoku(board)).toBe(false);
+  });
+
+  it('invalid - duplicate in column', () => {
+    const board = Array(9).fill(null).map(() => Array(9).fill(0));
+    board[0][0] = 5;
+    board[4][0] = 5;
+    expect(isValidSudoku(board)).toBe(false);
+  });
+
+  it('invalid - duplicate in 3x3 box', () => {
+    const board = Array(9).fill(null).map(() => Array(9).fill(0));
+    board[0][0] = 5;
+    board[1][1] = 5;
+    expect(isValidSudoku(board)).toBe(false);
+  });
+});
+
+describe('solveSudoku', () => {
+  it('solves easy puzzle', () => {
+    const board = [
+      [5,3,0,0,7,0,0,0,0],
+      [6,0,0,1,9,5,0,0,0],
+      [0,9,8,0,0,0,0,6,0],
+      [8,0,0,0,6,0,0,0,3],
+      [4,0,0,8,0,3,0,0,1],
+      [7,0,0,0,2,0,0,0,6],
+      [0,6,0,0,0,0,2,8,0],
+      [0,0,0,4,1,9,0,0,5],
+      [0,0,0,0,8,0,0,7,9],
+    ];
+    const result = solveSudoku(board);
+    expect(result).not.toBeNull();
+    expect(isValidSudoku(result!)).toBe(true);
+    for (let i = 0; i < 9; i++) {
+      for (let j = 0; j < 9; j++) {
+        expect(result![i][j]).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it('solves minimal clues puzzle', () => {
+    const board = Array(9).fill(null).map(() => Array(9).fill(0));
+    board[0][0] = 1; board[0][6] = 2;
+    board[1][2] = 3; board[1][4] = 4;
+    board[2][1] = 5; board[2][7] = 6;
+    board[3][3] = 7; board[3][5] = 8;
+    board[4][0] = 9; board[4][8] = 1;
+    board[5][3] = 2; board[5][5] = 3;
+    board[6][1] = 4; board[6][7] = 5;
+    board[7][2] = 6; board[7][4] = 7;
+    board[8][6] = 8; board[8][8] = 9;
+    const result = solveSudoku(board);
+    expect(result).not.toBeNull();
+    expect(isValidSudoku(result!)).toBe(true);
+  });
+
+  it('returns null for impossible puzzle', () => {
+    const board = [
+      [1,2,3,4,5,6,7,8,9],
+      [1,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0],
+    ];
+    expect(solveSudoku(board)).toBe(null);
+  });
+
+  it('solves empty board', () => {
+    const board = Array(9).fill(null).map(() => Array(9).fill(0));
+    const result = solveSudoku(board);
+    expect(result).not.toBeNull();
+    expect(isValidSudoku(result!)).toBe(true);
+  });
+
+  it('preserves original clues', () => {
+    const original = [
+      [5,3,0,0,7,0,0,0,0],
+      [6,0,0,1,9,5,0,0,0],
+      [0,9,8,0,0,0,0,6,0],
+      [8,0,0,0,6,0,0,0,3],
+      [4,0,0,8,0,3,0,0,1],
+      [7,0,0,0,2,0,0,0,6],
+      [0,6,0,0,0,0,2,8,0],
+      [0,0,0,4,1,9,0,0,5],
+      [0,0,0,0,8,0,0,7,9],
+    ];
+    const result = solveSudoku([...original.map(row => [...row])]);
+    for (let i = 0; i < 9; i++) {
+      for (let j = 0; j < 9; j++) {
+        if (original[i][j] !== 0) {
+          expect(result![i][j]).toBe(original[i][j]);
+        }
+      }
+    }
+  });
+});
+
+describe('solveSudokuMinimal', () => {
+  it('solves from string representation', () => {
+    const clues = '53..7....6..195....98....6.8...6...34..8.3..17...2...6.28....419..5....8..79';
+    const result = solveSudokuMinimal(clues);
+    expect(result).not.toBeNull();
+    expect(result!.length).toBe(81);
+  });
+
+  it('returns null for invalid string', () => {
+    expect(solveSudokuMinimal('11.......'.padEnd(81, '.'))).toBe(null);
+  });
+
+  it('handles all dots (empty board)', () => {
+    const result = solveSudokuMinimal('.'.repeat(81));
+    expect(result).not.toBeNull();
+    expect(result!.length).toBe(81);
+  });
+});
+
+describe('stress tests', () => {
+  it('solves multiple puzzles quickly', () => {
+    const puzzles = [
+      '53..7....6..195....98....6.8...6...34..8.3..17...2...6.28....419..5....8..79',
+      '..53.....8......2..7..1.5..4....53...1....7..6..32..8..9.5.1..6..2......9.....4..',
+      '1..........2.3.....4.....5.6....7.8....9.1....2.3....4.5.....6.....7.8..........',
+    ];
+    const start = Date.now();
+    puzzles.forEach(p => {
+      const result = solveSudokuMinimal(p);
+      expect(result).not.toBeNull();
+    });
+    const elapsed = Date.now() - start;
+    expect(elapsed).toBeLessThan(5000);
+  });
+});
+]==],
+  },
 }
 
 --- Deterministic challenge selection based on date.
