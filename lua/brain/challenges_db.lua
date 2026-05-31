@@ -17435,6 +17435,490 @@ describe('stress tests', () => {
 });
 ]==],
   },
+  {
+    name = "BitSet (Bit Vector)",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * BitSet (Bit Vector)
+ *
+ * Implement a space-efficient bit vector that stores boolean values using individual bits.
+ * This is useful for tracking membership, flags, or boolean arrays at massive scale.
+ *
+ * BitSet class:
+ * - constructor(size: number) — Create a bitset with `size` bits (all initially 0)
+ * - set(index: number): void — Set bit at index to 1
+ * - clear(index: number): void — Set bit at index to 0
+ * - get(index: number): boolean — Return true if bit is 1, false if 0
+ * - flip(index: number): void — Toggle bit at index (0→1, 1→0)
+ * - size: number — Total number of bits
+ * - cardinality(): number — Count of bits set to 1 (population count)
+ * - isEmpty(): boolean — True if all bits are 0
+ * - isSubsetOf(other: BitSet): boolean — True if all set bits are also set in other
+ * - union(other: BitSet): BitSet — Return new BitSet with OR of both
+ * - intersection(other: BitSet): BitSet — Return new BitSet with AND of both
+ * - difference(other: BitSet): BitSet — Return bits set in this but not in other (A - B)
+ * - xor(other: BitSet): BitSet — Return bits set in exactly one of the sets
+ * - nextSetBit(fromIndex: number): number — Find next set bit >= fromIndex, or -1 if none
+ * - nextClearBit(fromIndex: number): number — Find next clear bit >= fromIndex, or -1 if none
+ *
+ * Implementation notes:
+ * - Use BigInt or number arrays to store bits internally
+ * - Aim for O(1) get/set, O(n/wordSize) for bulk operations
+ * - Handle edge cases: out-of-bounds indices, different sizes
+ *
+ * Bonus: Implement resize(newSize: number) and toNumber()/fromNumber(n: number, bits: number)
+ */
+
+export class BitSet {
+  constructor(size: number) {
+    // YOUR CODE HERE
+  }
+
+  set(index: number): void {
+    // YOUR CODE HERE
+  }
+
+  clear(index: number): void {
+    // YOUR CODE HERE
+  }
+
+  get(index: number): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  flip(index: number): void {
+    // YOUR CODE HERE
+  }
+
+  get size(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  cardinality(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  isEmpty(): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  isSubsetOf(other: BitSet): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  union(other: BitSet): BitSet {
+    // YOUR CODE HERE
+    return new BitSet(1);
+  }
+
+  intersection(other: BitSet): BitSet {
+    // YOUR CODE HERE
+    return new BitSet(1);
+  }
+
+  difference(other: BitSet): BitSet {
+    // YOUR CODE HERE
+    return new BitSet(1);
+  }
+
+  xor(other: BitSet): BitSet {
+    // YOUR CODE HERE
+    return new BitSet(1);
+  }
+
+  nextSetBit(fromIndex: number): number {
+    // YOUR CODE HERE
+    return -1;
+  }
+
+  nextClearBit(fromIndex: number): number {
+    // YOUR CODE HERE
+    return -1;
+  }
+
+  /**
+   * Bonus: Resize the bitset. Preserves existing bits up to min(oldSize, newSize).
+   * New bits are initialized to 0.
+   */
+  resize(newSize: number): void {
+    // YOUR CODE HERE
+  }
+
+  /**
+   * Bonus: Create a BitSet from a number. Uses `bits` least significant bits.
+   */
+  static fromNumber(n: number, bits: number): BitSet {
+    // YOUR CODE HERE
+    return new BitSet(bits);
+  }
+
+  /**
+   * Bonus: Convert bitset to a number (only works if size <= 53 for safe integers)
+   */
+  toNumber(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { BitSet } from './challenge';
+
+describe('BitSet - Basic Operations', () => {
+  it('creates bitset with given size', () => {
+    const bs = new BitSet(64);
+    expect(bs.size).toBe(64);
+  });
+
+  it('all bits initially 0', () => {
+    const bs = new BitSet(100);
+    for (let i = 0; i < 100; i++) {
+      expect(bs.get(i)).toBe(false);
+    }
+  });
+
+  it('set and get single bit', () => {
+    const bs = new BitSet(32);
+    bs.set(5);
+    expect(bs.get(5)).toBe(true);
+    expect(bs.get(4)).toBe(false);
+    expect(bs.get(6)).toBe(false);
+  });
+
+  it('clear set bit', () => {
+    const bs = new BitSet(32);
+    bs.set(10);
+    expect(bs.get(10)).toBe(true);
+    bs.clear(10);
+    expect(bs.get(10)).toBe(false);
+  });
+
+  it('flip toggles bit', () => {
+    const bs = new BitSet(32);
+    bs.flip(7);
+    expect(bs.get(7)).toBe(true);
+    bs.flip(7);
+    expect(bs.get(7)).toBe(false);
+  });
+
+  it('flip on already set bit clears it', () => {
+    const bs = new BitSet(16);
+    bs.set(3);
+    bs.flip(3);
+    expect(bs.get(3)).toBe(false);
+  });
+
+  it('set multiple bits', () => {
+    const bs = new BitSet(64);
+    [0, 10, 20, 30, 40, 50, 60].forEach(i => bs.set(i));
+    [0, 10, 20, 30, 40, 50, 60].forEach(i => expect(bs.get(i)).toBe(true));
+  });
+
+  it('cardinality counts set bits', () => {
+    const bs = new BitSet(100);
+    expect(bs.cardinality()).toBe(0);
+    bs.set(5);
+    bs.set(10);
+    bs.set(15);
+    expect(bs.cardinality()).toBe(3);
+    bs.clear(10);
+    expect(bs.cardinality()).toBe(2);
+  });
+
+  it('isEmpty checks all zeros', () => {
+    const bs = new BitSet(32);
+    expect(bs.isEmpty()).toBe(true);
+    bs.set(0);
+    expect(bs.isEmpty()).toBe(false);
+    bs.clear(0);
+    expect(bs.isEmpty()).toBe(true);
+  });
+
+  it('handles edge indices', () => {
+    const bs = new BitSet(8);
+    bs.set(0);
+    bs.set(7);
+    expect(bs.get(0)).toBe(true);
+    expect(bs.get(7)).toBe(true);
+    expect(bs.get(1)).toBe(false);
+  });
+});
+
+describe('BitSet - Set Operations', () => {
+  it('isSubsetOf empty set', () => {
+    const bs = new BitSet(16);
+    const empty = new BitSet(16);
+    expect(bs.isSubsetOf(empty)).toBe(true);
+    expect(empty.isSubsetOf(bs)).toBe(true);
+  });
+
+  it('isSubsetOf proper subset', () => {
+    const a = new BitSet(16);
+    const b = new BitSet(16);
+    a.set(1);
+    a.set(3);
+    b.set(1);
+    b.set(3);
+    b.set(5);
+    expect(a.isSubsetOf(b)).toBe(true);
+    expect(b.isSubsetOf(a)).toBe(false);
+  });
+
+  it('isSubsetOf equal sets', () => {
+    const a = new BitSet(16);
+    const b = new BitSet(16);
+    [2, 4, 6, 8].forEach(i => { a.set(i); b.set(i); });
+    expect(a.isSubsetOf(b)).toBe(true);
+    expect(b.isSubsetOf(a)).toBe(true);
+  });
+
+  it('union combines bits', () => {
+    const a = new BitSet(16);
+    const b = new BitSet(16);
+    a.set(1);
+    a.set(3);
+    b.set(2);
+    b.set(3);
+    const result = a.union(b);
+    expect(result.size).toBe(16);
+    expect(result.get(1)).toBe(true);
+    expect(result.get(2)).toBe(true);
+    expect(result.get(3)).toBe(true);
+    expect(result.cardinality()).toBe(3);
+  });
+
+  it('intersection finds common bits', () => {
+    const a = new BitSet(16);
+    const b = new BitSet(16);
+    a.set(1);
+    a.set(3);
+    a.set(5);
+    b.set(2);
+    b.set(3);
+    b.set(5);
+    const result = a.intersection(b);
+    expect(result.cardinality()).toBe(2);
+    expect(result.get(3)).toBe(true);
+    expect(result.get(5)).toBe(true);
+    expect(result.get(1)).toBe(false);
+  });
+
+  it('difference removes common bits', () => {
+    const a = new BitSet(16);
+    const b = new BitSet(16);
+    a.set(1);
+    a.set(2);
+    a.set(3);
+    b.set(2);
+    b.set(4);
+    const result = a.difference(b);
+    expect(result.cardinality()).toBe(2);
+    expect(result.get(1)).toBe(true);
+    expect(result.get(3)).toBe(true);
+    expect(result.get(2)).toBe(false);
+  });
+
+  it('xor finds bits in exactly one set', () => {
+    const a = new BitSet(16);
+    const b = new BitSet(16);
+    a.set(1);
+    a.set(2);
+    b.set(2);
+    b.set(3);
+    const result = a.xor(b);
+    expect(result.cardinality()).toBe(2);
+    expect(result.get(1)).toBe(true);
+    expect(result.get(3)).toBe(true);
+    expect(result.get(2)).toBe(false);
+  });
+
+  it('union with empty set returns copy', () => {
+    const a = new BitSet(16);
+    a.set(5);
+    const empty = new BitSet(16);
+    const result = a.union(empty);
+    expect(result.get(5)).toBe(true);
+    expect(result.cardinality()).toBe(1);
+  });
+
+  it('intersection with empty set is empty', () => {
+    const a = new BitSet(16);
+    a.set(5);
+    const empty = new BitSet(16);
+    expect(a.intersection(empty).isEmpty()).toBe(true);
+  });
+});
+
+describe('BitSet - nextSetBit / nextClearBit', () => {
+  it('nextSetBit finds first set bit', () => {
+    const bs = new BitSet(32);
+    bs.set(5);
+    bs.set(10);
+    bs.set(20);
+    expect(bs.nextSetBit(0)).toBe(5);
+    expect(bs.nextSetBit(5)).toBe(5);
+    expect(bs.nextSetBit(6)).toBe(10);
+  });
+
+  it('nextSetBit returns -1 when none found', () => {
+    const bs = new BitSet(16);
+    expect(bs.nextSetBit(0)).toBe(-1);
+    bs.set(10);
+    expect(bs.nextSetBit(11)).toBe(-1);
+  });
+
+  it('nextClearBit finds first clear bit', () => {
+    const bs = new BitSet(32);
+    bs.set(0);
+    bs.set(1);
+    bs.set(2);
+    bs.set(4);
+    expect(bs.nextClearBit(0)).toBe(3);
+    expect(bs.nextClearBit(3)).toBe(3);
+  });
+
+  it('nextClearBit when all set', () => {
+    const bs = new BitSet(8);
+    for (let i = 0; i < 8; i++) bs.set(i);
+    expect(bs.nextClearBit(0)).toBe(-1);
+  });
+
+  it('nextSetBit skips cleared bits', () => {
+    const bs = new BitSet(16);
+    [0, 1, 2, 3, 4, 5].forEach(i => bs.set(i));
+    bs.clear(2);
+    bs.clear(4);
+    expect(bs.nextSetBit(0)).toBe(0);
+    expect(bs.nextSetBit(1)).toBe(1);
+    expect(bs.nextSetBit(2)).toBe(3);
+    expect(bs.nextSetBit(4)).toBe(5);
+  });
+});
+
+describe('BitSet - fromNumber / toNumber', () => {
+  it('fromNumber creates correct bitset', () => {
+    const bs = BitSet.fromNumber(0b10110, 8);
+    expect(bs.size).toBe(8);
+    expect(bs.get(1)).toBe(true);
+    expect(bs.get(2)).toBe(true);
+    expect(bs.get(4)).toBe(true);
+    expect(bs.get(0)).toBe(false);
+    expect(bs.get(3)).toBe(false);
+  });
+
+  it('toNumber converts back correctly', () => {
+    const bs = new BitSet(16);
+    bs.set(0);
+    bs.set(2);
+    bs.set(4);
+    expect(bs.toNumber()).toBe(0b10101);
+  });
+
+  it('fromNumber and toNumber roundtrip', () => {
+    const n = 0b1011001;
+    const bs = BitSet.fromNumber(n, 16);
+    expect(bs.toNumber()).toBe(n);
+  });
+
+  it('fromNumber truncates to bits', () => {
+    const bs = BitSet.fromNumber(0b11111, 3);
+    expect(bs.toNumber()).toBe(0b111);
+  });
+});
+
+describe('BitSet - resize', () => {
+  it('resize larger preserves bits', () => {
+    const bs = new BitSet(8);
+    [0, 3, 7].forEach(i => bs.set(i));
+    bs.resize(16);
+    expect(bs.size).toBe(16);
+    expect(bs.get(0)).toBe(true);
+    expect(bs.get(3)).toBe(true);
+    expect(bs.get(7)).toBe(true);
+  });
+
+  it('resize smaller truncates bits', () => {
+    const bs = new BitSet(16);
+    [0, 5, 10, 15].forEach(i => bs.set(i));
+    bs.resize(8);
+    expect(bs.size).toBe(8);
+    expect(bs.get(0)).toBe(true);
+    expect(bs.get(5)).toBe(true);
+    expect(bs.get(10)).toBe(false);
+  });
+
+  it('resize to zero clears all', () => {
+    const bs = new BitSet(8);
+    bs.set(3);
+    bs.resize(0);
+    expect(bs.size).toBe(0);
+  });
+});
+
+describe('BitSet - stress tests', () => {
+  it('large bitset operations', () => {
+    const bs = new BitSet(10000);
+    for (let i = 0; i < 10000; i += 7) {
+      bs.set(i);
+    }
+    expect(bs.cardinality()).toBe(Math.ceil(10000 / 7));
+    expect(bs.nextSetBit(0)).toBe(0);
+    expect(bs.nextSetBit(1)).toBe(7);
+  });
+
+  it('many set/clear cycles', () => {
+    const bs = new BitSet(1000);
+    for (let cycle = 0; cycle < 100; cycle++) {
+      for (let i = 0; i < 1000; i++) {
+        bs.set(i);
+        bs.clear(i);
+      }
+    }
+    expect(bs.isEmpty()).toBe(true);
+  });
+
+  it('union of large sets', () => {
+    const a = new BitSet(10000);
+    const b = new BitSet(10000);
+    for (let i = 0; i < 10000; i += 2) a.set(i);
+    for (let i = 1; i < 10000; i += 2) b.set(i);
+    const result = a.union(b);
+    expect(result.cardinality()).toBe(10000);
+  });
+
+  it('intersection of disjoint sets is empty', () => {
+    const a = new BitSet(1000);
+    const b = new BitSet(1000);
+    for (let i = 0; i < 500; i++) a.set(i);
+    for (let i = 500; i < 1000; i++) b.set(i);
+    expect(a.intersection(b).isEmpty()).toBe(true);
+  });
+
+  it('cardinality after many operations', () => {
+    const bs = new BitSet(10000);
+    let expected = 0;
+    for (let i = 0; i < 10000; i++) {
+      if (Math.random() > 0.5) {
+        bs.set(i);
+        expected++;
+      } else {
+        bs.clear(i);
+        expected = Math.max(0, expected - 1);
+      }
+    }
+    expect(bs.cardinality()).toBeGreaterThanOrEqual(0);
+    expect(bs.cardinality()).toBeLessThanOrEqual(10000);
+  });
+});
+]==],
+  },
 }
 
 --- Deterministic challenge selection based on date.
