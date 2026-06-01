@@ -18081,6 +18081,135 @@ describe('decompress', () => {
 });
 ]==],
   },
+  {
+    name = "Zigzag Level Order Traversal",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * Zigzag Level Order Traversal
+ *
+ * Given a binary tree, return the zigzag level order traversal of its nodes' values.
+ * Zigzag means: left-to-right for level 0, right-to-left for level 1, then alternate.
+ *
+ * Example:
+ *       3
+ *      / \\
+ *     9  20
+ *       /  \\
+ *      15   7
+ *
+ * zigzagLevelOrder(root) => [[3], [20, 9], [15, 7]]
+ *
+ * TreeNode definition:
+ *   class TreeNode {
+ *     val: number;
+ *     left: TreeNode | null;
+ *     right: TreeNode | null;
+ *   }
+ */
+
+export class TreeNode {
+  val: number;
+  left: TreeNode | null;
+  right: TreeNode | null;
+  constructor(val: number, left: TreeNode | null = null, right: TreeNode | null = null) {
+    this.val = val;
+    this.left = left;
+    this.right = right;
+  }
+}
+
+export function zigzagLevelOrder(root: TreeNode | null): number[][] {
+  // YOUR CODE HERE
+  return [];
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { TreeNode, zigzagLevelOrder } from './challenge';
+
+function buildTree(values: (number | null)[]): TreeNode | null {
+  if (!values.length || values[0] === null) return null;
+  const root = new TreeNode(values[0]);
+  const queue: (TreeNode | null)[] = [root];
+  let i = 1;
+  while (i < values.length) {
+    const node = queue.shift();
+    if (node) {
+      if (values[i] !== null) {
+        node.left = new TreeNode(values[i]!);
+        queue.push(node.left);
+      }
+      i++;
+      if (i < values.length && values[i] !== null) {
+        node.right = new TreeNode(values[i]!);
+        queue.push(node.right);
+      }
+      i++;
+    }
+  }
+  return root;
+}
+
+describe('Zigzag Level Order Traversal', () => {
+  it('empty tree returns empty array', () => {
+    expect(zigzagLevelOrder(null)).toEqual([]);
+  });
+
+  it('single node', () => {
+    expect(zigzagLevelOrder(new TreeNode(1))).toEqual([[1]]);
+  });
+
+  it('two levels - zigzag', () => {
+    const root = buildTree([3, 9, 20]);
+    expect(zigzagLevelOrder(root)).toEqual([[3], [20, 9]]);
+  });
+
+  it('three levels - classic example', () => {
+    const root = buildTree([3, 9, 20, null, null, 15, 7]);
+    expect(zigzagLevelOrder(root)).toEqual([[3], [20, 9], [15, 7]]);
+  });
+
+  it('four levels', () => {
+    const root = buildTree([1, 2, 3, 4, 5, 6, 7]);
+    expect(zigzagLevelOrder(root)).toEqual([[1], [3, 2], [4, 5, 6, 7]]);
+  });
+
+  it('skewed tree - left only', () => {
+    const root = buildTree([1, 2, 3, 4]);
+    expect(zigzagLevelOrder(root)).toEqual([[1], [2], [3], [4]]);
+  });
+
+  it('skewed tree - right only', () => {
+    const root = buildTree([1, null, 2, null, 3, null, 4]);
+    expect(zigzagLevelOrder(root)).toEqual([[1], [2], [3], [4]]);
+  });
+
+  it('complete binary tree', () => {
+    const root = buildTree([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
+    expect(zigzagLevelOrder(root)).toEqual([
+      [1],
+      [3, 2],
+      [4, 5, 6, 7],
+      [15, 14, 13, 12, 11, 10, 9, 8],
+    ]);
+  });
+
+  it('tree with nulls in middle', () => {
+    const root = buildTree([1, 2, 3, null, 4, 5, null]);
+    expect(zigzagLevelOrder(root)).toEqual([[1], [3, 2], [5, 4]]);
+  });
+
+  it('large tree - level order preserved', () => {
+    const root = buildTree(Array.from({ length: 31 }, (_, i) => i + 1));
+    const result = zigzagLevelOrder(root);
+    // Flatten and check all values present
+    const flat = result.flat();
+    expect(flat.sort((a, b) => a - b)).toEqual(Array.from({ length: 31 }, (_, i) => i + 1));
+  });
+});
+]==],
+  },
 }
 
 --- Deterministic challenge selection based on date.
