@@ -17919,6 +17919,168 @@ describe('BitSet - stress tests', () => {
 });
 ]==],
   },
+  {
+    name = "String Compression",
+    difficulty = "easy",
+    stub = [==[
+/**
+ * String Compression (Run-Length Encoding)
+ *
+ * Implement a function that compresses a string using run-length encoding.
+ *
+ * For each consecutive group of identical characters:
+ * - If the count is 1, just include the character
+ * - If the count is > 1, include the character followed by the count
+ *
+ * Examples:
+ *   compress("aabcccccaaa") => "a2bc5a3"
+ *   compress("abc") => "abc" (no compression benefit)
+ *   compress("") => ""
+ *
+ * Bonus: Implement decompress that reverses the compression.
+ */
+
+export function compress(str: string): string {
+  // YOUR CODE HERE
+  return '';
+}
+
+/**
+ * Bonus: Decompress a run-length encoded string.
+ * 
+ * Examples:
+ *   decompress("a2bc5a3") => "aabcccccaaa"
+ *   decompress("abc") => "abc"
+ */
+export function decompress(str: string): string {
+  // YOUR CODE HERE
+  return '';
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { compress, decompress } from './challenge';
+
+describe('compress', () => {
+  it('empty string', () => {
+    expect(compress('')).toBe('');
+  });
+
+  it('single character', () => {
+    expect(compress('a')).toBe('a');
+  });
+
+  it('no repeats', () => {
+    expect(compress('abc')).toBe('abc');
+  });
+
+  it('simple repeat', () => {
+    expect(compress('aa')).toBe('a2');
+    expect(compress('aaa')).toBe('a3');
+  });
+
+  it('mixed repeats and singles', () => {
+    expect(compress('aabcccccaaa')).toBe('a2bc5a3');
+  });
+
+  it('all same character', () => {
+    expect(compress('aaaaaa')).toBe('a6');
+  });
+
+  it('multiple groups', () => {
+    expect(compress('aaabbbaaa')).toBe('a3b3a3');
+  });
+
+  it('single char followed by repeat', () => {
+    expect(compress('abbb')).toBe('ab3');
+  });
+
+  it('repeat followed by single char', () => {
+    expect(compress('aaab')).toBe('a3b');
+  });
+
+  it('long runs', () => {
+    expect(compress('a'.repeat(100))).toBe('a100');
+  });
+
+  it('special characters', () => {
+    expect(compress('@@@###')).toBe('@3#3');
+  });
+
+  it('numbers in input', () => {
+    expect(compress('111222')).toBe('1323');
+  });
+
+  it('whitespace', () => {
+    expect(compress('   ')).toBe(' 3');
+  });
+
+  it('stress: alternating chars', () => {
+    let input = '';
+    for (let i = 0; i < 500; i++) {
+      input += i % 2 === 0 ? 'a' : 'b';
+    }
+    expect(compress(input)).toBe(input);
+  });
+
+  it('stress: all same char', () => {
+    expect(compress('z'.repeat(1000))).toBe('z1000');
+  });
+});
+
+describe('decompress', () => {
+  it('empty string', () => {
+    expect(decompress('')).toBe('');
+  });
+
+  it('single char no count', () => {
+    expect(decompress('a')).toBe('a');
+  });
+
+  it('simple repeat', () => {
+    expect(decompress('a2')).toBe('aa');
+    expect(decompress('a3')).toBe('aaa');
+  });
+
+  it('mixed repeats and singles', () => {
+    expect(decompress('a2bc5a3')).toBe('aabcccccaaa');
+  });
+
+  it('multi-digit counts', () => {
+    expect(decompress('a12')).toBe('aaaaaaaaaaaa');
+  });
+
+  it('multiple groups', () => {
+    expect(decompress('a3b3a3')).toBe('aaabbbaaa');
+  });
+
+  it('roundtrip with compress', () => {
+    const original = 'aabcccccaaa';
+    expect(decompress(compress(original))).toBe(original);
+  });
+
+  it('roundtrip: no compression case', () => {
+    const original = 'abcdef';
+    expect(decompress(compress(original))).toBe(original);
+  });
+
+  it('complex string roundtrip', () => {
+    const original = 'aaabbbaaaabbbaaa';
+    expect(decompress(compress(original))).toBe(original);
+  });
+
+  it('special characters roundtrip', () => {
+    const original = '@@@###@@@';
+    expect(decompress(compress(original))).toBe(original);
+  });
+
+  it('stress: long string roundtrip', () => {
+    const original = 'a'.repeat(50) + 'b'.repeat(50) + 'c'.repeat(50);
+    expect(decompress(compress(original))).toBe(original);
+  });
+});
+]==],
+  },
 }
 
 --- Deterministic challenge selection based on date.
