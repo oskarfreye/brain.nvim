@@ -18210,6 +18210,235 @@ describe('Zigzag Level Order Traversal', () => {
 });
 ]==],
   },
+  {
+    name = "Union-Find (Disjoint Set Union)",
+    difficulty = "medium",
+    stub = [=[
+/**
+ * Union-Find (Disjoint Set Union)
+ *
+ * Implement a Union-Find data structure with path compression and union by rank.
+ * This data structure efficiently tracks disjoint sets and supports merging them.
+ *
+ * UnionFind class:
+ * - constructor(n: number) — Initialize with n elements (0 to n-1), each in its own set.
+ * - find(x: number): number — Return the representative (root) of x's set.
+ *   Must use path compression for O(α(n)) amortized time.
+ * - union(x: number, y: number): boolean — Merge the sets containing x and y.
+ *   Return true if they were in different sets, false if already in the same set.
+ *   Must use union by rank/size for optimal performance.
+ * - connected(x: number, y: number): boolean — Return true if x and y are in the same set.
+ * - count: number — Return the current number of disjoint sets (getter).
+ *
+ * Bonus: Implement a generic UnionFind<T> that works with any hashable type.
+ */
+
+export class UnionFind {
+  constructor(n: number) {
+    // YOUR CODE HERE
+  }
+
+  find(x: number): number {
+    // YOUR CODE HERE
+    return -1;
+  }
+
+  union(x: number, y: number): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  connected(x: number, y: number): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  get count(): number {
+    // YOUR CODE HERE
+    return -1;
+  }
+}
+
+/**
+ * Bonus: Generic UnionFind for any hashable type.
+ * Use a Map to store parent/rank relationships.
+ */
+export class UnionFindGeneric<T> {
+  constructor(elements: T[]) {
+    // YOUR CODE HERE
+  }
+
+  find(x: T): T {
+    // YOUR CODE HERE
+    return x;
+  }
+
+  union(x: T, y: T): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  connected(x: T, y: T): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  get count(): number {
+    // YOUR CODE HERE
+    return -1;
+  }
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { UnionFind, UnionFindGeneric } from './challenge';
+
+describe('UnionFind', () => {
+  it('single elements are their own sets', () => {
+    const uf = new UnionFind(5);
+    expect(uf.find(0)).toBe(0);
+    expect(uf.find(4)).toBe(4);
+  });
+
+  it('union merges two sets', () => {
+    const uf = new UnionFind(5);
+    expect(uf.union(0, 1)).toBe(true);
+    expect(uf.connected(0, 1)).toBe(true);
+    expect(uf.connected(1, 0)).toBe(true);
+  });
+
+  it('union returns false for already connected', () => {
+    const uf = new UnionFind(3);
+    uf.union(0, 1);
+    expect(uf.union(0, 1)).toBe(false);
+  });
+
+  it('count decreases on successful union', () => {
+    const uf = new UnionFind(5);
+    expect(uf.count).toBe(5);
+    uf.union(0, 1);
+    expect(uf.count).toBe(4);
+    uf.union(2, 3);
+    expect(uf.count).toBe(3);
+    uf.union(0, 2);
+    expect(uf.count).toBe(2);
+  });
+
+  it('transitive connectivity', () => {
+    const uf = new UnionFind(5);
+    uf.union(0, 1);
+    uf.union(1, 2);
+    expect(uf.connected(0, 2)).toBe(true);
+    expect(uf.connected(2, 0)).toBe(true);
+  });
+
+  it('path compression works', () => {
+    const uf = new UnionFind(6);
+    uf.union(0, 1);
+    uf.union(1, 2);
+    uf.union(2, 3);
+    uf.union(3, 4);
+    const root = uf.find(4);
+    expect(uf.connected(0, 4)).toBe(true);
+    expect(uf.find(4)).toBe(root);
+  });
+
+  it('disconnected components', () => {
+    const uf = new UnionFind(6);
+    uf.union(0, 1);
+    uf.union(2, 3);
+    uf.union(4, 5);
+    expect(uf.count).toBe(3);
+    expect(uf.connected(0, 2)).toBe(false);
+    expect(uf.connected(2, 4)).toBe(false);
+    expect(uf.connected(0, 5)).toBe(false);
+  });
+
+  it('union all into one set', () => {
+    const uf = new UnionFind(10);
+    for (let i = 1; i < 10; i++) {
+      uf.union(0, i);
+    }
+    expect(uf.count).toBe(1);
+    for (let i = 0; i < 10; i++) {
+      expect(uf.connected(0, i)).toBe(true);
+    }
+  });
+
+  it('single element', () => {
+    const uf = new UnionFind(1);
+    expect(uf.count).toBe(1);
+    expect(uf.find(0)).toBe(0);
+    expect(uf.connected(0, 0)).toBe(true);
+  });
+
+  it('empty union-find', () => {
+    const uf = new UnionFind(0);
+    expect(uf.count).toBe(0);
+  });
+
+  it('self-union does nothing', () => {
+    const uf = new UnionFind(3);
+    expect(uf.union(1, 1)).toBe(false);
+    expect(uf.count).toBe(3);
+  });
+
+  it('stress: many unions', () => {
+    const uf = new UnionFind(1000);
+    for (let i = 1; i < 1000; i++) {
+      uf.union(i - 1, i);
+    }
+    expect(uf.count).toBe(1);
+    expect(uf.connected(0, 999)).toBe(true);
+    expect(uf.connected(123, 456)).toBe(true);
+  });
+
+  it('stress: random unions', () => {
+    const uf = new UnionFind(100);
+    let unions = 0;
+    for (let i = 0; i < 500; i++) {
+      const x = Math.floor(Math.random() * 100);
+      const y = Math.floor(Math.random() * 100);
+      if (uf.union(x, y)) unions++;
+    }
+    expect(uf.count).toBeLessThan(20);
+  });
+});
+
+describe('UnionFindGeneric', () => {
+  it('works with strings', () => {
+    const uf = new UnionFindGeneric(['a', 'b', 'c', 'd']);
+    expect(uf.union('a', 'b')).toBe(true);
+    expect(uf.connected('a', 'b')).toBe(true);
+    expect(uf.connected('a', 'c')).toBe(false);
+  });
+
+  it('works with objects', () => {
+    const obj1 = { id: 1 };
+    const obj2 = { id: 2 };
+    const obj3 = { id: 3 };
+    const uf = new UnionFindGeneric([obj1, obj2, obj3]);
+    uf.union(obj1, obj2);
+    expect(uf.connected(obj1, obj2)).toBe(true);
+    expect(uf.connected(obj1, obj3)).toBe(false);
+  });
+
+  it('count tracks generic sets', () => {
+    const uf = new UnionFindGeneric(['x', 'y', 'z']);
+    expect(uf.count).toBe(3);
+    uf.union('x', 'y');
+    expect(uf.count).toBe(2);
+  });
+
+  it('transitive with generics', () => {
+    const uf = new UnionFindGeneric(['a', 'b', 'c']);
+    uf.union('a', 'b');
+    uf.union('b', 'c');
+    expect(uf.connected('a', 'c')).toBe(true);
+  });
+});
+]=],
+  },
 }
 
 --- Deterministic challenge selection based on date.
