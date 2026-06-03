@@ -18439,6 +18439,238 @@ describe('UnionFindGeneric', () => {
 });
 ]=],
   },
+  {
+    name = "Ternary Search Tree",
+    difficulty = "hard",
+    stub = [==[
+/**
+ * Ternary Search Tree (TST)
+ *
+ * Implement a Ternary Search Tree - a hybrid of trie and binary search tree
+ * used for efficient string storage and retrieval. Each node has three children:
+ * - left: for characters less than current node's character
+ * - mid: for characters equal to current node's character (next character in string)
+ * - right: for characters greater than current node's character
+ *
+ * TST supports:
+ * - Insert: O(log n + L) where L is string length
+ * - Search: O(log n + L)
+ * - Prefix search: find all strings starting with a given prefix
+ * - Autocomplete: suggest completions based on prefix
+ *
+ * TernarySearchTree class:
+ * - insert(word: string): void
+ * - search(word: string): boolean
+ * - startsWith(prefix: string): boolean
+ * - autocomplete(prefix: string, limit?: number): string[]
+ * - delete(word: string): boolean
+ * - getAllWords(): string[]
+ */
+
+interface TSTNode {
+  char: string;
+  value: any | null;
+  left: TSTNode | null;
+  mid: TSTNode | null;
+  right: TSTNode | null;
+}
+
+export class TernarySearchTree {
+  private root: TSTNode | null = null;
+  private wordCount: number = 0;
+
+  insert(word: string): void {
+    // YOUR CODE HERE
+  }
+
+  search(word: string): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  startsWith(prefix: string): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  autocomplete(prefix: string, limit?: number): string[] {
+    // YOUR CODE HERE
+    return [];
+  }
+
+  delete(word: string): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  getAllWords(): string[] {
+    // YOUR CODE HERE
+    return [];
+  }
+
+  get size(): number {
+    // YOUR CODE HERE
+    return this.wordCount;
+  }
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { TernarySearchTree } from './challenge';
+
+describe('Ternary Search Tree', () => {
+  it('inserts and finds single word', () => {
+    const tst = new TernarySearchTree();
+    tst.insert('hello');
+    expect(tst.search('hello')).toBe(true);
+    expect(tst.search('hell')).toBe(false);
+  });
+
+  it('handles multiple words', () => {
+    const tst = new TernarySearchTree();
+    ['hello', 'world', 'test', 'trie'].forEach(w => tst.insert(w));
+    expect(tst.search('hello')).toBe(true);
+    expect(tst.search('world')).toBe(true);
+    expect(tst.search('test')).toBe(true);
+    expect(tst.search('trie')).toBe(true);
+    expect(tst.search('xyz')).toBe(false);
+  });
+
+  it('startsWith finds correct prefixes', () => {
+    const tst = new TernarySearchTree();
+    ['apple', 'application', 'apply', 'app'].forEach(w => tst.insert(w));
+    expect(tst.startsWith('app')).toBe(true);
+    expect(tst.startsWith('appl')).toBe(true);
+    expect(tst.startsWith('application')).toBe(true);
+    expect(tst.startsWith('xyz')).toBe(false);
+  });
+
+  it('autocomplete returns matching words', () => {
+    const tst = new TernarySearchTree();
+    ['cat', 'car', 'card', 'care', 'dog'].forEach(w => tst.insert(w));
+    const results = tst.autocomplete('car');
+    expect(results).toContain('car');
+    expect(results).toContain('card');
+    expect(results).toContain('care');
+    expect(results).not.toContain('cat');
+    expect(results).not.toContain('dog');
+  });
+
+  it('autocomplete respects limit', () => {
+    const tst = new TernarySearchTree();
+    ['apple', 'apply', 'application', 'app', 'apricot'].forEach(w => tst.insert(w));
+    const results = tst.autocomplete('app', 2);
+    expect(results.length).toBeLessThanOrEqual(2);
+  });
+
+  it('delete removes word', () => {
+    const tst = new TernarySearchTree();
+    tst.insert('hello');
+    expect(tst.delete('hello')).toBe(true);
+    expect(tst.search('hello')).toBe(false);
+  });
+
+  it('delete does not affect other words', () => {
+    const tst = new TernarySearchTree();
+    ['hello', 'help', 'world'].forEach(w => tst.insert(w));
+    tst.delete('hello');
+    expect(tst.search('help')).toBe(true);
+    expect(tst.search('world')).toBe(true);
+    expect(tst.startsWith('hel')).toBe(true);
+  });
+
+  it('delete non-existent returns false', () => {
+    const tst = new TernarySearchTree();
+    tst.insert('test');
+    expect(tst.delete('nonexistent')).toBe(false);
+  });
+
+  it('getAllWords returns all inserted words', () => {
+    const tst = new TernarySearchTree();
+    const words = ['zebra', 'apple', 'monkey', 'banana'];
+    words.forEach(w => tst.insert(w));
+    const allWords = tst.getAllWords();
+    expect(allWords.sort()).toEqual(words.sort());
+  });
+
+  it('size tracks word count', () => {
+    const tst = new TernarySearchTree();
+    expect(tst.size).toBe(0);
+    tst.insert('one');
+    expect(tst.size).toBe(1);
+    tst.insert('two');
+    expect(tst.size).toBe(2);
+    tst.delete('one');
+    expect(tst.size).toBe(1);
+  });
+
+  it('handles duplicate insertions', () => {
+    const tst = new TernarySearchTree();
+    tst.insert('hello');
+    tst.insert('hello');
+    expect(tst.size).toBe(1);
+    expect(tst.search('hello')).toBe(true);
+  });
+
+  it('empty prefix returns all words', () => {
+    const tst = new TernarySearchTree();
+    ['a', 'b', 'c'].forEach(w => tst.insert(w));
+    expect(tst.autocomplete('')).toEqual(['a', 'b', 'c']);
+  });
+
+  it('case sensitivity', () => {
+    const tst = new TernarySearchTree();
+    tst.insert('Hello');
+    expect(tst.search('Hello')).toBe(true);
+    expect(tst.search('hello')).toBe(false);
+  });
+
+  it('handles single character words', () => {
+    const tst = new TernarySearchTree();
+    ['a', 'b', 'c', 'd'].forEach(w => tst.insert(w));
+    expect(tst.search('a')).toBe(true);
+    expect(tst.search('z')).toBe(false);
+    expect(tst.autocomplete('a')).toEqual(['a']);
+  });
+
+  it('stress: many words', () => {
+    const tst = new TernarySearchTree();
+    const words = Array.from({ length: 500 }, (_, i) => `word${i}`);
+    words.forEach(w => tst.insert(w));
+    expect(tst.size).toBe(500);
+    words.forEach(w => {
+      expect(tst.search(w)).toBe(true);
+      expect(tst.startsWith('word')).toBe(true);
+    });
+    expect(tst.autocomplete('word10', 10).length).toBeGreaterThan(0);
+  });
+
+  it('autocomplete with common prefix', () => {
+    const tst = new TernarySearchTree();
+    ['pre', 'prefix', 'preface', 'prefer', 'prefixes'].forEach(w => tst.insert(w));
+    const results = tst.autocomplete('pre');
+    expect(results.length).toBe(5);
+  });
+
+  it('words with shared suffix', () => {
+    const tst = new TernarySearchTree();
+    ['testing', 'resting', 'nesting', 'besting'].forEach(w => tst.insert(w));
+    expect(tst.search('testing')).toBe(true);
+    expect(tst.search('resting')).toBe(true);
+    expect(tst.startsWith('ting')).toBe(false);
+  });
+
+  it('long words', () => {
+    const tst = new TernarySearchTree();
+    const longWord = 'supercalifragilisticexpialidocious';
+    tst.insert(longWord);
+    expect(tst.search(longWord)).toBe(true);
+    expect(tst.startsWith('super')).toBe(true);
+    expect(tst.startsWith('califrag')).toBe(false);
+  });
+});
+]==],
+  },
 }
 
 --- Deterministic challenge selection based on date.
