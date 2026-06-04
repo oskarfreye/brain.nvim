@@ -18671,6 +18671,275 @@ describe('Ternary Search Tree', () => {
 });
 ]==],
   },
+  {
+    name = "Graph BFS/DFS Traversal",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * Graph BFS/DFS Traversal
+ *
+ * Implement both Breadth-First Search (BFS) and Depth-First Search (DFS)
+ * for graph traversal. These are fundamental algorithms used in:
+ * - Finding connected components
+ * - Detecting cycles
+ * - Topological sorting
+ * - Maze solving
+ * - Web crawling
+ *
+ * Graph representation: adjacency list
+ *   edges[i] = [neighbor1, neighbor2, ...] for node i
+ *
+ * Implement:
+ * - bfs(numNodes, edges, start) — Return nodes in BFS order from start
+ * - dfs(numNodes, edges, start) — Return nodes in DFS order from start (iterative)
+ * - dfsRecursive(numNodes, edges, start) — Return nodes in DFS order (recursive)
+ * - connectedComponents(numNodes, edges) — Return array of component arrays
+ * - hasCycle(numNodes, edges) — Detect if directed graph has a cycle
+ *
+ * Bonus: Implement findPath(numNodes, edges, start, end) using BFS to find
+ * the shortest path (by number of edges) between two nodes.
+ */
+
+export function bfs(numNodes: number, edges: number[][], start: number): number[] {
+  // YOUR CODE HERE
+  return [];
+}
+
+export function dfs(numNodes: number, edges: number[][], start: number): number[] {
+  // YOUR CODE HERE
+  return [];
+}
+
+export function dfsRecursive(numNodes: number, edges: number[][], start: number): number[] {
+  // YOUR CODE HERE
+  return [];
+}
+
+export function connectedComponents(numNodes: number, edges: number[][]): number[][] {
+  // YOUR CODE HERE
+  return [];
+}
+
+export function hasCycle(numNodes: number, edges: number[][]): boolean {
+  // YOUR CODE HERE
+  return false;
+}
+
+export function findPath(
+  numNodes: number,
+  edges: number[][],
+  start: number,
+  end: number
+): number[] | null {
+  // YOUR CODE HERE
+  return null;
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { bfs, dfs, dfsRecursive, connectedComponents, hasCycle, findPath } from './challenge';
+
+describe('BFS', () => {
+  it('traverses simple graph', () => {
+    const edges = [[1, 2], [0, 3], [0, 4], [1], [2]];
+    const result = bfs(5, edges, 0);
+    expect(result).toEqual([0, 1, 2, 3, 4]);
+  });
+
+  it('single node', () => {
+    expect(bfs(1, [[]], 0)).toEqual([0]);
+  });
+
+  it('disconnected graph - only reachable nodes', () => {
+    const edges = [[1], [0], [3], [2]];
+    expect(bfs(4, edges, 0)).toEqual([0, 1]);
+  });
+
+  it('linear chain', () => {
+    const edges = [[1], [2], [3], []];
+    expect(bfs(4, edges, 0)).toEqual([0, 1, 2, 3]);
+  });
+
+  it('star graph', () => {
+    const edges = [[1, 2, 3, 4], [], [], [], []];
+    expect(bfs(5, edges, 0)).toEqual([0, 1, 2, 3, 4]);
+  });
+
+  it('empty graph', () => {
+    expect(bfs(3, [[], [], []], 0)).toEqual([0]);
+  });
+
+  it('handles cycles', () => {
+    const edges = [[1], [2], [0]];
+    expect(bfs(3, edges, 0)).toEqual([0, 1, 2]);
+  });
+
+  it('stress: large graph', () => {
+    const n = 1000;
+    const edges: number[][] = Array.from({ length: n }, (_, i) => [i + 1].filter(x => x < n));
+    const result = bfs(n, edges, 0);
+    expect(result.length).toBe(n);
+    expect(result[0]).toBe(0);
+    expect(result[n - 1]).toBe(n - 1);
+  });
+});
+
+describe('DFS', () => {
+  it('traverses simple graph', () => {
+    const edges = [[1, 2], [0, 3], [0, 4], [1], [2]];
+    const result = dfs(5, edges, 0);
+    expect(result.length).toBe(5);
+    expect(result[0]).toBe(0);
+  });
+
+  it('single node', () => {
+    expect(dfs(1, [[]], 0)).toEqual([0]);
+  });
+
+  it('linear chain', () => {
+    const edges = [[1], [2], [3], []];
+    expect(dfs(4, edges, 0)).toEqual([0, 1, 2, 3]);
+  });
+
+  it('goes deep before wide', () => {
+    const edges = [[1, 4], [2], [3], [], []];
+    expect(dfs(5, edges, 0)).toEqual([0, 1, 2, 3, 4]);
+  });
+
+  it('disconnected graph', () => {
+    const edges = [[1], [0], [3], [2]];
+    expect(dfs(4, edges, 0)).toEqual([0, 1]);
+  });
+
+  it('handles cycles', () => {
+    const edges = [[1], [2], [0]];
+    expect(dfs(3, edges, 0)).toEqual([0, 1, 2]);
+  });
+});
+
+describe('DFS Recursive', () => {
+  it('traverses same as iterative', () => {
+    const edges = [[1, 2], [3], [4], [], []];
+    const iter = dfs(5, edges, 0);
+    const recur = dfsRecursive(5, edges, 0);
+    expect(iter.length).toBe(recur.length);
+    expect(recur.length).toBe(5);
+  });
+
+  it('single node', () => {
+    expect(dfsRecursive(1, [[]], 0)).toEqual([0]);
+  });
+
+  it('deep recursion', () => {
+    const n = 100;
+    const edges: number[][] = Array.from({ length: n }, (_, i) => [i + 1].filter(x => x < n));
+    const result = dfsRecursive(n, edges, 0);
+    expect(result.length).toBe(n);
+  });
+});
+
+describe('Connected Components', () => {
+  it('single component', () => {
+    const edges = [[1], [0, 2], [1]];
+    const components = connectedComponents(3, edges);
+    expect(components).toHaveLength(1);
+    expect(components[0].sort()).toEqual([0, 1, 2]);
+  });
+
+  it('multiple components', () => {
+    const edges = [[1], [0], [3], [2]];
+    const components = connectedComponents(4, edges);
+    expect(components).toHaveLength(2);
+    expect(components[0].sort()).toEqual([0, 1]);
+    expect(components[1].sort()).toEqual([2, 3]);
+  });
+
+  it('all isolated', () => {
+    const components = connectedComponents(4, [[], [], [], []]);
+    expect(components).toHaveLength(4);
+    components.forEach(c => expect(c).toHaveLength(1));
+  });
+
+  it('empty graph', () => {
+    expect(connectedComponents(0, [])).toEqual([]);
+  });
+
+  it('stress: many components', () => {
+    const n = 100;
+    const edges: number[][] = Array.from({ length: n }, () => []);
+    expect(connectedComponents(n, edges)).toHaveLength(n);
+  });
+});
+
+describe('Has Cycle', () => {
+  it('detects simple cycle', () => {
+    const edges = [[1], [2], [0]];
+    expect(hasCycle(3, edges)).toBe(true);
+  });
+
+  it('no cycle in DAG', () => {
+    const edges = [[1, 2], [3], [3], []];
+    expect(hasCycle(4, edges)).toBe(false);
+  });
+
+  it('self-loop', () => {
+    const edges = [[0]];
+    expect(hasCycle(1, edges)).toBe(true);
+  });
+
+  it('complex cycle', () => {
+    const edges = [[1, 2], [3], [3], [4], [2]];
+    expect(hasCycle(5, edges)).toBe(true);
+  });
+
+  it('linear chain no cycle', () => {
+    const edges = [[1], [2], [3], []];
+    expect(hasCycle(4, edges)).toBe(false);
+  });
+
+  it('empty graph', () => {
+    expect(hasCycle(3, [[], [], []])).toBe(false);
+  });
+});
+
+describe('Find Path', () => {
+  it('finds shortest path', () => {
+    const edges = [[1, 2], [3], [3], [4], []];
+    expect(findPath(5, edges, 0, 4)).toEqual([0, 1, 3, 4]);
+  });
+
+  it('returns null for unreachable', () => {
+    const edges = [[1], [0], [3], [2]];
+    expect(findPath(4, edges, 0, 3)).toBe(null);
+  });
+
+  it('start equals end', () => {
+    const edges = [[1], []];
+    expect(findPath(2, edges, 0, 0)).toEqual([0]);
+  });
+
+  it('direct connection', () => {
+    const edges = [[1], []];
+    expect(findPath(2, edges, 0, 1)).toEqual([0, 1]);
+  });
+
+  it('multiple paths picks shortest', () => {
+    const edges = [[1, 2], [3], [3], []];
+    const path = findPath(4, edges, 0, 3);
+    expect(path).toHaveLength(3);
+    expect(path).toEqual([0, 1, 3]);
+  });
+
+  it('stress: long path', () => {
+    const n = 500;
+    const edges: number[][] = Array.from({ length: n }, (_, i) => [i + 1].filter(x => x < n));
+    const path = findPath(n, edges, 0, n - 1);
+    expect(path).toEqual(Array.from({ length: n }, (_, i) => i));
+  });
+});
+]==],
+  },
+
 }
 
 --- Deterministic challenge selection based on date.
