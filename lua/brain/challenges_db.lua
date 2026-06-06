@@ -379,6 +379,356 @@ describe('performance', () => {
 });
 ]==],
   },
+  {
+    name = "Throttle and Debounce",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * Throttle and Debounce
+ *
+ * Implement rate-limiting higher-order functions commonly used in event handling.
+ *
+ * Throttle: Ensure a function is called at most once every `wait` milliseconds.
+ * - If called multiple times within the window, only the first invocation executes.
+ * - Subsequent calls are ignored until the window passes.
+ * - Use case: scroll handlers, resize events, API rate limiting.
+ *
+ * Debounce: Delay function execution until after `wait` milliseconds of inactivity.
+ * - If called again before the timer expires, reset the timer.
+ * - Only executes after the caller stops invoking it for the full duration.
+ * - Use case: search input, form validation, window resize.
+ *
+ * Implement:
+ * - throttle<T extends (...args: any[]) => any>(fn: T, wait: number): T
+ * - debounce<T extends (...args: any[]) => any>(fn: T, wait: number): T
+ * - debounceWithImmediate<T extends (...args: any[]) => any>(fn: T, wait: number): T
+ *   (executes immediately on first call, then debounces subsequent calls)
+ *
+ * Bonus: Add options object support:
+ * - throttle(fn, wait, { leading?: boolean, trailing?: boolean })
+ * - debounce(fn, wait, { immediate?: boolean })
+ */
+
+export function throttle<T extends (...args: any[]) => any>(
+  fn: T,
+  wait: number
+): T {
+  // YOUR CODE HERE
+  return (() => {}) as T;
+}
+
+export function debounce<T extends (...args: any[]) => any>(
+  fn: T,
+  wait: number
+): T {
+  // YOUR CODE HERE
+  return (() => {}) as T;
+}
+
+export function debounceWithImmediate<T extends (...args: any[]) => any>(
+  fn: T,
+  wait: number
+): T {
+  // YOUR CODE HERE
+  return (() => {}) as T;
+}
+]==],
+    tests = [==[
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { throttle, debounce, debounceWithImmediate } from './challenge';
+
+describe('throttle', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('calls function immediately on first invocation', () => {
+    const fn = vi.fn();
+    const throttled = throttle(fn, 100);
+    throttled();
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+
+  it('ignores calls within the wait window', () => {
+    const fn = vi.fn();
+    const throttled = throttle(fn, 100);
+    throttled();
+    throttled();
+    throttled();
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+
+  it('allows call after wait period', () => {
+    const fn = vi.fn();
+    const throttled = throttle(fn, 100);
+    throttled();
+    vi.advanceTimersByTime(100);
+    throttled();
+    expect(fn).toHaveBeenCalledTimes(2);
+  });
+
+  it('passes arguments correctly', () => {
+    const fn = vi.fn();
+    const throttled = throttle(fn, 100);
+    throttled(1, 2, 3);
+    expect(fn).toHaveBeenCalledWith(1, 2, 3);
+  });
+
+  it('preserves this context', () => {
+    const obj = {
+      value: 42,
+      method: function() { return this.value; }
+    };
+    const throttled = throttle(obj.method, 100);
+    expect(throttled.call(obj)).toBe(42);
+  });
+
+  it('returns value from function', () => {
+    const fn = vi.fn(() => 'result');
+    const throttled = throttle(fn, 100);
+    expect(throttled()).toBe('result');
+  });
+
+  it('multiple throttled functions are independent', () => {
+    const fn1 = vi.fn();
+    const fn2 = vi.fn();
+    const t1 = throttle(fn1, 100);
+    const t2 = throttle(fn2, 100);
+    t1();
+    t2();
+    t1();
+    expect(fn1).toHaveBeenCalledTimes(1);
+    expect(fn2).toHaveBeenCalledTimes(1);
+  });
+
+  it('works with different wait times', () => {
+    const fn = vi.fn();
+    const t50 = throttle(fn, 50);
+    const t200 = throttle(fn, 200);
+    t50();
+    vi.advanceTimersByTime(50);
+    t50();
+    t200();
+    vi.advanceTimersByTime(150);
+    t200();
+    expect(fn).toHaveBeenCalledTimes(3);
+  });
+});
+
+describe('debounce', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('does not call function immediately', () => {
+    const fn = vi.fn();
+    const debounced = debounce(fn, 100);
+    debounced();
+    expect(fn).not.toHaveBeenCalled();
+  });
+
+  it('calls function after wait period of inactivity', () => {
+    const fn = vi.fn();
+    const debounced = debounce(fn, 100);
+    debounced();
+    vi.advanceTimersByTime(100);
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+
+  it('resets timer on subsequent calls', () => {
+    const fn = vi.fn();
+    const debounced = debounce(fn, 100);
+    debounced();
+    vi.advanceTimersByTime(50);
+    debounced();
+    vi.advanceTimersByTime(50);
+    debounced();
+    vi.advanceTimersByTime(100);
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+
+  it('passes arguments from last call', () => {
+    const fn = vi.fn();
+    const debounced = debounce(fn, 100);
+    debounced('first');
+    debounced('second');
+    debounced('third');
+    vi.advanceTimersByTime(100);
+    expect(fn).toHaveBeenCalledWith('third');
+  });
+
+  it('preserves this context', () => {
+    const obj = {
+      value: 42,
+      method: function() { return this.value; }
+    };
+    const debounced = debounce(obj.method, 100);
+    debounced.call(obj);
+    vi.advanceTimersByTime(100);
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+
+  it('returns value from function', () => {
+    const fn = vi.fn(() => 'result');
+    const debounced = debounce(fn, 100);
+    debounced();
+    vi.advanceTimersByTime(100);
+    expect(fn).toHaveReturnedWith('result');
+  });
+
+  it('multiple debounced functions are independent', () => {
+    const fn1 = vi.fn();
+    const fn2 = vi.fn();
+    const d1 = debounce(fn1, 100);
+    const d2 = debounce(fn2, 100);
+    d1();
+    d2();
+    vi.advanceTimersByTime(100);
+    expect(fn1).toHaveBeenCalledTimes(1);
+    expect(fn2).toHaveBeenCalledTimes(1);
+  });
+
+  it('can be called multiple times after execution', () => {
+    const fn = vi.fn();
+    const debounced = debounce(fn, 100);
+    debounced();
+    vi.advanceTimersByTime(100);
+    debounced();
+    vi.advanceTimersByTime(100);
+    expect(fn).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('debounceWithImmediate', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('calls function immediately on first invocation', () => {
+    const fn = vi.fn();
+    const debounced = debounceWithImmediate(fn, 100);
+    debounced();
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+
+  it('ignores calls within wait period', () => {
+    const fn = vi.fn();
+    const debounced = debounceWithImmediate(fn, 100);
+    debounced();
+    debounced();
+    debounced();
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+
+  it('allows call after wait period', () => {
+    const fn = vi.fn();
+    const debounced = debounceWithImmediate(fn, 100);
+    debounced();
+    vi.advanceTimersByTime(100);
+    debounced();
+    expect(fn).toHaveBeenCalledTimes(2);
+  });
+
+  it('passes arguments correctly', () => {
+    const fn = vi.fn();
+    const debounced = debounceWithImmediate(fn, 100);
+    debounced(1, 2, 3);
+    expect(fn).toHaveBeenCalledWith(1, 2, 3);
+  });
+
+  it('preserves this context', () => {
+    const obj = {
+      value: 42,
+      method: function() { return this.value; }
+    };
+    const debounced = debounceWithImmediate(obj.method, 100);
+    expect(debounced.call(obj)).toBe(42);
+  });
+
+  it('returns value from function', () => {
+    const fn = vi.fn(() => 'result');
+    const debounced = debounceWithImmediate(fn, 100);
+    expect(debounced()).toBe('result');
+  });
+
+  it('works with rapid calls', () => {
+    const fn = vi.fn();
+    const debounced = debounceWithImmediate(fn, 100);
+    for (let i = 0; i < 10; i++) {
+      debounced(i);
+    }
+    expect(fn).toHaveBeenCalledTimes(1);
+    expect(fn).toHaveBeenCalledWith(0);
+  });
+
+  it('resets after wait period', () => {
+    const fn = vi.fn();
+    const debounced = debounceWithImmediate(fn, 100);
+    debounced('first');
+    vi.advanceTimersByTime(100);
+    debounced('second');
+    vi.advanceTimersByTime(100);
+    expect(fn).toHaveBeenCalledTimes(2);
+    expect(fn).toHaveBeenNthCalledWith(1, 'first');
+    expect(fn).toHaveBeenNthCalledWith(2, 'second');
+  });
+});
+
+describe('edge cases', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('wait of 0 still works', () => {
+    const fn = vi.fn();
+    const throttled = throttle(fn, 0);
+    throttled();
+    throttled();
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+
+  it('very large wait time', () => {
+    const fn = vi.fn();
+    const throttled = throttle(fn, 1000000);
+    throttled();
+    throttled();
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+
+  it('function that throws', () => {
+    const fn = vi.fn(() => { throw new Error('test'); });
+    const throttled = throttle(fn, 100);
+    expect(() => throttled()).toThrow('test');
+  });
+
+  it('async function', async () => {
+    const fn = vi.fn(async () => {
+      await new Promise(resolve => setTimeout(resolve, 10));
+      return 'async-result';
+    });
+    const throttled = throttle(fn, 100);
+    const result = await throttled();
+    expect(result).toBe('async-result');
+  });
+});
+]==],
+  },
 }
 
 return M
