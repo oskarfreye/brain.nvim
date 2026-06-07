@@ -729,6 +729,271 @@ describe('edge cases', () => {
 });
 ]==],
   },
+  {
+    name = "Binary Search Tree",
+    difficulty = "medium",
+    stub = [=[
+/**
+ * Binary Search Tree
+ *
+ * Implement a Binary Search Tree (BST) with insertion, search, and deletion.
+ *
+ * A BST is a binary tree where for each node:
+ * - All values in the left subtree are less than the node's value
+ * - All values in the right subtree are greater than the node's value
+ * - No duplicate values are allowed
+ *
+ * Implement the BST class with:
+ * - insert(value: number): void — Insert a value into the tree
+ * - search(value: number): boolean — Return true if value exists
+ * - delete(value: number): boolean — Remove a value, return true if found
+ * - inOrder(): number[] — Return values in sorted order (in-order traversal)
+ * - height(): number — Return the height of the tree (max depth)
+ * - minValue(): number | null — Return the minimum value in the tree
+ * - maxValue(): number | null — Return the maximum value in the tree
+ *
+ * For delete, handle all three cases:
+ * 1. Node with no children (leaf)
+ * 2. Node with one child
+ * 3. Node with two children (use in-order successor)
+ *
+ * Bonus: Implement isBalanced(): boolean to check if the tree is height-balanced
+ * (difference in height between left and right subtrees is at most 1 for all nodes)
+ */
+
+export class BST {
+  constructor() {
+    // YOUR CODE HERE
+  }
+
+  insert(value: number): void {
+    // YOUR CODE HERE
+  }
+
+  search(value: number): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  delete(value: number): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  inOrder(): number[] {
+    // YOUR CODE HERE
+    return [];
+  }
+
+  height(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  minValue(): number | null {
+    // YOUR CODE HERE
+    return null;
+  }
+
+  maxValue(): number | null {
+    // YOUR CODE HERE
+    return null;
+  }
+
+  isBalanced(): boolean {
+    // YOUR CODE HERE
+    return true;
+  }
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { BST } from './challenge';
+
+describe('BST', () => {
+  it('creates empty tree', () => {
+    const bst = new BST();
+    expect(bst.inOrder()).toEqual([]);
+    expect(bst.height()).toBe(0);
+    expect(bst.minValue()).toBeNull();
+    expect(bst.maxValue()).toBeNull();
+  });
+
+  it('inserts single value', () => {
+    const bst = new BST();
+    bst.insert(5);
+    expect(bst.search(5)).toBe(true);
+    expect(bst.inOrder()).toEqual([5]);
+    expect(bst.height()).toBe(1);
+  });
+
+  it('inserts multiple values in order', () => {
+    const bst = new BST();
+    bst.insert(5);
+    bst.insert(3);
+    bst.insert(7);
+    expect(bst.inOrder()).toEqual([3, 5, 7]);
+    expect(bst.height()).toBe(2);
+  });
+
+  it('inserts multiple values randomly', () => {
+    const bst = new BST();
+    [10, 5, 15, 3, 7, 12, 20].forEach(v => bst.insert(v));
+    expect(bst.inOrder()).toEqual([3, 5, 7, 10, 12, 15, 20]);
+  });
+
+  it('search finds existing values', () => {
+    const bst = new BST();
+    [10, 5, 15, 3, 7].forEach(v => bst.insert(v));
+    expect(bst.search(10)).toBe(true);
+    expect(bst.search(5)).toBe(true);
+    expect(bst.search(3)).toBe(true);
+    expect(bst.search(7)).toBe(true);
+    expect(bst.search(15)).toBe(true);
+  });
+
+  it('search returns false for missing values', () => {
+    const bst = new BST();
+    [10, 5, 15].forEach(v => bst.insert(v));
+    expect(bst.search(1)).toBe(false);
+    expect(bst.search(7)).toBe(false);
+    expect(bst.search(12)).toBe(false);
+    expect(bst.search(20)).toBe(false);
+  });
+
+  it('delete leaf node', () => {
+    const bst = new BST();
+    [10, 5, 15, 3, 7].forEach(v => bst.insert(v));
+    expect(bst.delete(3)).toBe(true);
+    expect(bst.search(3)).toBe(false);
+    expect(bst.inOrder()).toEqual([5, 7, 10, 15]);
+  });
+
+  it('delete node with one child', () => {
+    const bst = new BST();
+    [10, 5, 15, 3].forEach(v => bst.insert(v));
+    expect(bst.delete(5)).toBe(true);
+    expect(bst.search(5)).toBe(false);
+    expect(bst.search(3)).toBe(true);
+    expect(bst.inOrder()).toEqual([3, 10, 15]);
+  });
+
+  it('delete node with two children', () => {
+    const bst = new BST();
+    [10, 5, 15, 3, 7, 12, 20].forEach(v => bst.insert(v));
+    expect(bst.delete(10)).toBe(true);
+    expect(bst.search(10)).toBe(false);
+    expect(bst.inOrder()).toEqual([3, 5, 7, 12, 15, 20]);
+    // Tree should still be valid BST
+    expect(bst.search(5)).toBe(true);
+    expect(bst.search(15)).toBe(true);
+  });
+
+  it('delete root node', () => {
+    const bst = new BST();
+    bst.insert(10);
+    bst.insert(5);
+    bst.insert(15);
+    expect(bst.delete(10)).toBe(true);
+    expect(bst.search(10)).toBe(false);
+    expect(bst.inOrder()).toEqual([5, 15]);
+  });
+
+  it('delete non-existent value', () => {
+    const bst = new BST();
+    [10, 5, 15].forEach(v => bst.insert(v));
+    expect(bst.delete(99)).toBe(false);
+  });
+
+  it('minValue returns correct minimum', () => {
+    const bst = new BST();
+    [10, 5, 15, 3, 7, 1, 20].forEach(v => bst.insert(v));
+    expect(bst.minValue()).toBe(1);
+  });
+
+  it('maxValue returns correct maximum', () => {
+    const bst = new BST();
+    [10, 5, 15, 3, 7, 1, 20].forEach(v => bst.insert(v));
+    expect(bst.maxValue()).toBe(20);
+  });
+
+  it('height of balanced tree', () => {
+    const bst = new BST();
+    [10, 5, 15, 3, 7, 12, 20].forEach(v => bst.insert(v));
+    expect(bst.height()).toBe(3);
+  });
+
+  it('height of skewed tree', () => {
+    const bst = new BST();
+    [1, 2, 3, 4, 5].forEach(v => bst.insert(v));
+    expect(bst.height()).toBe(5);
+  });
+
+  it('isBalanced on balanced tree', () => {
+    const bst = new BST();
+    [10, 5, 15, 3, 7, 12, 20].forEach(v => bst.insert(v));
+    expect(bst.isBalanced()).toBe(true);
+  });
+
+  it('isBalanced on skewed tree', () => {
+    const bst = new BST();
+    [1, 2, 3, 4, 5].forEach(v => bst.insert(v));
+    expect(bst.isBalanced()).toBe(false);
+  });
+
+  it('inOrder on empty tree', () => {
+    const bst = new BST();
+    expect(bst.inOrder()).toEqual([]);
+  });
+
+  it('handles duplicate insertions', () => {
+    const bst = new BST();
+    bst.insert(5);
+    bst.insert(5);
+    bst.insert(5);
+    expect(bst.inOrder()).toEqual([5]);
+    expect(bst.search(5)).toBe(true);
+  });
+
+  it('stress test with many insertions', () => {
+    const bst = new BST();
+    const values = [50, 25, 75, 10, 30, 60, 90, 5, 15, 27, 35, 55, 65, 85, 95];
+    values.forEach(v => bst.insert(v));
+    expect(bst.inOrder()).toEqual(values.sort((a, b) => a - b));
+    values.forEach(v => expect(bst.search(v)).toBe(true));
+    expect(bst.height()).toBe(4);
+  });
+
+  it('delete all nodes', () => {
+    const bst = new BST();
+    [10, 5, 15].forEach(v => bst.insert(v));
+    expect(bst.delete(10)).toBe(true);
+    expect(bst.delete(5)).toBe(true);
+    expect(bst.delete(15)).toBe(true);
+    expect(bst.inOrder()).toEqual([]);
+    expect(bst.height()).toBe(0);
+  });
+});
+
+// Edge cases
+describe('BST edge cases', () => {
+  it('negative values', () => {
+    const bst = new BST();
+    [-5, -10, -3, 0, 5].forEach(v => bst.insert(v));
+    expect(bst.inOrder()).toEqual([-10, -5, -3, 0, 5]);
+    expect(bst.minValue()).toBe(-10);
+    expect(bst.maxValue()).toBe(5);
+  });
+
+  it('large values', () => {
+    const bst = new BST();
+    [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, 0].forEach(v => bst.insert(v));
+    expect(bst.minValue()).toBe(Number.MIN_SAFE_INTEGER);
+    expect(bst.maxValue()).toBe(Number.MAX_SAFE_INTEGER);
+  });
+});
+]=],
+  },
 }
 
 return M
