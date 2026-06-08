@@ -994,6 +994,240 @@ describe('BST edge cases', () => {
 });
 ]=],
   },
+  {
+    name = "Rate Limiter",
+    difficulty = "medium",
+    stub = [=[
+/**
+ * Rate Limiter
+ *
+ * Implement a rate limiter that restricts the number of requests
+ * within a sliding time window.
+ *
+ * Rate limiting is commonly used to:
+ * - Prevent API abuse
+ * - Control resource consumption
+ * - Enforce usage quotas
+ *
+ * Implement the RateLimiter class with:
+ * - constructor(limit: number, windowMs: number) — Initialize with max requests
+ *   allowed per time window (in milliseconds)
+ * - allowRequest(clientId: string): boolean — Return true if request is allowed,
+ *   false if rate limit exceeded. Does NOT record the request.
+ * - recordRequest(clientId: string): void — Record a request for the client.
+ * - checkAndRecord(clientId: string): boolean — Atomic check + record. Returns true
+ *   if allowed and records it; returns false if limit exceeded.
+ * - getRemainingRequests(clientId: string): number — Return how many requests
+ *   the client can still make in the current window.
+ * - reset(clientId: string): void — Reset the rate limit for a specific client.
+ * - resetAll(): void — Reset rate limits for all clients.
+ *
+ * Use a sliding window algorithm: track timestamps of recent requests and
+ * remove expired ones when checking.
+ *
+ * Bonus: Implement getTokenBucket(clientId: string, tokens: number): boolean
+ * for a token bucket algorithm variant where requests can consume multiple tokens.
+ */
+
+export class RateLimiter {
+  constructor(limit: number, windowMs: number) {
+    // YOUR CODE HERE
+  }
+
+  allowRequest(clientId: string): boolean {
+    // YOUR CODE HERE
+    return true;
+  }
+
+  recordRequest(clientId: string): void {
+    // YOUR CODE HERE
+  }
+
+  checkAndRecord(clientId: string): boolean {
+    // YOUR CODE HERE
+    return true;
+  }
+
+  getRemainingRequests(clientId: string): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  reset(clientId: string): void {
+    // YOUR CODE HERE
+  }
+
+  resetAll(): void {
+    // YOUR CODE HERE
+  }
+
+  getTokenBucket(clientId: string, tokens: number): boolean {
+    // YOUR CODE HERE
+    return true;
+  }
+}
+]=],
+    tests = [=[
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { RateLimiter } from './challenge';
+
+describe('RateLimiter', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('allows requests under limit', () => {
+    const limiter = new RateLimiter(3, 1000);
+    expect(limiter.checkAndRecord('client1')).toBe(true);
+    expect(limiter.checkAndRecord('client1')).toBe(true);
+    expect(limiter.checkAndRecord('client1')).toBe(true);
+  });
+
+  it('blocks requests over limit', () => {
+    const limiter = new RateLimiter(3, 1000);
+    limiter.checkAndRecord('client1');
+    limiter.checkAndRecord('client1');
+    limiter.checkAndRecord('client1');
+    expect(limiter.checkAndRecord('client1')).toBe(false);
+  });
+
+  it('allows requests after window expires', () => {
+    const limiter = new RateLimiter(2, 1000);
+    limiter.checkAndRecord('client1');
+    limiter.checkAndRecord('client1');
+    expect(limiter.checkAndRecord('client1')).toBe(false);
+    vi.advanceTimersByTime(1000);
+    expect(limiter.checkAndRecord('client1')).toBe(true);
+  });
+
+  it('tracks different clients independently', () => {
+    const limiter = new RateLimiter(2, 1000);
+    limiter.checkAndRecord('client1');
+    limiter.checkAndRecord('client1');
+    expect(limiter.checkAndRecord('client1')).toBe(false);
+    expect(limiter.checkAndRecord('client2')).toBe(true);
+    expect(limiter.checkAndRecord('client2')).toBe(true);
+    expect(limiter.checkAndRecord('client2')).toBe(false);
+  });
+
+  it('allowRequest does not record', () => {
+    const limiter = new RateLimiter(2, 1000);
+    expect(limiter.allowRequest('client1')).toBe(true);
+    expect(limiter.allowRequest('client1')).toBe(true);
+    expect(limiter.allowRequest('client1')).toBe(true);
+    expect(limiter.getRemainingRequests('client1')).toBe(2);
+  });
+
+  it('recordRequest records without checking', () => {
+    const limiter = new RateLimiter(2, 1000);
+    limiter.recordRequest('client1');
+    limiter.recordRequest('client1');
+    expect(limiter.getRemainingRequests('client1')).toBe(0);
+    expect(limiter.allowRequest('client1')).toBe(false);
+  });
+
+  it('getRemainingRequests returns correct count', () => {
+    const limiter = new RateLimiter(5, 1000);
+    expect(limiter.getRemainingRequests('client1')).toBe(5);
+    limiter.checkAndRecord('client1');
+    expect(limiter.getRemainingRequests('client1')).toBe(4);
+    limiter.checkAndRecord('client1');
+    limiter.checkAndRecord('client1');
+    expect(limiter.getRemainingRequests('client1')).toBe(2);
+  });
+
+  it('reset clears client history', () => {
+    const limiter = new RateLimiter(2, 1000);
+    limiter.checkAndRecord('client1');
+    limiter.checkAndRecord('client1');
+    expect(limiter.checkAndRecord('client1')).toBe(false);
+    limiter.reset('client1');
+    expect(limiter.checkAndRecord('client1')).toBe(true);
+    expect(limiter.getRemainingRequests('client1')).toBe(1);
+  });
+
+  it('resetAll clears all clients', () => {
+    const limiter = new RateLimiter(2, 1000);
+    limiter.checkAndRecord('client1');
+    limiter.checkAndRecord('client2');
+    limiter.resetAll();
+    expect(limiter.getRemainingRequests('client1')).toBe(2);
+    expect(limiter.getRemainingRequests('client2')).toBe(2);
+  });
+
+  it('sliding window removes old requests', () => {
+    const limiter = new RateLimiter(3, 1000);
+    limiter.checkAndRecord('client1');
+    vi.advanceTimersByTime(500);
+    limiter.checkAndRecord('client1');
+    vi.advanceTimersByTime(600);
+    // First request is now expired (1100ms old)
+    expect(limiter.getRemainingRequests('client1')).toBe(2);
+  });
+
+  it('multiple requests at boundary', () => {
+    const limiter = new RateLimiter(2, 1000);
+    limiter.checkAndRecord('client1');
+    vi.advanceTimersByTime(999);
+    limiter.checkAndRecord('client1');
+    expect(limiter.getRemainingRequests('client1')).toBe(0);
+    vi.advanceTimersByTime(1);
+    // First request expires
+    expect(limiter.getRemainingRequests('client1')).toBe(1);
+  });
+
+  it('getTokenBucket consumes tokens', () => {
+    const limiter = new RateLimiter(10, 1000);
+    expect(limiter.getTokenBucket('client1', 3)).toBe(true);
+    expect(limiter.getRemainingRequests('client1')).toBe(7);
+    expect(limiter.getTokenBucket('client1', 5)).toBe(true);
+    expect(limiter.getRemainingRequests('client1')).toBe(2);
+    expect(limiter.getTokenBucket('client1', 3)).toBe(false);
+  });
+
+  it('getTokenBucket respects limit', () => {
+    const limiter = new RateLimiter(5, 1000);
+    expect(limiter.getTokenBucket('client1', 10)).toBe(false);
+    expect(limiter.getRemainingRequests('client1')).toBe(5);
+  });
+
+  it('getTokenBucket with window expiry', () => {
+    const limiter = new RateLimiter(5, 1000);
+    limiter.getTokenBucket('client1', 3);
+    vi.advanceTimersByTime(1000);
+    expect(limiter.getTokenBucket('client1', 4)).toBe(true);
+  });
+
+  it('zero limit blocks all', () => {
+    const limiter = new RateLimiter(0, 1000);
+    expect(limiter.checkAndRecord('client1')).toBe(false);
+    expect(limiter.allowRequest('client1')).toBe(false);
+  });
+
+  it('large window works correctly', () => {
+    const limiter = new RateLimiter(100, 60000);
+    for (let i = 0; i < 100; i++) {
+      expect(limiter.checkAndRecord('client1')).toBe(true);
+    }
+    expect(limiter.checkAndRecord('client1')).toBe(false);
+  });
+
+  it('stress test with many clients', () => {
+    const limiter = new RateLimiter(10, 1000);
+    for (let i = 0; i < 50; i++) {
+      for (let j = 0; j < 10; j++) {
+        expect(limiter.checkAndRecord(`client${i}`)).toBe(true);
+      }
+      expect(limiter.checkAndRecord(`client${i}`)).toBe(false);
+    }
+  });
+});
+]=],
+  },
 }
 
 return M
