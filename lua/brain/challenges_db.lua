@@ -1228,6 +1228,352 @@ describe('RateLimiter', () => {
 });
 ]=],
   },
+  {
+    name = "Pub/Sub Event Bus",
+    difficulty = "medium",
+    stub = [=[
+/**
+ * Pub/Sub Event Bus
+ *
+ * Implement a publish-subscribe event bus for decoupled event handling.
+ *
+ * The Pub/Sub pattern allows objects (publishers) to emit events without
+ * knowing which objects (subscribers) will receive them. This enables
+ * loose coupling and is widely used in:
+ * - Event-driven architectures
+ * - Message queues
+ * - Reactive programming
+ * - Plugin systems
+ *
+ * Implement the EventBus class with:
+ * - subscribe(event: string, callback: (...args: any[]) => void): Subscription
+ *   Register a callback for an event. Return a Subscription object with
+ *   an unsubscribe() method to remove the listener.
+ * - unsubscribe(event: string, callback: (...args: any[]) => void): boolean
+ *   Remove a specific callback from an event. Return true if found and removed.
+ * - publish(event: string, ...args: any[]): void
+ *   Emit an event with optional arguments. All subscribers receive the args.
+ * - publishAsync(event: string, ...args: any[]): Promise<void>
+ *   Async version that awaits all async callbacks. Collects and rethrows errors.
+ * - once(event: string, callback: (...args: any[]) => void): Subscription
+ *   Subscribe for a single event firing. Auto-unsubscribes after first publish.
+ * - clearEvent(event: string): void
+ *   Remove all subscribers for a specific event.
+ * - clearAll(): void
+ *   Remove all subscribers for all events.
+ * - getSubscriberCount(event: string): number
+ *   Return how many subscribers are listening to an event.
+ * - hasSubscribers(event: string): boolean
+ *   Check if an event has any subscribers.
+ *
+ * Bonus: Implement wildcard subscriptions:
+ * - subscribePattern(pattern: string, callback: (...args: any[]) => void): Subscription
+ *   Support patterns like "user.*" or "user.created" or "user.*.deleted"
+ *   Use glob-style matching where * matches any single segment.
+ */
+
+export interface Subscription {
+  unsubscribe(): void;
+  readonly event: string;
+  readonly callback: (...args: any[]) => void;
+}
+
+export class EventBus {
+  constructor() {
+    // YOUR CODE HERE
+  }
+
+  subscribe(event: string, callback: (...args: any[]) => void): Subscription {
+    // YOUR CODE HERE
+    return { unsubscribe: () => {}, event, callback };
+  }
+
+  unsubscribe(event: string, callback: (...args: any[]) => void): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  publish(event: string, ...args: any[]): void {
+    // YOUR CODE HERE
+  }
+
+  publishAsync(event: string, ...args: any[]): Promise<void> {
+    // YOUR CODE HERE
+    return Promise.resolve();
+  }
+
+  once(event: string, callback: (...args: any[]) => void): Subscription {
+    // YOUR CODE HERE
+    return { unsubscribe: () => {}, event, callback };
+  }
+
+  clearEvent(event: string): void {
+    // YOUR CODE HERE
+  }
+
+  clearAll(): void {
+    // YOUR CODE HERE
+  }
+
+  getSubscriberCount(event: string): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  hasSubscribers(event: string): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  subscribePattern(pattern: string, callback: (...args: any[]) => void): Subscription {
+    // YOUR CODE HERE
+    return { unsubscribe: () => {}, event: pattern, callback };
+  }
+}
+]=],
+    tests = [=[
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { EventBus } from './challenge';
+
+describe('EventBus', () => {
+  let bus: EventBus;
+
+  beforeEach(() => {
+    bus = new EventBus();
+  });
+
+  it('subscribes and publishes events', () => {
+    const callback = vi.fn();
+    bus.subscribe('test', callback);
+    bus.publish('test', 'hello', 42);
+    expect(callback).toHaveBeenCalledWith('hello', 42);
+    expect(callback).toHaveBeenCalledTimes(1);
+  });
+
+  it('subscribes multiple listeners to same event', () => {
+    const cb1 = vi.fn();
+    const cb2 = vi.fn();
+    bus.subscribe('test', cb1);
+    bus.subscribe('test', cb2);
+    bus.publish('test', 'data');
+    expect(cb1).toHaveBeenCalledWith('data');
+    expect(cb2).toHaveBeenCalledWith('data');
+    expect(cb1).toHaveBeenCalledTimes(1);
+    expect(cb2).toHaveBeenCalledTimes(1);
+  });
+
+  it('unsubscribe removes listener', () => {
+    const callback = vi.fn();
+    const subscription = bus.subscribe('test', callback);
+    bus.publish('test', 'first');
+    subscription.unsubscribe();
+    bus.publish('test', 'second');
+    expect(callback).toHaveBeenCalledWith('first');
+    expect(callback).not.toHaveBeenCalledWith('second');
+    expect(callback).toHaveBeenCalledTimes(1);
+  });
+
+  it('unsubscribe returns boolean', () => {
+    const callback = vi.fn();
+    bus.subscribe('test', callback);
+    expect(bus.unsubscribe('test', callback)).toBe(true);
+    expect(bus.unsubscribe('test', callback)).toBe(false);
+    expect(bus.unsubscribe('nonexistent', callback)).toBe(false);
+  });
+
+  it('once fires only once', () => {
+    const callback = vi.fn();
+    bus.once('test', callback);
+    bus.publish('test', 'first');
+    bus.publish('test', 'second');
+    bus.publish('test', 'third');
+    expect(callback).toHaveBeenCalledTimes(1);
+    expect(callback).toHaveBeenCalledWith('first');
+  });
+
+  it('once returns subscription with unsubscribe', () => {
+    const callback = vi.fn();
+    const subscription = bus.once('test', callback);
+    subscription.unsubscribe();
+    bus.publish('test', 'data');
+    expect(callback).not.toHaveBeenCalled();
+  });
+
+  it('getSubscriberCount returns correct count', () => {
+    expect(bus.getSubscriberCount('test')).toBe(0);
+    const cb1 = vi.fn();
+    const cb2 = vi.fn();
+    bus.subscribe('test', cb1);
+    expect(bus.getSubscriberCount('test')).toBe(1);
+    bus.subscribe('test', cb2);
+    expect(bus.getSubscriberCount('test')).toBe(2);
+    bus.unsubscribe('test', cb1);
+    expect(bus.getSubscriberCount('test')).toBe(1);
+  });
+
+  it('hasSubscribers returns boolean', () => {
+    expect(bus.hasSubscribers('test')).toBe(false);
+    bus.subscribe('test', vi.fn());
+    expect(bus.hasSubscribers('test')).toBe(true);
+  });
+
+  it('clearEvent removes all listeners for event', () => {
+    const cb1 = vi.fn();
+    const cb2 = vi.fn();
+    const cb3 = vi.fn();
+    bus.subscribe('test', cb1);
+    bus.subscribe('test', cb2);
+    bus.subscribe('other', cb3);
+    bus.clearEvent('test');
+    expect(bus.getSubscriberCount('test')).toBe(0);
+    expect(bus.getSubscriberCount('other')).toBe(1);
+    bus.publish('test', 'data');
+    expect(cb1).not.toHaveBeenCalled();
+    expect(cb2).not.toHaveBeenCalled();
+  });
+
+  it('clearAll removes all listeners', () => {
+    bus.subscribe('test1', vi.fn());
+    bus.subscribe('test2', vi.fn());
+    bus.subscribe('test3', vi.fn());
+    bus.clearAll();
+    expect(bus.getSubscriberCount('test1')).toBe(0);
+    expect(bus.getSubscriberCount('test2')).toBe(0);
+    expect(bus.getSubscriberCount('test3')).toBe(0);
+  });
+
+  it('publish with no listeners does not throw', () => {
+    expect(() => bus.publish('nonexistent', 'data')).not.toThrow();
+  });
+
+  it('publish passes all arguments', () => {
+    const callback = vi.fn();
+    bus.subscribe('test', callback);
+    bus.publish('test', 1, 'two', true, null, { key: 'value' });
+    expect(callback).toHaveBeenCalledWith(1, 'two', true, null, { key: 'value' });
+  });
+
+  it('publishAsync awaits async callbacks', async () => {
+    const results: number[] = [];
+    const asyncCb1 = async () => {
+      await new Promise(resolve => setTimeout(resolve, 10));
+      results.push(1);
+    };
+    const asyncCb2 = async () => {
+      await new Promise(resolve => setTimeout(resolve, 5));
+      results.push(2);
+    };
+    bus.subscribe('test', asyncCb1);
+    bus.subscribe('test', asyncCb2);
+    await bus.publishAsync('test');
+    expect(results).toEqual([1, 2]);
+  });
+
+  it('publishAsync collects errors', async () => {
+    const error = new Error('test error');
+    const asyncCb = async () => {
+      throw error;
+    };
+    bus.subscribe('test', asyncCb);
+    await expect(bus.publishAsync('test')).rejects.toThrow('test error');
+  });
+
+  it('different events are independent', () => {
+    const cb1 = vi.fn();
+    const cb2 = vi.fn();
+    bus.subscribe('event1', cb1);
+    bus.subscribe('event2', cb2);
+    bus.publish('event1', 'data1');
+    bus.publish('event2', 'data2');
+    expect(cb1).toHaveBeenCalledWith('data1');
+    expect(cb1).not.toHaveBeenCalledWith('data2');
+    expect(cb2).toHaveBeenCalledWith('data2');
+    expect(cb2).not.toHaveBeenCalledWith('data1');
+  });
+
+  it('subscription has correct event and callback', () => {
+    const callback = vi.fn();
+    const subscription = bus.subscribe('myevent', callback);
+    expect(subscription.event).toBe('myevent');
+    expect(subscription.callback).toBe(callback);
+  });
+
+  it('unsubscribe via subscription object', () => {
+    const callback = vi.fn();
+    const subscription = bus.subscribe('test', callback);
+    bus.publish('test', 'first');
+    subscription.unsubscribe();
+    bus.publish('test', 'second');
+    expect(callback).toHaveBeenCalledTimes(1);
+    expect(callback).toHaveBeenCalledWith('first');
+  });
+
+  it('multiple unsubscribe calls are safe', () => {
+    const callback = vi.fn();
+    bus.subscribe('test', callback);
+    expect(bus.unsubscribe('test', callback)).toBe(true);
+    expect(bus.unsubscribe('test', callback)).toBe(false);
+    expect(bus.unsubscribe('test', callback)).toBe(false);
+  });
+
+  it('subscribePattern with wildcard matches', () => {
+    const cb = vi.fn();
+    bus.subscribePattern('user.*', cb);
+    bus.publish('user.created', { id: 1 });
+    bus.publish('user.deleted', { id: 2 });
+    bus.publish('user.updated', { id: 3 });
+    expect(cb).toHaveBeenCalledTimes(3);
+  });
+
+  it('subscribePattern does not match unrelated events', () => {
+    const cb = vi.fn();
+    bus.subscribePattern('user.*', cb);
+    bus.publish('product.created', { id: 1 });
+    bus.publish('order.created', { id: 2 });
+    expect(cb).not.toHaveBeenCalled();
+  });
+
+  it('subscribePattern with multiple wildcards', () => {
+    const cb = vi.fn();
+    bus.subscribePattern('*.*.deleted', cb);
+    bus.publish('user.account.deleted', { id: 1 });
+    bus.publish('product.item.deleted', { id: 2 });
+    bus.publish('user.account.created', { id: 3 });
+    expect(cb).toHaveBeenCalledTimes(2);
+  });
+
+  it('pattern subscription can be unsubscribed', () => {
+    const cb = vi.fn();
+    const subscription = bus.subscribePattern('test.*', cb);
+    bus.publish('test.event', 'data');
+    subscription.unsubscribe();
+    bus.publish('test.other', 'data');
+    expect(cb).toHaveBeenCalledTimes(1);
+  });
+
+  it('getSubscriberCount includes pattern subscribers', () => {
+    bus.subscribe('user.created', vi.fn());
+    bus.subscribePattern('user.*', vi.fn());
+    expect(bus.getSubscriberCount('user.created')).toBe(2);
+  });
+
+  it('stress test with many events and subscribers', () => {
+    const callbacks: ReturnType<typeof vi.fn>[] = [];
+    for (let i = 0; i < 100; i++) {
+      const cb = vi.fn();
+      callbacks.push(cb);
+      bus.subscribe(`event${i % 10}`, cb);
+    }
+    for (let i = 0; i < 10; i++) {
+      bus.publish(`event${i}`, 'data');
+    }
+    callbacks.forEach(cb => {
+      expect(cb).toHaveBeenCalledTimes(1);
+    });
+  });
+});
+]=],
+  },
 }
 
 return M
