@@ -1574,6 +1574,392 @@ describe('EventBus', () => {
 });
 ]=],
   },
+  {
+    name = "Memoize with Cache Key Generator",
+    difficulty = "easy",
+    stub = [=[
+/**
+ * Memoize with Cache Key Generator
+ *
+ * Implement a memoization higher-order function with customizable cache key generation.
+ *
+ * Memoization is an optimization technique that caches function results based on
+ * input arguments, returning the cached result when the same inputs occur again.
+ *
+ * The challenge is to implement:
+ * - A generic memoize function that wraps any function
+ * - A cache key generator that converts arguments to a stable string key
+ * - Support for custom key generators per function
+ * - Cache inspection and management methods
+ *
+ * Implement:
+ * - createCacheKey(args: any[]): string — Default key generator using JSON.stringify
+ * - memoize<T extends (...args: any[]) => any>(
+ *     fn: T,
+ *     options?: { keyGenerator?: (...args: any[]) => string, maxCacheSize?: number }
+ *   ): T & { cache: Map<string, any>, hits: number, misses: number, clear(): void, size(): number }
+ *
+ * The memoized function should:
+ * - Cache results based on arguments
+ * - Track hit/miss statistics
+ * - Support max cache size with LRU eviction when exceeded
+ * - Provide cache management methods
+ *
+ * Edge cases to handle:
+ * - Functions with no arguments
+ * - Functions with many arguments
+ * - Arguments that are objects/arrays (need stable serialization)
+ * - Circular references in arguments (should not crash)
+ */
+
+export function createCacheKey(args: any[]): string {
+  // YOUR CODE HERE
+  return '';
+}
+
+export function memoize<T extends (...args: any[]) => any>(
+  fn: T,
+  options?: {
+    keyGenerator?: (...args: any[]) => string;
+    maxCacheSize?: number;
+  }
+): T & {
+  cache: Map<string, any>;
+  hits: number;
+  misses: number;
+  clear(): void;
+  size(): number;
+} {
+  // YOUR CODE HERE
+  const memoized = (() => {}) as T;
+  return Object.assign(memoized, {
+    cache: new Map(),
+    hits: 0,
+    misses: 0,
+    clear() {},
+    size() { return 0; }
+  });
+}
+]=],
+    tests = [=[
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { memoize, createCacheKey } from './challenge';
+
+describe('createCacheKey', () => {
+  it('creates key for no arguments', () => {
+    expect(createCacheKey([])).toBe('[]');
+  });
+
+  it('creates key for primitive arguments', () => {
+    expect(createCacheKey([1, 2, 3])).toBe('[1,2,3]');
+    expect(createCacheKey(['a', 'b', 'c'])).toBe('["a","b","c"]');
+  });
+
+  it('creates key for mixed arguments', () => {
+    expect(createCacheKey([1, 'hello', true, null])).toBe('[1,"hello",true,null]');
+  });
+
+  it('creates key for object arguments', () => {
+    const key = createCacheKey([{ a: 1, b: 2 }]);
+    expect(key).toContain('"a":1');
+    expect(key).toContain('"b":2');
+  });
+
+  it('creates consistent keys for same objects', () => {
+    const obj = { x: 10, y: 20 };
+    const key1 = createCacheKey([obj]);
+    const key2 = createCacheKey([obj]);
+    expect(key1).toBe(key2);
+  });
+
+  it('handles nested objects', () => {
+    const key = createCacheKey([{ user: { name: 'Alice', age: 30 } }]);
+    expect(key).toContain('"user"');
+    expect(key).toContain('"name":"Alice"');
+  });
+});
+
+describe('memoize', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('caches function results', () => {
+    const fn = vi.fn((x: number) => x * 2);
+    const memoized = memoize(fn);
+    
+    expect(memoized(5)).toBe(10);
+    expect(memoized(5)).toBe(10);
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+
+  it('tracks hits and misses', () => {
+    const fn = vi.fn((x: number) => x * 2);
+    const memoized = memoize(fn);
+    
+    memoized(5);
+    expect(memoized.misses).toBe(1);
+    expect(memoized.hits).toBe(0);
+    
+    memoized(5);
+    expect(memoized.hits).toBe(1);
+    expect(memoized.misses).toBe(1);
+    
+    memoized(10);
+    expect(memoized.hits).toBe(1);
+    expect(memoized.misses).toBe(2);
+  });
+
+  it('exposes cache', () => {
+    const fn = vi.fn((x: number) => x * 2);
+    const memoized = memoize(fn);
+    
+    memoized(5);
+    expect(memoized.cache.size).toBe(1);
+    expect(memoized.cache.has('[5]')).toBe(true);
+  });
+
+  it('clear method empties cache', () => {
+    const fn = vi.fn((x: number) => x * 2);
+    const memoized = memoize(fn);
+    
+    memoized(5);
+    memoized(10);
+    expect(memoized.cache.size).toBe(2);
+    
+    memoized.clear();
+    expect(memoized.cache.size).toBe(0);
+    expect(memoized.hits).toBe(0);
+    expect(memoized.misses).toBe(0);
+  });
+
+  it('size method returns cache size', () => {
+    const fn = vi.fn((x: number) => x * 2);
+    const memoized = memoize(fn);
+    
+    expect(memoized.size()).toBe(0);
+    memoized(5);
+    expect(memoized.size()).toBe(1);
+    memoized(10);
+    expect(memoized.size()).toBe(2);
+  });
+
+  it('handles functions with no arguments', () => {
+    let counter = 0;
+    const fn = vi.fn(() => ++counter);
+    const memoized = memoize(fn);
+    
+    expect(memoized()).toBe(1);
+    expect(memoized()).toBe(1);
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+
+  it('handles functions with multiple arguments', () => {
+    const fn = vi.fn((a: number, b: number, c: number) => a + b + c);
+    const memoized = memoize(fn);
+    
+    expect(memoized(1, 2, 3)).toBe(6);
+    expect(memoized(1, 2, 3)).toBe(6);
+    expect(memoized(3, 2, 1)).toBe(6);
+    expect(memoized(3, 2, 1)).toBe(6);
+    expect(fn).toHaveBeenCalledTimes(2);
+  });
+
+  it('handles object arguments', () => {
+    const fn = vi.fn((obj: { x: number }) => obj.x * 2);
+    const memoized = memoize(fn);
+    
+    expect(memoized({ x: 5 })).toBe(10);
+    expect(memoized({ x: 5 })).toBe(10);
+    expect(fn).toHaveBeenCalledTimes(2); // Different object references
+  });
+
+  it('same object reference is cached', () => {
+    const fn = vi.fn((obj: { x: number }) => obj.x * 2);
+    const memoized = memoize(fn);
+    const obj = { x: 5 };
+    
+    expect(memoized(obj)).toBe(10);
+    expect(memoized(obj)).toBe(10);
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+
+  it('custom key generator', () => {
+    const fn = vi.fn((x: number) => x * 2);
+    const keyGen = (x: number) => `custom:${x}`;
+    const memoized = memoize(fn, { keyGenerator: keyGen });
+    
+    memoized(5);
+    expect(memoized.cache.has('custom:5')).toBe(true);
+  });
+
+  it('maxCacheSize triggers LRU eviction', () => {
+    const fn = vi.fn((x: number) => x * 2);
+    const memoized = memoize(fn, { maxCacheSize: 2 });
+    
+    memoized(1);
+    memoized(2);
+    expect(memoized.size()).toBe(2);
+    
+    memoized(3); // Should evict oldest (1)
+    expect(memoized.size()).toBe(2);
+    expect(memoized.cache.has('[1]')).toBe(false);
+    expect(memoized.cache.has('[2]')).toBe(true);
+    expect(memoized.cache.has('[3]')).toBe(true);
+  });
+
+  it('LRU eviction on access refresh', () => {
+    const fn = vi.fn((x: number) => x * 2);
+    const memoized = memoize(fn, { maxCacheSize: 2 });
+    
+    memoized(1);
+    memoized(2);
+    memoized(1); // Access 1, making 2 the oldest
+    memoized(3); // Should evict 2, not 1
+    
+    expect(memoized.cache.has('[1]')).toBe(true);
+    expect(memoized.cache.has('[2]')).toBe(false);
+    expect(memoized.cache.has('[3]')).toBe(true);
+  });
+
+  it('preserves function context', () => {
+    const obj = {
+      multiplier: 2,
+      multiply(x: number) { return x * this.multiplier; }
+    };
+    const memoized = memoize(obj.multiply.bind(obj));
+    
+    expect(memoized(5)).toBe(10);
+    expect(memoized(5)).toBe(10);
+  });
+
+  it('handles async functions', async () => {
+    const fn = vi.fn(async (x: number) => {
+      await new Promise(resolve => setTimeout(resolve, 10));
+      return x * 2;
+    });
+    const memoized = memoize(fn);
+    
+    const result1 = await memoized(5);
+    const result2 = await memoized(5);
+    
+    expect(result1).toBe(10);
+    expect(result2).toBe(10);
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+
+  it('handles functions returning undefined', () => {
+    const fn = vi.fn(() => undefined);
+    const memoized = memoize(fn);
+    
+    expect(memoized()).toBe(undefined);
+    expect(memoized()).toBe(undefined);
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+
+  it('handles functions returning null', () => {
+    const fn = vi.fn(() => null);
+    const memoized = memoize(fn);
+    
+    expect(memoized()).toBe(null);
+    expect(memoized()).toBe(null);
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+
+  it('handles functions returning 0', () => {
+    const fn = vi.fn(() => 0);
+    const memoized = memoize(fn);
+    
+    expect(memoized()).toBe(0);
+    expect(memoized()).toBe(0);
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+
+  it('handles functions returning false', () => {
+    const fn = vi.fn(() => false);
+    const memoized = memoize(fn);
+    
+    expect(memoized()).toBe(false);
+    expect(memoized()).toBe(false);
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+
+  it('handles functions returning empty string', () => {
+    const fn = vi.fn(() => '');
+    const memoized = memoize(fn);
+    
+    expect(memoized()).toBe('');
+    expect(memoized()).toBe('');
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+
+  it('stress test with many calls', () => {
+    const fn = vi.fn((x: number) => x * 2);
+    const memoized = memoize(fn);
+    
+    for (let i = 0; i < 1000; i++) {
+      memoized(i % 10);
+    }
+    
+    expect(fn).toHaveBeenCalledTimes(10); // Only 10 unique inputs
+    expect(memoized.hits).toBe(990);
+    expect(memoized.misses).toBe(10);
+  });
+
+  it('maxCacheSize of 1', () => {
+    const fn = vi.fn((x: number) => x * 2);
+    const memoized = memoize(fn, { maxCacheSize: 1 });
+    
+    memoized(1);
+    expect(memoized.size()).toBe(1);
+    memoized(2);
+    expect(memoized.size()).toBe(1);
+    expect(memoized.cache.has('[1]')).toBe(false);
+    expect(memoized.cache.has('[2]')).toBe(true);
+  });
+
+  it('maxCacheSize equals cache growth without eviction', () => {
+    const fn = vi.fn((x: number) => x * 2);
+    const memoized = memoize(fn, { maxCacheSize: 100 });
+    
+    for (let i = 0; i < 50; i++) {
+      memoized(i);
+    }
+    
+    expect(memoized.size()).toBe(50);
+  });
+});
+
+describe('edge cases', () => {
+  it('circular reference in arguments', () => {
+    const fn = vi.fn((obj: any) => obj);
+    const memoized = memoize(fn);
+    
+    const obj: any = { x: 1 };
+    obj.self = obj;
+    
+    // Should not crash, but may not cache properly
+    expect(() => memoized(obj)).not.toThrow();
+  });
+
+  it('symbol arguments', () => {
+    const fn = vi.fn((sym: symbol) => sym.description);
+    const memoized = memoize(fn);
+    
+    const sym = Symbol('test');
+    expect(memoized(sym)).toBe('test');
+  });
+
+  it('function arguments', () => {
+    const fn = vi.fn((cb: () => void) => cb());
+    const memoized = memoize(fn);
+    
+    const cb = () => 42;
+    expect(memoized(cb)).toBe(42);
+  });
+});
+]=],
+  },
 }
 
 return M
