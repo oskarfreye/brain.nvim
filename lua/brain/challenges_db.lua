@@ -1960,6 +1960,356 @@ describe('edge cases', () => {
 });
 ]=],
   },
+  {
+    name = "Min-Heap Priority Queue",
+    difficulty = "medium",
+    stub = [=[
+/**
+ * Min-Heap Priority Queue
+ *
+ * Implement a binary min-heap based priority queue.
+ *
+ * A min-heap is a complete binary tree where each node is smaller than
+ * or equal to its children. This structure enables efficient retrieval
+ * of the minimum element and is commonly used for:
+ * - Priority queues
+ * - Heap sort
+ * - Finding k smallest/largest elements
+ * - Dijkstra's shortest path algorithm
+ * - Merge k sorted lists
+ *
+ * Implement the MinHeap class with:
+ * - constructor(initialValues?: number[]) — Optionally initialize with an array
+ * - insert(value: number): void — Add a value to the heap (O(log n))
+ * - extractMin(): number | null — Remove and return the minimum value (O(log n))
+ * - peek(): number | null — Return the minimum value without removing (O(1))
+ * - size(): number — Return the number of elements in the heap
+ * - isEmpty(): boolean — Check if the heap is empty
+ * - heapify(): void — Convert an arbitrary array into a heap (O(n))
+ * - decreaseKey(index: number, newValue: number): boolean — Decrease the value
+ *   at a given index (useful for Dijkstra's). Return false if index invalid or
+ *   newValue > currentValue.
+ * - delete(index: number): boolean — Delete element at index (O(log n))
+ *
+ * Bonus: Implement a generic MinHeap<T> that accepts a custom comparator:
+ * - constructor(compareFn?: (a: T, b: T) => number)
+ */
+
+export class MinHeap {
+  constructor(initialValues?: number[]) {
+    // YOUR CODE HERE
+  }
+
+  insert(value: number): void {
+    // YOUR CODE HERE
+  }
+
+  extractMin(): number | null {
+    // YOUR CODE HERE
+    return null;
+  }
+
+  peek(): number | null {
+    // YOUR CODE HERE
+    return null;
+  }
+
+  size(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  isEmpty(): boolean {
+    // YOUR CODE HERE
+    return true;
+  }
+
+  heapify(): void {
+    // YOUR CODE HERE
+  }
+
+  decreaseKey(index: number, newValue: number): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  delete(index: number): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { MinHeap } from './challenge';
+
+describe('MinHeap', () => {
+  it('creates empty heap', () => {
+    const heap = new MinHeap();
+    expect(heap.isEmpty()).toBe(true);
+    expect(heap.size()).toBe(0);
+    expect(heap.peek()).toBeNull();
+  });
+
+  it('inserts single value', () => {
+    const heap = new MinHeap();
+    heap.insert(5);
+    expect(heap.size()).toBe(1);
+    expect(heap.peek()).toBe(5);
+    expect(heap.isEmpty()).toBe(false);
+  });
+
+  it('inserts multiple values in order', () => {
+    const heap = new MinHeap();
+    heap.insert(1);
+    heap.insert(2);
+    heap.insert(3);
+    expect(heap.peek()).toBe(1);
+    expect(heap.size()).toBe(3);
+  });
+
+  it('inserts multiple values in reverse order', () => {
+    const heap = new MinHeap();
+    heap.insert(5);
+    heap.insert(4);
+    heap.insert(3);
+    heap.insert(2);
+    heap.insert(1);
+    expect(heap.peek()).toBe(1);
+    expect(heap.size()).toBe(5);
+  });
+
+  it('extractMin returns values in sorted order', () => {
+    const heap = new MinHeap();
+    [5, 3, 7, 1, 9, 2, 8].forEach(v => heap.insert(v));
+    
+    const result: number[] = [];
+    while (!heap.isEmpty()) {
+      result.push(heap.extractMin()!);
+    }
+    expect(result).toEqual([1, 2, 3, 5, 7, 8, 9]);
+  });
+
+  it('extractMin from empty heap returns null', () => {
+    const heap = new MinHeap();
+    expect(heap.extractMin()).toBeNull();
+  });
+
+  it('peek from empty heap returns null', () => {
+    const heap = new MinHeap();
+    expect(heap.peek()).toBeNull();
+  });
+
+  it('initializes with array', () => {
+    const heap = new MinHeap([5, 3, 7, 1, 9]);
+    expect(heap.size()).toBe(5);
+    expect(heap.peek()).toBe(1);
+  });
+
+  it('heapify converts array to heap', () => {
+    const heap = new MinHeap([9, 7, 5, 3, 1]);
+    heap.heapify();
+    expect(heap.peek()).toBe(1);
+    
+    const result: number[] = [];
+    while (!heap.isEmpty()) {
+      result.push(heap.extractMin()!);
+    }
+    expect(result).toEqual([1, 3, 5, 7, 9]);
+  });
+
+  it('heapify on already sorted array', () => {
+    const heap = new MinHeap([1, 2, 3, 4, 5]);
+    heap.heapify();
+    expect(heap.peek()).toBe(1);
+  });
+
+  it('decreaseKey reduces value and bubbles up', () => {
+    const heap = new MinHeap([10, 20, 30, 40, 50]);
+    heap.heapify();
+    
+    // Decrease 50 to 5, should bubble to root
+    expect(heap.decreaseKey(4, 5)).toBe(true);
+    expect(heap.peek()).toBe(5);
+  });
+
+  it('decreaseKey returns false for invalid index', () => {
+    const heap = new MinHeap([1, 2, 3]);
+    expect(heap.decreaseKey(10, 0)).toBe(false);
+    expect(heap.decreaseKey(-1, 0)).toBe(false);
+  });
+
+  it('decreaseKey returns false if newValue > currentValue', () => {
+    const heap = new MinHeap([1, 2, 3]);
+    expect(heap.decreaseKey(0, 5)).toBe(false); // Can't increase 1 to 5
+  });
+
+  it('delete removes element at index', () => {
+    const heap = new MinHeap([5, 3, 7, 1, 9]);
+    heap.heapify();
+    
+    // Delete element at index 2 (should be 5 after heapify)
+    expect(heap.delete(2)).toBe(true);
+    expect(heap.size()).toBe(4);
+    
+    const result: number[] = [];
+    while (!heap.isEmpty()) {
+      result.push(heap.extractMin()!);
+    }
+    expect(result).toEqual([1, 3, 7, 9]);
+  });
+
+  it('delete returns false for invalid index', () => {
+    const heap = new MinHeap([1, 2, 3]);
+    expect(heap.delete(10)).toBe(false);
+    expect(heap.delete(-1)).toBe(false);
+  });
+
+  it('delete last element', () => {
+    const heap = new MinHeap([1, 2, 3]);
+    heap.heapify();
+    expect(heap.delete(2)).toBe(true);
+    expect(heap.size()).toBe(2);
+    expect(heap.peek()).toBe(1);
+  });
+
+  it('delete root element', () => {
+    const heap = new MinHeap([3, 1, 2]);
+    heap.heapify();
+    expect(heap.delete(0)).toBe(true);
+    expect(heap.size()).toBe(2);
+    expect(heap.peek()).toBe(2);
+  });
+
+  it('maintains heap property after many operations', () => {
+    const heap = new MinHeap();
+    
+    // Insert random values
+    [42, 17, 73, 9, 55, 31, 8, 64, 22, 11].forEach(v => heap.insert(v));
+    
+    // Extract all and verify sorted order
+    const result: number[] = [];
+    while (!heap.isEmpty()) {
+      result.push(heap.extractMin()!);
+    }
+    expect(result).toEqual([8, 9, 11, 17, 22, 31, 42, 55, 64, 73]);
+  });
+
+  it('stress test with many insertions', () => {
+    const heap = new MinHeap();
+    const values = Array.from({ length: 1000 }, (_, i) => Math.random() * 10000);
+    values.forEach(v => heap.insert(v));
+    
+    expect(heap.size()).toBe(1000);
+    
+    const result: number[] = [];
+    while (!heap.isEmpty()) {
+      result.push(heap.extractMin()!);
+    }
+    
+    // Verify sorted
+    for (let i = 1; i < result.length; i++) {
+      expect(result[i]).toBeGreaterThanOrEqual(result[i - 1]);
+    }
+  });
+
+  it('handles duplicate values', () => {
+    const heap = new MinHeap();
+    [5, 3, 5, 1, 3, 1].forEach(v => heap.insert(v));
+    
+    const result: number[] = [];
+    while (!heap.isEmpty()) {
+      result.push(heap.extractMin()!);
+    }
+    expect(result).toEqual([1, 1, 3, 3, 5, 5]);
+  });
+
+  it('handles negative values', () => {
+    const heap = new MinHeap();
+    [-5, -10, 0, 10, -1].forEach(v => heap.insert(v));
+    
+    const result: number[] = [];
+    while (!heap.isEmpty()) {
+      result.push(heap.extractMin()!);
+    }
+    expect(result).toEqual([-10, -5, -1, 0, 10]);
+  });
+
+  it('single element operations', () => {
+    const heap = new MinHeap();
+    heap.insert(42);
+    expect(heap.peek()).toBe(42);
+    expect(heap.extractMin()).toBe(42);
+    expect(heap.isEmpty()).toBe(true);
+  });
+
+  it('heap property invariant', () => {
+    const heap = new MinHeap([50, 30, 40, 10, 20, 35, 45]);
+    heap.heapify();
+    
+    // Verify heap property: parent <= children
+    function verifyHeapProperty(arr: number[], i: number): boolean {
+      if (i >= arr.length) return true;
+      const left = 2 * i + 1;
+      const right = 2 * i + 2;
+      
+      if (left < arr.length && arr[i] > arr[left]) return false;
+      if (right < arr.length && arr[i] > arr[right]) return false;
+      
+      return verifyHeapProperty(arr, left) && verifyHeapProperty(arr, right);
+    }
+    
+    // Extract all and verify at each step
+    while (!heap.isEmpty()) {
+      heap.extractMin();
+    }
+  });
+
+  it('interleaved insert and extract', () => {
+    const heap = new MinHeap();
+    heap.insert(10);
+    heap.insert(5);
+    expect(heap.extractMin()).toBe(5);
+    heap.insert(3);
+    expect(heap.extractMin()).toBe(3);
+    heap.insert(8);
+    expect(heap.extractMin()).toBe(8);
+    expect(heap.extractMin()).toBe(10);
+    expect(heap.isEmpty()).toBe(true);
+  });
+});
+
+// Edge cases
+describe('MinHeap edge cases', () => {
+  it('heapify empty array', () => {
+    const heap = new MinHeap([]);
+    heap.heapify();
+    expect(heap.isEmpty()).toBe(true);
+  });
+
+  it('heapify single element', () => {
+    const heap = new MinHeap([42]);
+    heap.heapify();
+    expect(heap.peek()).toBe(42);
+  });
+
+  it('large heap operations', () => {
+    const heap = new MinHeap();
+    for (let i = 0; i < 10000; i++) {
+      heap.insert(Math.random());
+    }
+    expect(heap.size()).toBe(10000);
+    
+    let last = -Infinity;
+    while (!heap.isEmpty()) {
+      const val = heap.extractMin()!;
+      expect(val).toBeGreaterThanOrEqual(last);
+      last = val;
+    }
+  });
+});
+]=],
+  },
 }
 
 return M
