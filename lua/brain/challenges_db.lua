@@ -2310,6 +2310,267 @@ describe('MinHeap edge cases', () => {
 });
 ]=],
   },
+  {
+    name = "Coin Change",
+    difficulty = "medium",
+    stub = [=[
+/**
+ * Coin Change
+ *
+ * Implement classic dynamic programming coin change problems.
+ *
+ * The coin change family of problems asks you to find optimal ways
+ * to make change using a set of coin denominations. These problems
+ * are fundamental examples of dynamic programming and appear in:
+ * - Currency systems
+ * - Resource allocation
+ * - Knapsack variants
+ * - Combinatorial optimization
+ *
+ * Implement:
+ * - coinChange(coins: number[], amount: number): number
+ *   Return the minimum number of coins needed to make the amount.
+ *   Return -1 if it's impossible to make the amount.
+ *
+ * - coinChangeWays(coins: number[], amount: number): number
+ *   Return the number of distinct ways to make the amount.
+ *   Order doesn't matter (combinations, not permutations).
+ *
+ * - coinChangePermutations(coins: number[], amount: number): number
+ *   Return the number of distinct permutations to make the amount.
+ *   Order matters (different sequences count separately).
+ *
+ * - coinChangeWithLimit(coins: number[], amount: number, limits: number[]): number
+ *   Each coin has a maximum usage limit. Return minimum coins needed,
+ *   or -1 if impossible.
+ *
+ * Constraints:
+ * - 1 <= coins.length <= 12
+ * - 1 <= coins[i] <= 2^31 - 1
+ * - 0 <= amount <= 10^4
+ * - For coinChangeWithLimit: limits.length === coins.length
+ *
+ * Examples:
+ * - coins = [1, 2, 5], amount = 11 → coinChange returns 3 (5+5+1)
+ * - coins = [2], amount = 3 → coinChange returns -1 (impossible)
+ * - coins = [1, 2, 5], amount = 5 → coinChangeWays returns 4:
+ *   (5), (2+2+1), (2+1+1+1), (1+1+1+1+1)
+ * - coins = [1, 2], amount = 3 → coinChangePermutations returns 3:
+ *   (1+1+1), (1+2), (2+1)
+ */
+
+export function coinChange(coins: number[], amount: number): number {
+  // YOUR CODE HERE
+  return -1;
+}
+
+export function coinChangeWays(coins: number[], amount: number): number {
+  // YOUR CODE HERE
+  return 0;
+}
+
+export function coinChangePermutations(coins: number[], amount: number): number {
+  // YOUR CODE HERE
+  return 0;
+}
+
+export function coinChangeWithLimit(
+  coins: number[],
+  amount: number,
+  limits: number[]
+): number {
+  // YOUR CODE HERE
+  return -1;
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { coinChange, coinChangeWays, coinChangePermutations, coinChangeWithLimit } from './challenge';
+
+describe('coinChange', () => {
+  it('basic example', () => {
+    expect(coinChange([1, 2, 5], 11)).toBe(3); // 5+5+1
+  });
+
+  it('impossible case', () => {
+    expect(coinChange([2], 3)).toBe(-1);
+  });
+
+  it('amount of 0', () => {
+    expect(coinChange([1, 2, 5], 0)).toBe(0);
+  });
+
+  it('single coin matches amount', () => {
+    expect(coinChange([5], 5)).toBe(1);
+  });
+
+  it('single coin cannot make amount', () => {
+    expect(coinChange([5], 7)).toBe(-1);
+  });
+
+  it('multiple coins same value', () => {
+    expect(coinChange([1, 1, 1], 3)).toBe(3);
+  });
+
+  it('large coins', () => {
+    expect(coinChange([100, 50, 25], 75)).toBe(2); // 50+25
+  });
+
+  it('greedy would fail', () => {
+    // Coins [1, 3, 4], amount 6
+    // Greedy: 4+1+1 = 3 coins
+    // Optimal: 3+3 = 2 coins
+    expect(coinChange([1, 3, 4], 6)).toBe(2);
+  });
+
+  it('all coins larger than amount', () => {
+    expect(coinChange([5, 10, 25], 3)).toBe(-1);
+  });
+
+  it('complex case', () => {
+    expect(coinChange([1, 5, 10, 25], 63)).toBe(6); // 25+25+10+1+1+1
+  });
+
+  it('stress test', () => {
+    expect(coinChange([1, 2, 5, 10, 20, 50, 100], 999)).toBe(12);
+  });
+});
+
+describe('coinChangeWays', () => {
+  it('basic example', () => {
+    expect(coinChangeWays([1, 2, 5], 5)).toBe(4);
+    // Ways: (5), (2+2+1), (2+1+1+1), (1+1+1+1+1)
+  });
+
+  it('amount of 0', () => {
+    expect(coinChangeWays([1, 2, 5], 0)).toBe(1); // One way: use nothing
+  });
+
+  it('single coin', () => {
+    expect(coinChangeWays([3], 6)).toBe(1); // Only 3+3
+    expect(coinChangeWays([3], 5)).toBe(0); // Impossible
+  });
+
+  it('no ways to make amount', () => {
+    expect(coinChangeWays([2, 4, 6], 5)).toBe(0);
+  });
+
+  it('coins include 1', () => {
+    expect(coinChangeWays([1, 2], 3)).toBe(2);
+    // Ways: (1+1+1), (2+1)
+  });
+
+  it('larger example', () => {
+    expect(coinChangeWays([1, 2, 5], 10)).toBe(10);
+  });
+
+  it('order does not matter', () => {
+    // (1+2) and (2+1) count as the same way
+    expect(coinChangeWays([1, 2], 4)).toBe(3);
+    // Ways: (1+1+1+1), (2+1+1), (2+2)
+  });
+});
+
+describe('coinChangePermutations', () => {
+  it('basic example', () => {
+    expect(coinChangePermutations([1, 2], 3)).toBe(3);
+    // Permutations: (1+1+1), (1+2), (2+1)
+  });
+
+  it('amount of 0', () => {
+    expect(coinChangePermutations([1, 2, 5], 0)).toBe(1); // One way: use nothing
+  });
+
+  it('single coin', () => {
+    expect(coinChangePermutations([3], 6)).toBe(1); // Only 3+3
+    expect(coinChangePermutations([3], 5)).toBe(0); // Impossible
+  });
+
+  it('order matters', () => {
+    // (1+2) and (2+1) count as different permutations
+    expect(coinChangePermutations([1, 2], 4)).toBe(5);
+    // Permutations: (1+1+1+1), (1+1+2), (1+2+1), (2+1+1), (2+2)
+  });
+
+  it('larger example', () => {
+    expect(coinChangePermutations([1, 2, 5], 5)).toBe(13);
+  });
+
+  it('no permutations possible', () => {
+    expect(coinChangePermutations([2, 4, 6], 5)).toBe(0);
+  });
+});
+
+describe('coinChangeWithLimit', () => {
+  it('basic example with limits', () => {
+    // coins [1, 2, 5], limits [3, 2, 1], amount 11
+    // Can use at most: three 1s, two 2s, one 5
+    // Best: 5+2+2+1+1 = 5 coins (uses all limits)
+    expect(coinChangeWithLimit([1, 2, 5], 11, [3, 2, 1])).toBe(5);
+  });
+
+  it('limits make it impossible', () => {
+    // coins [1, 2, 5], limits [1, 1, 1], amount 10
+    // Max possible: 1+2+5 = 8, cannot reach 10
+    expect(coinChangeWithLimit([1, 2, 5], 10, [1, 1, 1])).toBe(-1);
+  });
+
+  it('amount of 0', () => {
+    expect(coinChangeWithLimit([1, 2, 5], 0, [3, 2, 1])).toBe(0);
+  });
+
+  it('limits not binding', () => {
+    // Limits are high enough not to matter
+    expect(coinChangeWithLimit([1, 2, 5], 11, [100, 100, 100])).toBe(3);
+  });
+
+  it('single coin with limit', () => {
+    expect(coinChangeWithLimit([5], 15, [3])).toBe(3); // 5+5+5
+    expect(coinChangeWithLimit([5], 20, [3])).toBe(-1); // Can only use 3 coins = 15
+  });
+
+  it('complex limits', () => {
+    // coins [2, 3, 5], limits [2, 3, 2], amount 17
+    // Best: 5+5+3+2+2 = 5 coins
+    expect(coinChangeWithLimit([2, 3, 5], 17, [2, 3, 2])).toBe(5);
+  });
+
+  it('zero limit for a coin', () => {
+    // Cannot use coin at index 1 (value 3)
+    expect(coinChangeWithLimit([1, 3, 5], 6, [6, 0, 6])).toBe(2); // 1+5
+  });
+});
+
+describe('edge cases', () => {
+  it('empty coins array', () => {
+    expect(coinChange([], 5)).toBe(-1);
+    expect(coinChangeWays([], 5)).toBe(0);
+    expect(coinChangePermutations([], 5)).toBe(0);
+    expect(coinChangeWithLimit([], 5, [])).toBe(-1);
+  });
+
+  it('coin with value 1', () => {
+    expect(coinChange([1], 100)).toBe(100);
+    expect(coinChangeWays([1], 100)).toBe(1);
+    expect(coinChangePermutations([1], 100)).toBe(1);
+  });
+
+  it('large amount with efficient coins', () => {
+    expect(coinChange([1, 10, 100], 999)).toBe(18); // 9*100 + 9*10 + 9*1
+  });
+
+  it('coins not sorted', () => {
+    expect(coinChange([5, 1, 2], 11)).toBe(3);
+    expect(coinChangeWays([5, 1, 2], 5)).toBe(4);
+  });
+
+  it('duplicate coin values', () => {
+    expect(coinChange([1, 1, 2], 3)).toBe(2); // 1+2 or 1+2
+    expect(coinChangeWays([1, 1, 2], 3)).toBe(2); // (1+1+1), (1+2)
+  });
+});
+]=],
+  },
 }
 
 return M
