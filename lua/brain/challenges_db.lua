@@ -2571,6 +2571,462 @@ describe('edge cases', () => {
 });
 ]=],
   },
+  {
+    name = "Task Scheduler with Priority and Delay",
+    difficulty = "hard",
+    stub = [=[
+/**
+ * Task Scheduler with Priority and Delay
+ *
+ * Implement a task scheduler that supports priority-based execution
+ * with optional delayed scheduling.
+ *
+ * This combines concepts from:
+ * - Priority queues (heap-based scheduling)
+ * - Delayed execution (setTimeout-like behavior)
+ * - Task cancellation
+ * - Concurrent execution limits
+ *
+ * Implement the TaskScheduler class with:
+ * - constructor(maxConcurrency?: number) — Initialize with max parallel tasks
+ * - schedule(task: () => Promise<void>, options?: { priority?: number, delay?: number, id?: string }): string
+ *   Schedule a task for execution. Returns a task ID.
+ *   - priority: higher number = higher priority (default: 0)
+ *   - delay: milliseconds to wait before task becomes eligible (default: 0)
+ *   - id: optional custom ID; if omitted, generate unique ID
+ * - cancel(taskId: string): boolean — Cancel a pending task. Returns true if cancelled.
+ * - cancelAll(): number — Cancel all pending tasks. Returns count cancelled.
+ * - getPendingCount(): number — Return number of tasks waiting to execute
+ * - getRunningCount(): number — Return number of currently executing tasks
+ * - setMaxConcurrency(max: number): void — Change max concurrency at runtime
+ * - getMaxConcurrency(): number — Return current max concurrency setting
+ * - waitForAll(): Promise<void> — Wait until all tasks complete (pending + running)
+ * - pause(): void — Pause execution of new tasks (running tasks continue)
+ * - resume(): void — Resume execution after pause
+ * - isPaused(): boolean — Check if scheduler is paused
+ *
+ * The scheduler should:
+ * - Execute tasks in priority order (highest first)
+ * - Respect delay: tasks only become eligible after delay ms
+ * - Never exceed maxConcurrency running tasks
+ * - When a slot opens, pick the highest-priority eligible task
+ * - Handle task errors gracefully (don't crash the scheduler)
+ *
+ * Bonus: Implement drain(timeoutMs?: number): Promise<number> that cancels all
+ * pending tasks and waits for running tasks to complete, optionally timing out.
+ */
+
+export interface ScheduleOptions {
+  priority?: number;
+  delay?: number;
+  id?: string;
+}
+
+export class TaskScheduler {
+  constructor(maxConcurrency?: number) {
+    // YOUR CODE HERE
+  }
+
+  schedule(task: () => Promise<void>, options?: ScheduleOptions): string {
+    // YOUR CODE HERE
+    return '';
+  }
+
+  cancel(taskId: string): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  cancelAll(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  getPendingCount(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  getRunningCount(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  setMaxConcurrency(max: number): void {
+    // YOUR CODE HERE
+  }
+
+  getMaxConcurrency(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  waitForAll(): Promise<void> {
+    // YOUR CODE HERE
+    return Promise.resolve();
+  }
+
+  pause(): void {
+    // YOUR CODE HERE
+  }
+
+  resume(): void {
+    // YOUR CODE HERE
+  }
+
+  isPaused(): boolean {
+    // YOUR CODE HERE
+    return true;
+  }
+
+  drain(timeoutMs?: number): Promise<number> {
+    // YOUR CODE HERE
+    return Promise.resolve(0);
+  }
+}
+]=],
+    tests = [=[
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { TaskScheduler } from './challenge';
+
+describe('TaskScheduler', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('executes single task immediately', async () => {
+    const scheduler = new TaskScheduler(1);
+    const task = vi.fn(async () => {});
+    scheduler.schedule(task);
+    
+    vi.advanceTimersByTime(0);
+    await scheduler.waitForAll();
+    
+    expect(task).toHaveBeenCalledTimes(1);
+  });
+
+  it('respects maxConcurrency', async () => {
+    const scheduler = new TaskScheduler(2);
+    const starts: number[] = [];
+    const ends: number[] = [];
+    
+    scheduler.schedule(async () => {
+      starts.push(1);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      ends.push(1);
+    });
+    scheduler.schedule(async () => {
+      starts.push(2);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      ends.push(2);
+    });
+    scheduler.schedule(async () => {
+      starts.push(3);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      ends.push(3);
+    });
+    
+    vi.advanceTimersByTime(0);
+    expect(starts).toEqual([1, 2]); // Only 2 start
+    expect(scheduler.getRunningCount()).toBe(2);
+    expect(scheduler.getPendingCount()).toBe(1);
+    
+    vi.advanceTimersByTime(100);
+    await scheduler.waitForAll();
+    expect(starts).toEqual([1, 2, 3]);
+  });
+
+  it('executes by priority', async () => {
+    const scheduler = new TaskScheduler(1);
+    const order: number[] = [];
+    
+    scheduler.schedule(async () => { order.push(1); }, { priority: 1 });
+    scheduler.schedule(async () => { order.push(2); }, { priority: 3 });
+    scheduler.schedule(async () => { order.push(3); }, { priority: 2 });
+    
+    vi.advanceTimersByTime(0);
+    await scheduler.waitForAll();
+    
+    expect(order).toEqual([2, 3, 1]); // Highest priority first
+  });
+
+  it('respects delay', async () => {
+    const scheduler = new TaskScheduler(1);
+    const order: string[] = [];
+    
+    scheduler.schedule(async () => { order.push('immediate'); });
+    scheduler.schedule(async () => { order.push('delayed'); }, { delay: 50 });
+    
+    vi.advanceTimersByTime(0);
+    expect(order).toEqual(['immediate']);
+    
+    vi.advanceTimersByTime(50);
+    await scheduler.waitForAll();
+    expect(order).toEqual(['immediate', 'delayed']);
+  });
+
+  it('priority overrides delay when both eligible', async () => {
+    const scheduler = new TaskScheduler(1);
+    const order: string[] = [];
+    
+    scheduler.schedule(async () => { order.push('low-priority'); }, { priority: 1, delay: 0 });
+    scheduler.schedule(async () => { order.push('high-priority'); }, { priority: 10, delay: 0 });
+    
+    vi.advanceTimersByTime(0);
+    await scheduler.waitForAll();
+    
+    expect(order).toEqual(['high-priority', 'low-priority']);
+  });
+
+  it('cancel removes pending task', async () => {
+    const scheduler = new TaskScheduler(1);
+    const task = vi.fn(async () => {});
+    const taskId = scheduler.schedule(task, { delay: 100 });
+    
+    expect(scheduler.cancel(taskId)).toBe(true);
+    
+    vi.advanceTimersByTime(100);
+    await scheduler.waitForAll();
+    
+    expect(task).not.toHaveBeenCalled();
+    expect(scheduler.getPendingCount()).toBe(0);
+  });
+
+  it('cancel returns false for already running task', async () => {
+    const scheduler = new TaskScheduler(1);
+    let resolveTask: (() => void) | null = null;
+    const task = vi.fn(async () => {
+      await new Promise(resolve => { resolveTask = resolve; });
+    });
+    const taskId = scheduler.schedule(task);
+    
+    vi.advanceTimersByTime(0);
+    expect(scheduler.getRunningCount()).toBe(1);
+    expect(scheduler.cancel(taskId)).toBe(false);
+    
+    resolveTask!();
+    await scheduler.waitForAll();
+    expect(task).toHaveBeenCalledTimes(1);
+  });
+
+  it('cancelAll removes all pending', async () => {
+    const scheduler = new TaskScheduler(2);
+    const task1 = vi.fn(async () => {});
+    const task2 = vi.fn(async () => {});
+    const task3 = vi.fn(async () => {});
+    
+    scheduler.schedule(task1);
+    scheduler.schedule(task2);
+    scheduler.schedule(task3, { delay: 100 });
+    
+    expect(scheduler.cancelAll()).toBe(1); // Only task3 is pending
+    
+    vi.advanceTimersByTime(0);
+    await scheduler.waitForAll();
+    expect(task1).toHaveBeenCalled();
+    expect(task2).toHaveBeenCalled();
+    expect(task3).not.toHaveBeenCalled();
+  });
+
+  it('getPendingCount and getRunningCount are accurate', async () => {
+    const scheduler = new TaskScheduler(2);
+    
+    scheduler.schedule(async () => { await new Promise(resolve => setTimeout(resolve, 100)); });
+    scheduler.schedule(async () => { await new Promise(resolve => setTimeout(resolve, 100)); });
+    scheduler.schedule(async () => { await new Promise(resolve => setTimeout(resolve, 100)); });
+    scheduler.schedule(async () => {}, { delay: 200 });
+    
+    expect(scheduler.getPendingCount()).toBe(2); // 1 waiting, 1 delayed
+    expect(scheduler.getRunningCount()).toBe(0);
+    
+    vi.advanceTimersByTime(0);
+    expect(scheduler.getRunningCount()).toBe(2);
+    expect(scheduler.getPendingCount()).toBe(1); // 1 delayed not yet eligible
+    
+    vi.advanceTimersByTime(100);
+    expect(scheduler.getRunningCount()).toBe(1); // 3rd task now running
+    expect(scheduler.getPendingCount()).toBe(0);
+  });
+
+  it('setMaxConcurrency changes limit at runtime', async () => {
+    const scheduler = new TaskScheduler(1);
+    const starts: number[] = [];
+    
+    scheduler.schedule(async () => { starts.push(1); await new Promise(resolve => setTimeout(resolve, 50)); });
+    scheduler.schedule(async () => { starts.push(2); await new Promise(resolve => setTimeout(resolve, 50)); });
+    scheduler.schedule(async () => { starts.push(3); await new Promise(resolve => setTimeout(resolve, 50)); });
+    
+    vi.advanceTimersByTime(0);
+    expect(starts).toEqual([1]);
+    
+    scheduler.setMaxConcurrency(3);
+    vi.advanceTimersByTime(0);
+    expect(starts).toEqual([1, 2, 3]);
+    
+    await scheduler.waitForAll();
+  });
+
+  it('pause prevents new task execution', async () => {
+    const scheduler = new TaskScheduler(2);
+    const order: string[] = [];
+    
+    scheduler.schedule(async () => { order.push('1'); await new Promise(resolve => setTimeout(resolve, 50)); });
+    scheduler.pause();
+    scheduler.schedule(async () => { order.push('2'); });
+    
+    vi.advanceTimersByTime(0);
+    expect(order).toEqual(['1']);
+    expect(scheduler.getPendingCount()).toBe(1);
+    
+    scheduler.resume();
+    vi.advanceTimersByTime(0);
+    await scheduler.waitForAll();
+    expect(order).toEqual(['1', '2']);
+  });
+
+  it('isPaused returns correct state', () => {
+    const scheduler = new TaskScheduler(1);
+    expect(scheduler.isPaused()).toBe(false);
+    
+    scheduler.pause();
+    expect(scheduler.isPaused()).toBe(true);
+    
+    scheduler.resume();
+    expect(scheduler.isPaused()).toBe(false);
+  });
+
+  it('waitForAll waits for all tasks', async () => {
+    const scheduler = new TaskScheduler(1);
+    let completed = false;
+    
+    scheduler.schedule(async () => {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      completed = true;
+    });
+    
+    vi.advanceTimersByTime(0);
+    expect(completed).toBe(false);
+    
+    const waitPromise = scheduler.waitForAll();
+    vi.advanceTimersByTime(100);
+    await waitPromise;
+    expect(completed).toBe(true);
+  });
+
+  it('task errors do not crash scheduler', async () => {
+    const scheduler = new TaskScheduler(1);
+    const goodTask = vi.fn(async () => {});
+    const badTask = vi.fn(async () => { throw new Error('task failed'); });
+    
+    scheduler.schedule(badTask);
+    scheduler.schedule(goodTask);
+    
+    vi.advanceTimersByTime(0);
+    await scheduler.waitForAll();
+    
+    expect(badTask).toHaveBeenCalledTimes(1);
+    expect(goodTask).toHaveBeenCalledTimes(1);
+  });
+
+  it('custom task IDs', async () => {
+    const scheduler = new TaskScheduler(1);
+    const taskId = scheduler.schedule(async () => {}, { id: 'my-task' });
+    
+    expect(taskId).toBe('my-task');
+    expect(scheduler.cancel('my-task')).toBe(true);
+  });
+
+  it('duplicate task IDs not allowed', () => {
+    const scheduler = new TaskScheduler(1);
+    scheduler.schedule(async () => {}, { id: 'duplicate' });
+    
+    expect(() => scheduler.schedule(async () => {}, { id: 'duplicate' })).toThrow();
+  });
+
+  it('delayed task becomes eligible after delay', async () => {
+    const scheduler = new TaskScheduler(1);
+    const order: string[] = [];
+    
+    scheduler.schedule(async () => { order.push('first'); }, { delay: 100 });
+    scheduler.schedule(async () => { order.push('second'); }, { delay: 50 });
+    
+    vi.advanceTimersByTime(0);
+    expect(order).toEqual([]);
+    
+    vi.advanceTimersByTime(50);
+    expect(order).toEqual(['second']);
+    
+    vi.advanceTimersByTime(50);
+    await scheduler.waitForAll();
+    expect(order).toEqual(['second', 'first']);
+  });
+
+  it('stress test with many tasks', async () => {
+    const scheduler = new TaskScheduler(5);
+    const completed: number[] = [];
+    
+    for (let i = 0; i < 100; i++) {
+      scheduler.schedule(async () => {
+        await new Promise(resolve => setTimeout(resolve, 10));
+        completed.push(i);
+      }, { priority: Math.random() * 100 });
+    }
+    
+    vi.advanceTimersByTime(0);
+    expect(scheduler.getRunningCount()).toBe(5);
+    expect(scheduler.getPendingCount()).toBe(95);
+    
+    vi.advanceTimersByTime(100);
+    await scheduler.waitForAll();
+    expect(completed).toHaveLength(100);
+  });
+
+  it('drain cancels pending and waits for running', async () => {
+    const scheduler = new TaskScheduler(2);
+    const runningResolve: Array<() => void> = [];
+    
+    scheduler.schedule(async () => {
+      await new Promise(resolve => runningResolve.push(resolve));
+    });
+    scheduler.schedule(async () => {
+      await new Promise(resolve => runningResolve.push(resolve));
+    });
+    scheduler.schedule(async () => {}); // pending
+    scheduler.schedule(async () => {}); // pending
+    
+    vi.advanceTimersByTime(0);
+    expect(scheduler.getRunningCount()).toBe(2);
+    expect(scheduler.getPendingCount()).toBe(2);
+    
+    const drainPromise = scheduler.drain();
+    expect(scheduler.getPendingCount()).toBe(0);
+    
+    runningResolve.forEach(resolve => resolve());
+    const cancelled = await drainPromise;
+    expect(cancelled).toBe(2);
+  });
+
+  it('drain with timeout', async () => {
+    const scheduler = new TaskScheduler(1);
+    
+    scheduler.schedule(async () => {
+      await new Promise(resolve => setTimeout(resolve, 200));
+    });
+    
+    vi.advanceTimersByTime(0);
+    
+    const drainPromise = scheduler.drain(100);
+    vi.advanceTimersByTime(100);
+    
+    await expect(drainPromise).resolves.toBe(0); // Running task not cancelled
+  });
+});
+]=],
+  },
 }
 
 return M
