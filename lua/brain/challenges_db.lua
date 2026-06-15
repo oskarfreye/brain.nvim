@@ -3027,6 +3027,316 @@ describe('TaskScheduler', () => {
 });
 ]=],
   },
+  {
+    name = "Linked List Reversal",
+    difficulty = "easy",
+    stub = [=[
+/**
+ * Linked List Reversal
+ *
+ * Implement functions to reverse a singly linked list.
+ *
+ * Linked lists are fundamental data structures that test understanding
+ * of pointers/references and traversal. Reversing a linked list is a
+ * classic interview problem that can be solved iteratively or recursively.
+ *
+ * Implement:
+ * - ListNode class — represents a node in the linked list
+ * - reverseList(head: ListNode | null): ListNode | null
+ *   Reverse the linked list iteratively and return the new head.
+ * - reverseListRecursive(head: ListNode | null): ListNode | null
+ *   Reverse the linked list recursively and return the new head.
+ * - reverseBetween(head: ListNode | null, left: number, right: number): ListNode | null
+ *   Reverse the nodes of the linked list from position left to right (1-indexed).
+ * - isPalindrome(head: ListNode | null): boolean
+ *   Check if the linked list is a palindrome (reads the same forwards and backwards).
+ *
+ * Constraints:
+ * - The number of nodes in the list is in the range [0, 5000]
+ * - -5000 <= Node.val <= 5000
+ * - 1 <= left <= right <= length of list
+ *
+ * Examples:
+ * - Input: 1 -> 2 -> 3 -> 4 -> 5 -> null
+ *   reverseList output: 5 -> 4 -> 3 -> 2 -> 1 -> null
+ *
+ * - Input: 1 -> 2 -> 3 -> 4 -> 5 -> null, left = 2, right = 4
+ *   reverseBetween output: 1 -> 4 -> 3 -> 2 -> 5 -> null
+ *
+ * - Input: 1 -> 2 -> 3 -> 2 -> 1 -> null
+ *   isPalindrome output: true
+ */
+
+export class ListNode {
+  val: number;
+  next: ListNode | null;
+
+  constructor(val?: number, next?: ListNode | null) {
+    // YOUR CODE HERE
+    this.val = val === undefined ? 0 : val;
+    this.next = next === undefined ? null : next;
+  }
+}
+
+export function reverseList(head: ListNode | null): ListNode | null {
+  // YOUR CODE HERE
+  return null;
+}
+
+export function reverseListRecursive(head: ListNode | null): ListNode | null {
+  // YOUR CODE HERE
+  return null;
+}
+
+export function reverseBetween(
+  head: ListNode | null,
+  left: number,
+  right: number
+): ListNode | null {
+  // YOUR CODE HERE
+  return null;
+}
+
+export function isPalindrome(head: ListNode | null): boolean {
+  // YOUR CODE HERE
+  return true;
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { ListNode, reverseList, reverseListRecursive, reverseBetween, isPalindrome } from './challenge';
+
+function createList(values: number[]): ListNode | null {
+  if (values.length === 0) return null;
+  const head = new ListNode(values[0]);
+  let current = head;
+  for (let i = 1; i < values.length; i++) {
+    current.next = new ListNode(values[i]);
+    current = current.next;
+  }
+  return head;
+}
+
+function listToArray(head: ListNode | null): number[] {
+  const result: number[] = [];
+  while (head !== null) {
+    result.push(head.val);
+    head = head.next;
+  }
+  return result;
+}
+
+describe('reverseList', () => {
+  it('reverses a list with multiple nodes', () => {
+    const head = createList([1, 2, 3, 4, 5]);
+    const reversed = reverseList(head);
+    expect(listToArray(reversed)).toEqual([5, 4, 3, 2, 1]);
+  });
+
+  it('reverses a single node list', () => {
+    const head = new ListNode(1);
+    const reversed = reverseList(head);
+    expect(listToArray(reversed)).toEqual([1]);
+  });
+
+  it('reverses an empty list', () => {
+    expect(reverseList(null)).toBeNull();
+  });
+
+  it('reverses a two node list', () => {
+    const head = createList([1, 2]);
+    const reversed = reverseList(head);
+    expect(listToArray(reversed)).toEqual([2, 1]);
+  });
+
+  it('handles negative values', () => {
+    const head = createList([-1, -2, -3]);
+    const reversed = reverseList(head);
+    expect(listToArray(reversed)).toEqual([-3, -2, -1]);
+  });
+
+  it('preserves all values', () => {
+    const head = createList([1, 2, 3, 4, 5]);
+    const reversed = reverseList(head);
+    const values = listToArray(reversed);
+    expect(values).toHaveLength(5);
+    expect(values.sort()).toEqual([1, 2, 3, 4, 5]);
+  });
+});
+
+describe('reverseListRecursive', () => {
+  it('reverses a list with multiple nodes', () => {
+    const head = createList([1, 2, 3, 4, 5]);
+    const reversed = reverseListRecursive(head);
+    expect(listToArray(reversed)).toEqual([5, 4, 3, 2, 1]);
+  });
+
+  it('reverses a single node list', () => {
+    const head = new ListNode(1);
+    const reversed = reverseListRecursive(head);
+    expect(listToArray(reversed)).toEqual([1]);
+  });
+
+  it('reverses an empty list', () => {
+    expect(reverseListRecursive(null)).toBeNull();
+  });
+
+  it('reverses a two node list', () => {
+    const head = createList([1, 2]);
+    const reversed = reverseListRecursive(head);
+    expect(listToArray(reversed)).toEqual([2, 1]);
+  });
+
+  it('handles negative values', () => {
+    const head = createList([-1, -2, -3]);
+    const reversed = reverseListRecursive(head);
+    expect(listToArray(reversed)).toEqual([-3, -2, -1]);
+  });
+
+  it('produces same result as iterative', () => {
+    const values = [1, 2, 3, 4, 5];
+    const head1 = createList(values);
+    const head2 = createList(values);
+    
+    const reversed1 = reverseList(head1);
+    const reversed2 = reverseListRecursive(head2);
+    
+    expect(listToArray(reversed1)).toEqual(listToArray(reversed2));
+  });
+});
+
+describe('reverseBetween', () => {
+  it('reverses middle section', () => {
+    const head = createList([1, 2, 3, 4, 5]);
+    const reversed = reverseBetween(head, 2, 4);
+    expect(listToArray(reversed)).toEqual([1, 4, 3, 2, 5]);
+  });
+
+  it('reverses entire list', () => {
+    const head = createList([1, 2, 3, 4, 5]);
+    const reversed = reverseBetween(head, 1, 5);
+    expect(listToArray(reversed)).toEqual([5, 4, 3, 2, 1]);
+  });
+
+  it('reverses from start', () => {
+    const head = createList([1, 2, 3, 4, 5]);
+    const reversed = reverseBetween(head, 1, 3);
+    expect(listToArray(reversed)).toEqual([3, 2, 1, 4, 5]);
+  });
+
+  it('reverses to end', () => {
+    const head = createList([1, 2, 3, 4, 5]);
+    const reversed = reverseBetween(head, 3, 5);
+    expect(listToArray(reversed)).toEqual([1, 2, 5, 4, 3]);
+  });
+
+  it('single node range does nothing', () => {
+    const head = createList([1, 2, 3, 4, 5]);
+    const reversed = reverseBetween(head, 3, 3);
+    expect(listToArray(reversed)).toEqual([1, 2, 3, 4, 5]);
+  });
+
+  it('two node range', () => {
+    const head = createList([1, 2, 3, 4, 5]);
+    const reversed = reverseBetween(head, 2, 3);
+    expect(listToArray(reversed)).toEqual([1, 3, 2, 4, 5]);
+  });
+
+  it('empty list', () => {
+    expect(reverseBetween(null, 1, 1)).toBeNull();
+  });
+
+  it('single node list', () => {
+    const head = new ListNode(1);
+    const reversed = reverseBetween(head, 1, 1);
+    expect(listToArray(reversed)).toEqual([1]);
+  });
+});
+
+describe('isPalindrome', () => {
+  it('single node is palindrome', () => {
+    expect(isPalindrome(new ListNode(1))).toBe(true);
+  });
+
+  it('empty list is palindrome', () => {
+    expect(isPalindrome(null)).toBe(true);
+  });
+
+  it('two same nodes is palindrome', () => {
+    const head = createList([1, 1]);
+    expect(isPalindrome(head)).toBe(true);
+  });
+
+  it('two different nodes is not palindrome', () => {
+    const head = createList([1, 2]);
+    expect(isPalindrome(head)).toBe(false);
+  });
+
+  it('odd length palindrome', () => {
+    const head = createList([1, 2, 3, 2, 1]);
+    expect(isPalindrome(head)).toBe(true);
+  });
+
+  it('even length palindrome', () => {
+    const head = createList([1, 2, 2, 1]);
+    expect(isPalindrome(head)).toBe(true);
+  });
+
+  it('not a palindrome', () => {
+    const head = createList([1, 2, 3]);
+    expect(isPalindrome(head)).toBe(false);
+  });
+
+  it('all same values is palindrome', () => {
+    const head = createList([5, 5, 5, 5]);
+    expect(isPalindrome(head)).toBe(true);
+  });
+
+  it('negative values palindrome', () => {
+    const head = createList([-1, -2, -1]);
+    expect(isPalindrome(head)).toBe(true);
+  });
+
+  it('negative values not palindrome', () => {
+    const head = createList([-1, -2, -3]);
+    expect(isPalindrome(head)).toBe(false);
+  });
+});
+
+describe('edge cases', () => {
+  it('large list reversal', () => {
+    const values = Array.from({ length: 100 }, (_, i) => i + 1);
+    const head = createList(values);
+    const reversed = reverseList(head);
+    const result = listToArray(reversed);
+    expect(result).toEqual(values.reverse());
+  });
+
+  it('reverseBetween with left equals right', () => {
+    const head = createList([1, 2, 3, 4, 5]);
+    const reversed = reverseBetween(head, 3, 3);
+    expect(listToArray(reversed)).toEqual([1, 2, 3, 4, 5]);
+  });
+
+  it('reverseBetween bounds validation', () => {
+    const head = createList([1, 2, 3]);
+    // left = 1, right = 3 should reverse entire list
+    const reversed = reverseBetween(head, 1, 3);
+    expect(listToArray(reversed)).toEqual([3, 2, 1]);
+  });
+
+  it('isPalindrome with many nodes', () => {
+    const head = createList([1, 2, 3, 4, 5, 4, 3, 2, 1]);
+    expect(isPalindrome(head)).toBe(true);
+  });
+
+  it('isPalindrome almost palindrome', () => {
+    const head = createList([1, 2, 3, 4, 5, 4, 3, 2, 2]);
+    expect(isPalindrome(head)).toBe(false);
+  });
+});
+]=],
+  },
 }
 
 return M
