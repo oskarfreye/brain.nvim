@@ -3337,6 +3337,301 @@ describe('edge cases', () => {
 });
 ]=],
   },
+  {
+    name = "Dijkstra's Shortest Path",
+    difficulty = "medium",
+    stub = [=[
+/**
+ * Dijkstra's Shortest Path
+ *
+ * Implement Dijkstra's algorithm for finding the shortest path in a weighted graph.
+ *
+ * Dijkstra's algorithm finds the shortest path from a source node to all other
+ * nodes in a graph with non-negative edge weights. It's widely used in:
+ * - GPS navigation systems
+ * - Network routing protocols
+ * - Social network analysis
+ * - Game AI pathfinding
+ *
+ * The graph is represented as an adjacency list:
+ * type Graph = Map<number, Array<{ to: number, weight: number }>>
+ *
+ * Implement:
+ * - dijkstra(graph: Map<number, Array<{to: number, weight: number}>>, source: number): Map<number, number>
+ *   Return a map of node -> shortest distance from source. Use Infinity for unreachable nodes.
+ *
+ * - shortestPath(graph: Map<number, Array<{to: number, weight: number}>>, source: number, target: number): number[]
+ *   Return the actual path (array of node IDs) from source to target.
+ *   Return empty array if no path exists.
+ *
+ * - dijkstraWithPredecessors(graph: Map<number, Array<{to: number, weight: number}>>, source: number): { distances: Map<number, number>, predecessors: Map<number, number | null> }
+ *   Return both distances and the predecessor map for path reconstruction.
+ *
+ * Requirements:
+ * - Time complexity: O((V + E) log V) using a min-heap priority queue
+ * - Handle disconnected graphs (return Infinity for unreachable nodes)
+ * - Handle graphs with isolated nodes
+ * - Source node distance should be 0
+ *
+ * Bonus: Implement dijkstraWithLimit that stops early once all nodes within
+ * a certain distance threshold have been processed.
+ */
+
+export function dijkstra(
+  graph: Map<number, Array<{ to: number; weight: number }>>,
+  source: number
+): Map<number, number> {
+  // YOUR CODE HERE
+  return new Map();
+}
+
+export function shortestPath(
+  graph: Map<number, Array<{ to: number; weight: number }>>,
+  source: number,
+  target: number
+): number[] {
+  // YOUR CODE HERE
+  return [];
+}
+
+export function dijkstraWithPredecessors(
+  graph: Map<number, Array<{ to: number; weight: number }>>,
+  source: number
+): { distances: Map<number, number>; predecessors: Map<number, number | null> } {
+  // YOUR CODE HERE
+  return { distances: new Map(), predecessors: new Map() };
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { dijkstra, shortestPath, dijkstraWithPredecessors } from './challenge';
+
+function createGraph(edges: Array<[number, number, number]>): Map<number, Array<{ to: number; weight: number }>> {
+  const graph = new Map<number, Array<{ to: number; weight: number }>>();
+  for (const [from, to, weight] of edges) {
+    if (!graph.has(from)) graph.set(from, []);
+    graph.get(from)!.push({ to, weight });
+  }
+  return graph;
+}
+
+describe('dijkstra', () => {
+  it('single node returns distance 0', () => {
+    const graph = new Map();
+    graph.set(1, []);
+    const distances = dijkstra(graph, 1);
+    expect(distances.get(1)).toBe(0);
+  });
+
+  it('simple two-node graph', () => {
+    const graph = createGraph([[1, 2, 5]]);
+    const distances = dijkstra(graph, 1);
+    expect(distances.get(1)).toBe(0);
+    expect(distances.get(2)).toBe(5);
+  });
+
+  it('linear path', () => {
+    const graph = createGraph([[1, 2, 2], [2, 3, 3], [3, 4, 1]]);
+    const distances = dijkstra(graph, 1);
+    expect(distances.get(1)).toBe(0);
+    expect(distances.get(2)).toBe(2);
+    expect(distances.get(3)).toBe(5);
+    expect(distances.get(4)).toBe(6);
+  });
+
+  it('chooses shortest path over longer alternative', () => {
+    const graph = createGraph([
+      [1, 2, 10],
+      [1, 3, 1],
+      [3, 2, 2],
+    ]);
+    const distances = dijkstra(graph, 1);
+    expect(distances.get(2)).toBe(3); // 1->3->2 = 3, not 1->2 = 10
+    expect(distances.get(3)).toBe(1);
+  });
+
+  it('handles disconnected nodes', () => {
+    const graph = createGraph([[1, 2, 5]]);
+    graph.set(3, []); // isolated node
+    const distances = dijkstra(graph, 1);
+    expect(distances.get(1)).toBe(0);
+    expect(distances.get(2)).toBe(5);
+    expect(distances.get(3)).toBe(Infinity);
+  });
+
+  it('complex graph with multiple paths', () => {
+    const graph = createGraph([
+      [1, 2, 1],
+      [1, 3, 4],
+      [2, 3, 2],
+      [2, 4, 6],
+      [3, 4, 3],
+      [4, 5, 1],
+    ]);
+    const distances = dijkstra(graph, 1);
+    expect(distances.get(1)).toBe(0);
+    expect(distances.get(2)).toBe(1);
+    expect(distances.get(3)).toBe(3); // 1->2->3
+    expect(distances.get(4)).toBe(6); // 1->2->3->4
+    expect(distances.get(5)).toBe(7); // 1->2->3->4->5
+  });
+
+  it('graph with cycles', () => {
+    const graph = createGraph([
+      [1, 2, 1],
+      [2, 3, 1],
+      [3, 1, 1],
+      [2, 4, 2],
+    ]);
+    const distances = dijkstra(graph, 1);
+    expect(distances.get(1)).toBe(0);
+    expect(distances.get(2)).toBe(1);
+    expect(distances.get(3)).toBe(2);
+    expect(distances.get(4)).toBe(3);
+  });
+
+  it('all nodes reachable from source', () => {
+    const graph = createGraph([
+      [0, 1, 4],
+      [0, 2, 1],
+      [2, 1, 2],
+      [1, 3, 1],
+      [2, 3, 5],
+    ]);
+    const distances = dijkstra(graph, 0);
+    expect(distances.get(0)).toBe(0);
+    expect(distances.get(1)).toBe(3);
+    expect(distances.get(2)).toBe(1);
+    expect(distances.get(3)).toBe(4);
+  });
+
+  it('source node not in graph returns empty', () => {
+    const graph = createGraph([[1, 2, 5]]);
+    const distances = dijkstra(graph, 99);
+    expect(distances.size).toBe(0);
+  });
+
+  it('empty graph', () => {
+    const graph = new Map();
+    const distances = dijkstra(graph, 1);
+    expect(distances.size).toBe(0);
+  });
+});
+
+describe('shortestPath', () => {
+  it('returns path for simple graph', () => {
+    const graph = createGraph([[1, 2, 5], [2, 3, 3]]);
+    const path = shortestPath(graph, 1, 3);
+    expect(path).toEqual([1, 2, 3]);
+  });
+
+  it('returns empty array for unreachable target', () => {
+    const graph = createGraph([[1, 2, 5]]);
+    const path = shortestPath(graph, 1, 99);
+    expect(path).toEqual([]);
+  });
+
+  it('returns single element for source equals target', () => {
+    const graph = createGraph([[1, 2, 5]]);
+    const path = shortestPath(graph, 1, 1);
+    expect(path).toEqual([1]);
+  });
+
+  it('finds optimal path not just any path', () => {
+    const graph = createGraph([
+      [1, 2, 10],
+      [1, 3, 1],
+      [3, 2, 2],
+      [2, 4, 1],
+    ]);
+    const path = shortestPath(graph, 1, 4);
+    expect(path).toEqual([1, 3, 2, 4]); // not [1, 2, 4]
+  });
+
+  it('handles linear path', () => {
+    const graph = createGraph([[1, 2, 1], [2, 3, 1], [3, 4, 1]]);
+    const path = shortestPath(graph, 1, 4);
+    expect(path).toEqual([1, 2, 3, 4]);
+  });
+
+  it('no path exists', () => {
+    const graph = createGraph([[1, 2, 5], [3, 4, 5]]);
+    const path = shortestPath(graph, 1, 4);
+    expect(path).toEqual([]);
+  });
+});
+
+describe('dijkstraWithPredecessors', () => {
+  it('returns correct predecessors', () => {
+    const graph = createGraph([[1, 2, 5], [2, 3, 3]]);
+    const result = dijkstraWithPredecessors(graph, 1);
+    expect(result.distances.get(1)).toBe(0);
+    expect(result.distances.get(2)).toBe(5);
+    expect(result.distances.get(3)).toBe(8);
+    expect(result.predecessors.get(1)).toBeNull();
+    expect(result.predecessors.get(2)).toBe(1);
+    expect(result.predecessors.get(3)).toBe(2);
+  });
+
+  it('predecessors allow path reconstruction', () => {
+    const graph = createGraph([
+      [1, 2, 1],
+      [2, 3, 1],
+      [3, 4, 1],
+    ]);
+    const result = dijkstraWithPredecessors(graph, 1);
+    
+    // Reconstruct path to 4
+    const path: number[] = [];
+    let current: number | null = 4;
+    while (current !== null) {
+      path.unshift(current);
+      current = result.predecessors.get(current) ?? null;
+    }
+    expect(path).toEqual([1, 2, 3, 4]);
+  });
+});
+
+describe('edge cases', () => {
+  it('zero-weight edges', () => {
+    const graph = createGraph([[1, 2, 0], [2, 3, 0]]);
+    const distances = dijkstra(graph, 1);
+    expect(distances.get(1)).toBe(0);
+    expect(distances.get(2)).toBe(0);
+    expect(distances.get(3)).toBe(0);
+  });
+
+  it('large weights', () => {
+    const graph = createGraph([[1, 2, 1000000], [2, 3, 1000000]]);
+    const distances = dijkstra(graph, 1);
+    expect(distances.get(3)).toBe(2000000);
+  });
+
+  it('many nodes', () => {
+    const graph = new Map<number, Array<{ to: number; weight: number }>>();
+    for (let i = 1; i <= 100; i++) {
+      graph.set(i, [{ to: i + 1, weight: 1 }]);
+    }
+    graph.set(101, []);
+    const distances = dijkstra(graph, 1);
+    expect(distances.get(1)).toBe(0);
+    expect(distances.get(101)).toBe(100);
+  });
+
+  it('star graph', () => {
+    const graph = new Map<number, Array<{ to: number; weight: number }>>();
+    for (let i = 2; i <= 10; i++) {
+      graph.set(1, [...(graph.get(1) || []), { to: i, weight: i }]);
+      graph.set(i, []);
+    }
+    const distances = dijkstra(graph, 1);
+    for (let i = 2; i <= 10; i++) {
+      expect(distances.get(i)).toBe(i);
+    }
+  });
+});
+]=],
+  },
 }
 
 return M
