@@ -3632,6 +3632,380 @@ describe('edge cases', () => {
 });
 ]=],
   },
+  {
+    name = "Singly Linked List",
+    difficulty = "easy",
+    stub = [=[
+/**
+ * Singly Linked List
+ *
+ * Implement a singly linked list with basic operations.
+ *
+ * A linked list is a linear data structure where elements are stored in nodes,
+ * and each node points to the next node in the sequence. Unlike arrays,
+ * linked lists provide efficient insertions and deletions at any position.
+ *
+ * Implement the LinkedList class with:
+ * - constructor() — Initialize an empty list
+ * - prepend(value: number): void — Add a value to the front (O(1))
+ * - append(value: number): void — Add a value to the end (O(n) without tail, O(1) with tail)
+ * - insertAt(index: number, value: number): boolean — Insert at index. Return false if index invalid.
+ * - removeAt(index: number): number | null — Remove and return value at index. Return null if invalid.
+ * - get(index: number): number | null — Get value at index. Return null if invalid.
+ * - set(index: number, value: number): boolean — Set value at index. Return false if invalid.
+ * - indexOf(value: number): number — Return first index of value, or -1 if not found.
+ * - contains(value: number): boolean — Check if value exists in list.
+ * - size(): number — Return the number of elements.
+ * - isEmpty(): boolean — Check if list is empty.
+ * - clear(): void — Remove all elements.
+ * - toArray(): number[] — Return array representation.
+ * - reverse(): void — Reverse the list in place.
+ * - headValue(): number | null — Return head value without removing.
+ * - tailValue(): number | null — Return tail value without removing.
+ *
+ * Bonus: Implement findMiddle(): number | null to find the middle element
+ * using the slow/fast pointer technique (one pass, O(1) extra space).
+ */
+
+export class LinkedList {
+  constructor() {
+    // YOUR CODE HERE
+  }
+
+  prepend(value: number): void {
+    // YOUR CODE HERE
+  }
+
+  append(value: number): void {
+    // YOUR CODE HERE
+  }
+
+  insertAt(index: number, value: number): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  removeAt(index: number): number | null {
+    // YOUR CODE HERE
+    return null;
+  }
+
+  get(index: number): number | null {
+    // YOUR CODE HERE
+    return null;
+  }
+
+  set(index: number, value: number): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  indexOf(value: number): number {
+    // YOUR CODE HERE
+    return -1;
+  }
+
+  contains(value: number): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  size(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  isEmpty(): boolean {
+    // YOUR CODE HERE
+    return true;
+  }
+
+  clear(): void {
+    // YOUR CODE HERE
+  }
+
+  toArray(): number[] {
+    // YOUR CODE HERE
+    return [];
+  }
+
+  reverse(): void {
+    // YOUR CODE HERE
+  }
+
+  headValue(): number | null {
+    // YOUR CODE HERE
+    return null;
+  }
+
+  tailValue(): number | null {
+    // YOUR CODE HERE
+    return null;
+  }
+
+  findMiddle(): number | null {
+    // YOUR CODE HERE
+    return null;
+  }
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { LinkedList } from './challenge';
+
+describe('LinkedList', () => {
+  it('creates empty list', () => {
+    const list = new LinkedList();
+    expect(list.isEmpty()).toBe(true);
+    expect(list.size()).toBe(0);
+    expect(list.headValue()).toBeNull();
+    expect(list.tailValue()).toBeNull();
+  });
+
+  it('prepend adds to front', () => {
+    const list = new LinkedList();
+    list.prepend(1);
+    expect(list.headValue()).toBe(1);
+    expect(list.tailValue()).toBe(1);
+    list.prepend(2);
+    expect(list.headValue()).toBe(2);
+    expect(list.tailValue()).toBe(1);
+    expect(list.toArray()).toEqual([2, 1]);
+  });
+
+  it('append adds to end', () => {
+    const list = new LinkedList();
+    list.append(1);
+    expect(list.headValue()).toBe(1);
+    expect(list.tailValue()).toBe(1);
+    list.append(2);
+    list.append(3);
+    expect(list.headValue()).toBe(1);
+    expect(list.tailValue()).toBe(3);
+    expect(list.toArray()).toEqual([1, 2, 3]);
+  });
+
+  it('insertAt inserts at valid index', () => {
+    const list = new LinkedList();
+    list.append(1);
+    list.append(3);
+    expect(list.insertAt(1, 2)).toBe(true);
+    expect(list.toArray()).toEqual([1, 2, 3]);
+  });
+
+  it('insertAt at beginning', () => {
+    const list = new LinkedList();
+    list.append(2);
+    list.append(3);
+    expect(list.insertAt(0, 1)).toBe(true);
+    expect(list.toArray()).toEqual([1, 2, 3]);
+  });
+
+  it('insertAt at end', () => {
+    const list = new LinkedList();
+    list.append(1);
+    list.append(2);
+    expect(list.insertAt(2, 3)).toBe(true);
+    expect(list.toArray()).toEqual([1, 2, 3]);
+  });
+
+  it('insertAt returns false for invalid index', () => {
+    const list = new LinkedList();
+    list.append(1);
+    expect(list.insertAt(-1, 2)).toBe(false);
+    expect(list.insertAt(2, 2)).toBe(false);
+    expect(list.insertAt(10, 2)).toBe(false);
+  });
+
+  it('get returns value at index', () => {
+    const list = new LinkedList();
+    [10, 20, 30, 40, 50].forEach(v => list.append(v));
+    expect(list.get(0)).toBe(10);
+    expect(list.get(2)).toBe(30);
+    expect(list.get(4)).toBe(50);
+  });
+
+  it('get returns null for invalid index', () => {
+    const list = new LinkedList();
+    list.append(1);
+    expect(list.get(-1)).toBeNull();
+    expect(list.get(1)).toBeNull();
+    expect(list.get(100)).toBeNull();
+  });
+
+  it('set updates value at index', () => {
+    const list = new LinkedList();
+    [1, 2, 3].forEach(v => list.append(v));
+    expect(list.set(1, 20)).toBe(true);
+    expect(list.toArray()).toEqual([1, 20, 3]);
+  });
+
+  it('set returns false for invalid index', () => {
+    const list = new LinkedList();
+    expect(list.set(0, 1)).toBe(false);
+    list.append(1);
+    expect(list.set(1, 2)).toBe(false);
+  });
+
+  it('removeAt removes and returns value', () => {
+    const list = new LinkedList();
+    [1, 2, 3, 4, 5].forEach(v => list.append(v));
+    expect(list.removeAt(2)).toBe(3);
+    expect(list.toArray()).toEqual([1, 2, 4, 5]);
+  });
+
+  it('removeAt at beginning', () => {
+    const list = new LinkedList();
+    [1, 2, 3].forEach(v => list.append(v));
+    expect(list.removeAt(0)).toBe(1);
+    expect(list.toArray()).toEqual([2, 3]);
+    expect(list.headValue()).toBe(2);
+  });
+
+  it('removeAt at end', () => {
+    const list = new LinkedList();
+    [1, 2, 3].forEach(v => list.append(v));
+    expect(list.removeAt(2)).toBe(3);
+    expect(list.toArray()).toEqual([1, 2]);
+    expect(list.tailValue()).toBe(2);
+  });
+
+  it('removeAt returns null for invalid index', () => {
+    const list = new LinkedList();
+    expect(list.removeAt(0)).toBeNull();
+    list.append(1);
+    expect(list.removeAt(1)).toBeNull();
+  });
+
+  it('indexOf returns first occurrence', () => {
+    const list = new LinkedList();
+    [1, 2, 3, 2, 4].forEach(v => list.append(v));
+    expect(list.indexOf(2)).toBe(1);
+    expect(list.indexOf(4)).toBe(4);
+  });
+
+  it('indexOf returns -1 for missing value', () => {
+    const list = new LinkedList();
+    [1, 2, 3].forEach(v => list.append(v));
+    expect(list.indexOf(99)).toBe(-1);
+  });
+
+  it('contains returns boolean', () => {
+    const list = new LinkedList();
+    [1, 2, 3].forEach(v => list.append(v));
+    expect(list.contains(2)).toBe(true);
+    expect(list.contains(99)).toBe(false);
+  });
+
+  it('size tracks correctly', () => {
+    const list = new LinkedList();
+    expect(list.size()).toBe(0);
+    list.append(1);
+    expect(list.size()).toBe(1);
+    list.prepend(2);
+    expect(list.size()).toBe(2);
+    list.removeAt(0);
+    expect(list.size()).toBe(1);
+  });
+
+  it('clear empties list', () => {
+    const list = new LinkedList();
+    [1, 2, 3, 4, 5].forEach(v => list.append(v));
+    list.clear();
+    expect(list.isEmpty()).toBe(true);
+    expect(list.size()).toBe(0);
+    expect(list.headValue()).toBeNull();
+    expect(list.tailValue()).toBeNull();
+  });
+
+  it('toArray returns correct array', () => {
+    const list = new LinkedList();
+    [5, 3, 8, 1].forEach(v => list.append(v));
+    expect(list.toArray()).toEqual([5, 3, 8, 1]);
+  });
+
+  it('reverse reverses in place', () => {
+    const list = new LinkedList();
+    [1, 2, 3, 4, 5].forEach(v => list.append(v));
+    list.reverse();
+    expect(list.toArray()).toEqual([5, 4, 3, 2, 1]);
+    expect(list.headValue()).toBe(5);
+    expect(list.tailValue()).toBe(1);
+  });
+
+  it('reverse empty list', () => {
+    const list = new LinkedList();
+    list.reverse();
+    expect(list.toArray()).toEqual([]);
+  });
+
+  it('reverse single element', () => {
+    const list = new LinkedList();
+    list.append(42);
+    list.reverse();
+    expect(list.toArray()).toEqual([42]);
+  });
+
+  it('findMiddle on odd length', () => {
+    const list = new LinkedList();
+    [1, 2, 3, 4, 5].forEach(v => list.append(v));
+    expect(list.findMiddle()).toBe(3);
+  });
+
+  it('findMiddle on even length', () => {
+    const list = new LinkedList();
+    [1, 2, 3, 4, 5, 6].forEach(v => list.append(v));
+    expect(list.findMiddle()).toBe(4); // Second middle
+  });
+
+  it('findMiddle on single element', () => {
+    const list = new LinkedList();
+    list.append(42);
+    expect(list.findMiddle()).toBe(42);
+  });
+
+  it('findMiddle on empty list', () => {
+    const list = new LinkedList();
+    expect(list.findMiddle()).toBeNull();
+  });
+
+  it('stress test with many operations', () => {
+    const list = new LinkedList();
+    for (let i = 0; i < 100; i++) {
+      list.append(i);
+    }
+    expect(list.size()).toBe(100);
+    expect(list.headValue()).toBe(0);
+    expect(list.tailValue()).toBe(99);
+    
+    for (let i = 0; i < 100; i++) {
+      expect(list.get(i)).toBe(i);
+    }
+    
+    list.reverse();
+    expect(list.headValue()).toBe(99);
+    expect(list.tailValue()).toBe(0);
+  });
+
+  it('handles negative values', () => {
+    const list = new LinkedList();
+    [-5, -10, 0, 10, -1].forEach(v => list.append(v));
+    expect(list.toArray()).toEqual([-5, -10, 0, 10, -1]);
+    expect(list.contains(-10)).toBe(true);
+    expect(list.indexOf(-1)).toBe(4);
+  });
+
+  it('insertAt and removeAt at same index', () => {
+    const list = new LinkedList();
+    [1, 2, 3].forEach(v => list.append(v));
+    list.insertAt(1, 99);
+    expect(list.toArray()).toEqual([1, 99, 2, 3]);
+    expect(list.removeAt(1)).toBe(99);
+    expect(list.toArray()).toEqual([1, 2, 3]);
+  });
+});
+]=],
+  },
 }
 
 return M
