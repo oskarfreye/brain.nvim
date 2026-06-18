@@ -4006,6 +4006,217 @@ describe('LinkedList', () => {
 });
 ]=],
   },
+  {
+    name = "Queue",
+    difficulty = "easy",
+    stub = [=[
+/**
+ * Queue
+ *
+ * Implement a First-In-First-Out (FIFO) queue data structure.
+ *
+ * A queue is a linear data structure where elements are added at the rear
+ * (enqueue) and removed from the front (dequeue). Queues are commonly used for:
+ * - BFS graph traversal
+ * - Task scheduling
+ * - Buffer management
+ * - Print job queues
+ * - Message queues
+ *
+ * Implement the Queue class with:
+ * - constructor(initialValues?: number[]) — Optionally initialize with an array
+ * - enqueue(value: number): void — Add a value to the rear of the queue (O(1))
+ * - dequeue(): number | null — Remove and return the front value (O(1))
+ * - peek(): number | null — Return the front value without removing (O(1))
+ * - size(): number — Return the number of elements in the queue
+ * - isEmpty(): boolean — Check if the queue is empty
+ * - clear(): void — Remove all elements from the queue
+ * - toArray(): number[] — Return a copy of the queue as an array (front to rear)
+ *
+ * Bonus: Implement a generic Queue<T> that works with any type.
+ * Bonus: Implement CircularQueue with fixed capacity that wraps around.
+ */
+
+export class Queue {
+  constructor(initialValues?: number[]) {
+    // YOUR CODE HERE
+  }
+
+  enqueue(value: number): void {
+    // YOUR CODE HERE
+  }
+
+  dequeue(): number | null {
+    // YOUR CODE HERE
+    return null;
+  }
+
+  peek(): number | null {
+    // YOUR CODE HERE
+    return null;
+  }
+
+  size(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  isEmpty(): boolean {
+    // YOUR CODE HERE
+    return true;
+  }
+
+  clear(): void {
+    // YOUR CODE HERE
+  }
+
+  toArray(): number[] {
+    // YOUR CODE HERE
+    return [];
+  }
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { Queue } from './challenge';
+
+describe('Queue', () => {
+  it('creates empty queue', () => {
+    const queue = new Queue();
+    expect(queue.isEmpty()).toBe(true);
+    expect(queue.size()).toBe(0);
+    expect(queue.peek()).toBeNull();
+  });
+
+  it('enqueues single value', () => {
+    const queue = new Queue();
+    queue.enqueue(5);
+    expect(queue.size()).toBe(1);
+    expect(queue.peek()).toBe(5);
+    expect(queue.isEmpty()).toBe(false);
+  });
+
+  it('enqueues multiple values', () => {
+    const queue = new Queue();
+    queue.enqueue(1);
+    queue.enqueue(2);
+    queue.enqueue(3);
+    expect(queue.size()).toBe(3);
+    expect(queue.peek()).toBe(1);
+  });
+
+  it('dequeues in FIFO order', () => {
+    const queue = new Queue();
+    queue.enqueue(1);
+    queue.enqueue(2);
+    queue.enqueue(3);
+    
+    expect(queue.dequeue()).toBe(1);
+    expect(queue.dequeue()).toBe(2);
+    expect(queue.dequeue()).toBe(3);
+    expect(queue.dequeue()).toBeNull();
+  });
+
+  it('dequeue from empty queue returns null', () => {
+    const queue = new Queue();
+    expect(queue.dequeue()).toBeNull();
+  });
+
+  it('peek does not remove element', () => {
+    const queue = new Queue();
+    queue.enqueue(42);
+    expect(queue.peek()).toBe(42);
+    expect(queue.peek()).toBe(42);
+    expect(queue.size()).toBe(1);
+  });
+
+  it('initializes with array', () => {
+    const queue = new Queue([1, 2, 3]);
+    expect(queue.size()).toBe(3);
+    expect(queue.peek()).toBe(1);
+    expect(queue.dequeue()).toBe(1);
+    expect(queue.dequeue()).toBe(2);
+    expect(queue.dequeue()).toBe(3);
+  });
+
+  it('clear empties the queue', () => {
+    const queue = new Queue([1, 2, 3]);
+    expect(queue.size()).toBe(3);
+    queue.clear();
+    expect(queue.size()).toBe(0);
+    expect(queue.isEmpty()).toBe(true);
+    expect(queue.peek()).toBeNull();
+  });
+
+  it('toArray returns copy front to rear', () => {
+    const queue = new Queue([3, 1, 4]);
+    expect(queue.toArray()).toEqual([3, 1, 4]);
+    
+    // Modifying returned array should not affect queue
+    const arr = queue.toArray();
+    arr[0] = 999;
+    expect(queue.peek()).toBe(3);
+  });
+
+  it('interleaved enqueue and dequeue', () => {
+    const queue = new Queue();
+    queue.enqueue(1);
+    queue.enqueue(2);
+    expect(queue.dequeue()).toBe(1);
+    queue.enqueue(3);
+    queue.enqueue(4);
+    expect(queue.dequeue()).toBe(2);
+    expect(queue.dequeue()).toBe(3);
+    queue.enqueue(5);
+    expect(queue.toArray()).toEqual([4, 5]);
+  });
+
+  it('stress test with many operations', () => {
+    const queue = new Queue();
+    
+    for (let i = 0; i < 100; i++) {
+      queue.enqueue(i);
+    }
+    expect(queue.size()).toBe(100);
+    
+    for (let i = 0; i < 50; i++) {
+      expect(queue.dequeue()).toBe(i);
+    }
+    expect(queue.size()).toBe(50);
+    
+    for (let i = 100; i < 150; i++) {
+      queue.enqueue(i);
+    }
+    expect(queue.size()).toBe(100);
+    
+    for (let i = 50; i < 150; i++) {
+      expect(queue.dequeue()).toBe(i);
+    }
+    expect(queue.isEmpty()).toBe(true);
+  });
+
+  it('handles negative values', () => {
+    const queue = new Queue();
+    queue.enqueue(-5);
+    queue.enqueue(-10);
+    queue.enqueue(0);
+    expect(queue.dequeue()).toBe(-5);
+    expect(queue.dequeue()).toBe(-10);
+    expect(queue.dequeue()).toBe(0);
+  });
+
+  it('toArray on empty queue', () => {
+    const queue = new Queue();
+    expect(queue.toArray()).toEqual([]);
+  });
+
+  it('clear on empty queue', () => {
+    const queue = new Queue();
+    expect(() => queue.clear()).not.toThrow();
+  });
+});
+]=],
+  },
 }
 
 return M
