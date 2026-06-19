@@ -4217,6 +4217,178 @@ describe('Queue', () => {
 });
 ]=],
   },
+  {
+    name = "Valid Parentheses",
+    difficulty = "easy",
+    stub = [=[
+/**
+ * Valid Parentheses
+ *
+ * Implement a function that checks if a string of parentheses is valid.
+ *
+ * A string is valid if:
+ * - Open brackets are closed by the same type of brackets
+ * - Open brackets are closed in the correct order
+ * - Every closing bracket has a corresponding opening bracket
+ *
+ * Supported bracket types: (), {}, []
+ *
+ * Implement:
+ * - isValid(s: string): boolean — Return true if the string is valid
+ *
+ * Examples:
+ * - "()" → true
+ * - "()[]{}" → true
+ * - "(]" → false
+ * - "([)]" → false
+ * - "{[]}" → true
+ * - "" → true (empty string is valid)
+ * - "(" → false
+ * - ")" → false
+ *
+ * Bonus: Implement getMismatchIndex(s: string): number that returns the
+ * index of the first character that makes the string invalid, or -1 if valid.
+ */
+
+export function isValid(s: string): boolean {
+  // YOUR CODE HERE
+  return false;
+}
+
+export function getMismatchIndex(s: string): number {
+  // YOUR CODE HERE
+  return -1;
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { isValid, getMismatchIndex } from './challenge';
+
+describe('isValid', () => {
+  it('empty string is valid', () => {
+    expect(isValid('')).toBe(true);
+  });
+
+  it('single pair of parentheses', () => {
+    expect(isValid('()')).toBe(true);
+  });
+
+  it('single pair of braces', () => {
+    expect(isValid('{}')).toBe(true);
+  });
+
+  it('single pair of brackets', () => {
+    expect(isValid('[]')).toBe(true);
+  });
+
+  it('multiple pairs', () => {
+    expect(isValid('()[]{}')).toBe(true);
+  });
+
+  it('nested parentheses', () => {
+    expect(isValid('(())')).toBe(true);
+  });
+
+  it('nested mixed brackets', () => {
+    expect(isValid('{[()]}')).toBe(true);
+  });
+
+  it('complex valid nesting', () => {
+    expect(isValid('({[]})')).toBe(true);
+    expect(isValid('[{()}]')).toBe(true);
+    expect(isValid('{()}[{}]')).toBe(true);
+  });
+
+  it('mismatched types', () => {
+    expect(isValid('(]')).toBe(false);
+    expect(isValid('([)]')).toBe(false);
+    expect(isValid('{)')).toBe(false);
+  });
+
+  it('unclosed opening bracket', () => {
+    expect(isValid('(')).toBe(false);
+    expect(isValid('[')).toBe(false);
+    expect(isValid('{')).toBe(false);
+    expect(isValid('(()')).toBe(false);
+  });
+
+  it('unmatched closing bracket', () => {
+    expect(isValid(')')).toBe(false);
+    expect(isValid(']')).toBe(false);
+    expect(isValid('}')).toBe(false);
+    expect(isValid('())')).toBe(false);
+  });
+
+  it('closing before opening', () => {
+    expect(isValid(')(')).toBe(false);
+    expect(isValid('][' )).toBe(false);
+    expect(isValid('}{')).toBe(false);
+  });
+
+  it('long valid string', () => {
+    expect(isValid('()()()()()')).toBe(true);
+    expect(isValid('((((()))))')).toBe(true);
+  });
+
+  it('long invalid string', () => {
+    expect(isValid('((((()))')).toBe(false);
+  });
+
+  it('string with other characters (treat as invalid)', () => {
+    expect(isValid('a')).toBe(false);
+    expect(isValid('(a)')).toBe(false);
+  });
+});
+
+describe('getMismatchIndex', () => {
+  it('returns -1 for valid strings', () => {
+    expect(getMismatchIndex('')).toBe(-1);
+    expect(getMismatchIndex('()')).toBe(-1);
+    expect(getMismatchIndex('{[()]}')).toBe(-1);
+  });
+
+  it('returns index of wrong closing bracket', () => {
+    expect(getMismatchIndex('(]')).toBe(1);
+    expect(getMismatchIndex('([)]')).toBe(2);
+  });
+
+  it('returns index of unmatched closing bracket', () => {
+    expect(getMismatchIndex(')')).toBe(0);
+    expect(getMismatchIndex('())')).toBe(2);
+  });
+
+  it('returns index after last char for unclosed opening', () => {
+    expect(getMismatchIndex('(')).toBe(1);
+    expect(getMismatchIndex('(()')).toBe(3);
+  });
+
+  it('complex mismatch', () => {
+    expect(getMismatchIndex('{[}')).toBe(2);
+  });
+});
+
+// Edge cases
+describe('edge cases', () => {
+  it('very long valid string', () => {
+    const valid = '()'.repeat(1000);
+    expect(isValid(valid)).toBe(true);
+  });
+
+  it('very long invalid string', () => {
+    const invalid = '('.repeat(1000) + ')'.repeat(999);
+    expect(isValid(invalid)).toBe(false);
+  });
+
+  it('alternating valid', () => {
+    expect(isValid('(){}[](){}[]')).toBe(true);
+  });
+
+  it('deeply nested', () => {
+    expect(isValid('(((((((((())))))))))')).toBe(true);
+  });
+});
+]=],
+  },
 }
 
 return M
