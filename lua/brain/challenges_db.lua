@@ -4389,6 +4389,373 @@ describe('edge cases', () => {
 });
 ]=],
   },
+  {
+    name = "Singly Linked List",
+    difficulty = "easy",
+    stub = [=[
+/**
+ * Singly Linked List
+ *
+ * Implement a singly linked list from scratch.
+ *
+ * A singly linked list is a linear data structure where each element (node)
+ * contains a value and a reference to the next node. Unlike arrays, linked
+ * lists provide efficient insertions/deletions at any position but have
+ * O(n) random access.
+ *
+ * Implement the LinkedList class with:
+ * - constructor(initialValues?: number[]) — Optionally initialize with an array
+ * - append(value: number): void — Add a value to the end (O(1) with tail pointer)
+ * - prepend(value: number): void — Add a value to the beginning (O(1))
+ * - insert(index: number, value: number): boolean — Insert at index (O(n))
+ * - get(index: number): number | null — Get value at index (O(n))
+ * - remove(index: number): number | null — Remove and return value at index (O(n))
+ * - removeValue(value: number): boolean — Remove first occurrence of value (O(n))
+ * - indexOf(value: number): number — Return index of first occurrence, -1 if not found
+ * - contains(value: number): boolean — Check if value exists in list
+ * - size(): number — Return the number of elements
+ * - isEmpty(): boolean — Check if list is empty
+ * - clear(): void — Remove all elements
+ * - toArray(): number[] — Convert to array
+ * - reverse(): void — Reverse the list in place
+ * - findMiddle(): number | null — Return the middle element (O(n), one pass)
+ *
+ * Bonus: Implement cycle detection:
+ * - hasCycle(): boolean — Detect if list has a cycle (Floyd's tortoise and hare)
+ */
+
+export class LinkedList {
+  constructor(initialValues?: number[]) {
+    // YOUR CODE HERE
+  }
+
+  append(value: number): void {
+    // YOUR CODE HERE
+  }
+
+  prepend(value: number): void {
+    // YOUR CODE HERE
+  }
+
+  insert(index: number, value: number): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  get(index: number): number | null {
+    // YOUR CODE HERE
+    return null;
+  }
+
+  remove(index: number): number | null {
+    // YOUR CODE HERE
+    return null;
+  }
+
+  removeValue(value: number): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  indexOf(value: number): number {
+    // YOUR CODE HERE
+    return -1;
+  }
+
+  contains(value: number): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  size(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  isEmpty(): boolean {
+    // YOUR CODE HERE
+    return true;
+  }
+
+  clear(): void {
+    // YOUR CODE HERE
+  }
+
+  toArray(): number[] {
+    // YOUR CODE HERE
+    return [];
+  }
+
+  reverse(): void {
+    // YOUR CODE HERE
+  }
+
+  findMiddle(): number | null {
+    // YOUR CODE HERE
+    return null;
+  }
+
+  hasCycle(): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { LinkedList } from './challenge';
+
+describe('LinkedList', () => {
+  it('creates empty list', () => {
+    const list = new LinkedList();
+    expect(list.isEmpty()).toBe(true);
+    expect(list.size()).toBe(0);
+    expect(list.toArray()).toEqual([]);
+  });
+
+  it('initializes with array', () => {
+    const list = new LinkedList([1, 2, 3]);
+    expect(list.size()).toBe(3);
+    expect(list.toArray()).toEqual([1, 2, 3]);
+  });
+
+  it('appends single value', () => {
+    const list = new LinkedList();
+    list.append(5);
+    expect(list.size()).toBe(1);
+    expect(list.get(0)).toBe(5);
+    expect(list.toArray()).toEqual([5]);
+  });
+
+  it('appends multiple values', () => {
+    const list = new LinkedList();
+    list.append(1);
+    list.append(2);
+    list.append(3);
+    expect(list.toArray()).toEqual([1, 2, 3]);
+    expect(list.size()).toBe(3);
+  });
+
+  it('prepends single value', () => {
+    const list = new LinkedList();
+    list.prepend(5);
+    expect(list.get(0)).toBe(5);
+    expect(list.size()).toBe(1);
+  });
+
+  it('prepends multiple values', () => {
+    const list = new LinkedList();
+    list.prepend(3);
+    list.prepend(2);
+    list.prepend(1);
+    expect(list.toArray()).toEqual([1, 2, 3]);
+  });
+
+  it('insert at beginning', () => {
+    const list = new LinkedList([2, 3]);
+    expect(list.insert(0, 1)).toBe(true);
+    expect(list.toArray()).toEqual([1, 2, 3]);
+  });
+
+  it('insert at end', () => {
+    const list = new LinkedList([1, 2]);
+    expect(list.insert(2, 3)).toBe(true);
+    expect(list.toArray()).toEqual([1, 2, 3]);
+  });
+
+  it('insert in middle', () => {
+    const list = new LinkedList([1, 3]);
+    expect(list.insert(1, 2)).toBe(true);
+    expect(list.toArray()).toEqual([1, 2, 3]);
+  });
+
+  it('insert at invalid index returns false', () => {
+    const list = new LinkedList([1, 2]);
+    expect(list.insert(-1, 0)).toBe(false);
+    expect(list.insert(5, 3)).toBe(false);
+    expect(list.insert(3, 3)).toBe(false);
+  });
+
+  it('get returns correct values', () => {
+    const list = new LinkedList([10, 20, 30]);
+    expect(list.get(0)).toBe(10);
+    expect(list.get(1)).toBe(20);
+    expect(list.get(2)).toBe(30);
+  });
+
+  it('get returns null for invalid index', () => {
+    const list = new LinkedList([1, 2]);
+    expect(list.get(-1)).toBeNull();
+    expect(list.get(2)).toBeNull();
+    expect(list.get(100)).toBeNull();
+  });
+
+  it('remove from beginning', () => {
+    const list = new LinkedList([1, 2, 3]);
+    expect(list.remove(0)).toBe(1);
+    expect(list.toArray()).toEqual([2, 3]);
+  });
+
+  it('remove from end', () => {
+    const list = new LinkedList([1, 2, 3]);
+    expect(list.remove(2)).toBe(3);
+    expect(list.toArray()).toEqual([1, 2]);
+  });
+
+  it('remove from middle', () => {
+    const list = new LinkedList([1, 2, 3, 4]);
+    expect(list.remove(2)).toBe(3);
+    expect(list.toArray()).toEqual([1, 2, 4]);
+  });
+
+  it('remove returns null for invalid index', () => {
+    const list = new LinkedList([1, 2]);
+    expect(list.remove(-1)).toBeNull();
+    expect(list.remove(2)).toBeNull();
+  });
+
+  it('removeValue removes first occurrence', () => {
+    const list = new LinkedList([1, 2, 3, 2, 4]);
+    expect(list.removeValue(2)).toBe(true);
+    expect(list.toArray()).toEqual([1, 3, 2, 4]);
+  });
+
+  it('removeValue returns false if not found', () => {
+    const list = new LinkedList([1, 2, 3]);
+    expect(list.removeValue(99)).toBe(false);
+  });
+
+  it('indexOf returns correct index', () => {
+    const list = new LinkedList([10, 20, 30, 20]);
+    expect(list.indexOf(10)).toBe(0);
+    expect(list.indexOf(20)).toBe(1);
+    expect(list.indexOf(30)).toBe(2);
+  });
+
+  it('indexOf returns -1 if not found', () => {
+    const list = new LinkedList([1, 2, 3]);
+    expect(list.indexOf(99)).toBe(-1);
+  });
+
+  it('contains returns true for existing values', () => {
+    const list = new LinkedList([1, 2, 3]);
+    expect(list.contains(1)).toBe(true);
+    expect(list.contains(2)).toBe(true);
+    expect(list.contains(3)).toBe(true);
+  });
+
+  it('contains returns false for missing values', () => {
+    const list = new LinkedList([1, 2, 3]);
+    expect(list.contains(0)).toBe(false);
+    expect(list.contains(4)).toBe(false);
+  });
+
+  it('clear empties the list', () => {
+    const list = new LinkedList([1, 2, 3]);
+    list.clear();
+    expect(list.isEmpty()).toBe(true);
+    expect(list.size()).toBe(0);
+    expect(list.toArray()).toEqual([]);
+  });
+
+  it('reverse reverses the list', () => {
+    const list = new LinkedList([1, 2, 3, 4, 5]);
+    list.reverse();
+    expect(list.toArray()).toEqual([5, 4, 3, 2, 1]);
+  });
+
+  it('reverse on single element', () => {
+    const list = new LinkedList([42]);
+    list.reverse();
+    expect(list.toArray()).toEqual([42]);
+  });
+
+  it('reverse on empty list', () => {
+    const list = new LinkedList();
+    list.reverse();
+    expect(list.toArray()).toEqual([]);
+  });
+
+  it('findMiddle returns middle element (odd size)', () => {
+    const list = new LinkedList([1, 2, 3, 4, 5]);
+    expect(list.findMiddle()).toBe(3);
+  });
+
+  it('findMiddle returns middle element (even size)', () => {
+    const list = new LinkedList([1, 2, 3, 4]);
+    expect(list.findMiddle()).toBe(3);
+  });
+
+  it('findMiddle on single element', () => {
+    const list = new LinkedList([42]);
+    expect(list.findMiddle()).toBe(42);
+  });
+
+  it('findMiddle on empty list', () => {
+    const list = new LinkedList();
+    expect(list.findMiddle()).toBeNull();
+  });
+
+  it('hasCycle returns false for normal list', () => {
+    const list = new LinkedList([1, 2, 3, 4, 5]);
+    expect(list.hasCycle()).toBe(false);
+  });
+
+  it('hasCycle returns false for empty list', () => {
+    const list = new LinkedList();
+    expect(list.hasCycle()).toBe(false);
+  });
+
+  it('stress test with many operations', () => {
+    const list = new LinkedList();
+    for (let i = 0; i < 100; i++) {
+      list.append(i);
+    }
+    expect(list.size()).toBe(100);
+    expect(list.get(0)).toBe(0);
+    expect(list.get(99)).toBe(99);
+    list.reverse();
+    expect(list.get(0)).toBe(99);
+    expect(list.get(99)).toBe(0);
+    list.clear();
+    expect(list.isEmpty()).toBe(true);
+  });
+
+  it('handles duplicate values correctly', () => {
+    const list = new LinkedList([5, 5, 5, 5]);
+    expect(list.size()).toBe(4);
+    expect(list.indexOf(5)).toBe(0);
+    expect(list.contains(5)).toBe(true);
+    list.removeValue(5);
+    expect(list.size()).toBe(3);
+    expect(list.toArray()).toEqual([5, 5, 5]);
+  });
+
+  it('insert then get', () => {
+    const list = new LinkedList();
+    list.insert(0, 10);
+    list.insert(0, 20);
+    list.insert(1, 15);
+    expect(list.toArray()).toEqual([20, 15, 10]);
+  });
+
+  it('remove all elements one by one', () => {
+    const list = new LinkedList([1, 2, 3]);
+    expect(list.remove(0)).toBe(1);
+    expect(list.remove(0)).toBe(2);
+    expect(list.remove(0)).toBe(3);
+    expect(list.isEmpty()).toBe(true);
+  });
+
+  it('negative values work correctly', () => {
+    const list = new LinkedList([-5, -10, 0, 10]);
+    expect(list.toArray()).toEqual([-5, -10, 0, 10]);
+    expect(list.contains(-10)).toBe(true);
+    expect(list.indexOf(-10)).toBe(1);
+  });
+});
+]=],
+  },
 }
 
 return M
