@@ -4756,6 +4756,278 @@ describe('LinkedList', () => {
 });
 ]=],
   },
+  {
+    name = "Deep Clone",
+    difficulty = "easy",
+    stub = [=[
+/**
+ * Deep Clone
+ *
+ * Implement a function that creates a deep copy of a value, handling
+ * nested objects and arrays without sharing references.
+ *
+ * A deep clone creates a completely independent copy where modifying
+ * the clone does not affect the original. This is essential for:
+ * - Immutable state updates
+ * - Preventing accidental mutations
+ * - Serialization/deserialization workflows
+ * - Testing with isolated data
+ *
+ * Implement:
+ * - deepClone<T>(value: T): T
+ *
+ * Requirements:
+ * - Handle nested objects and arrays
+ * - Preserve all primitive types (string, number, boolean, null, undefined)
+ * - Handle Date objects (create new Date with same time)
+ * - Handle RegExp objects (create new RegExp with same pattern and flags)
+ * - Handle Map and Set (create new instances with cloned contents)
+ * - Handle circular references (detect and preserve the circular structure)
+ * - Functions should be copied by reference (functions are immutable)
+ * - Symbols as property keys should be preserved
+ *
+ * Edge cases:
+ * - Empty objects and arrays
+ * - Deeply nested structures (100+ levels)
+ * - Mixed types in arrays and objects
+ * - Objects with prototype chains (only clone own properties)
+ */
+
+export function deepClone<T>(value: T): T {
+  // YOUR CODE HERE
+  return value;
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { deepClone } from './challenge';
+
+describe('deepClone', () => {
+  it('clones primitives', () => {
+    expect(deepClone(42)).toBe(42);
+    expect(deepClone('hello')).toBe('hello');
+    expect(deepClone(true)).toBe(true);
+    expect(deepClone(false)).toBe(false);
+    expect(deepClone(null)).toBe(null);
+    expect(deepClone(undefined)).toBe(undefined);
+    expect(deepClone(Symbol('test'))).toEqual(Symbol('test'));
+  });
+
+  it('clones shallow object', () => {
+    const obj = { a: 1, b: 'hello', c: true };
+    const clone = deepClone(obj);
+    expect(clone).toEqual(obj);
+    expect(clone).not.toBe(obj);
+  });
+
+  it('clones shallow array', () => {
+    const arr = [1, 2, 3, 4, 5];
+    const clone = deepClone(arr);
+    expect(clone).toEqual(arr);
+    expect(clone).not.toBe(arr);
+  });
+
+  it('clones nested objects', () => {
+    const obj = {
+      a: { b: { c: { d: 'deep' } } },
+      e: [1, 2, { f: 'nested' }]
+    };
+    const clone = deepClone(obj);
+    expect(clone).toEqual(obj);
+    expect(clone).not.toBe(obj);
+    expect(clone.a).not.toBe(obj.a);
+    expect(clone.a.b).not.toBe(obj.a.b);
+    expect(clone.a.b.c).not.toBe(obj.a.c);
+    expect(clone.e).not.toBe(obj.e);
+    expect(clone.e[2]).not.toBe(obj.e[2]);
+  });
+
+  it('modifying clone does not affect original', () => {
+    const obj = { a: 1, b: { c: 2 } };
+    const clone = deepClone(obj);
+    clone.a = 100;
+    clone.b.c = 200;
+    expect(obj.a).toBe(1);
+    expect(obj.b.c).toBe(2);
+  });
+
+  it('clones Date objects', () => {
+    const date = new Date('2024-01-15T10:30:00Z');
+    const clone = deepClone(date);
+    expect(clone).toEqual(date);
+    expect(clone).not.toBe(date);
+    expect(clone.getTime()).toBe(date.getTime());
+  });
+
+  it('clones RegExp objects', () => {
+    const regex = /test[0-9]+/gi;
+    const clone = deepClone(regex);
+    expect(clone.source).toBe(regex.source);
+    expect(clone.flags).toBe(regex.flags);
+    expect(clone).not.toBe(regex);
+  });
+
+  it('clones Map objects', () => {
+    const map = new Map([['a', 1], ['b', { nested: true }]]);
+    const clone = deepClone(map);
+    expect(clone).toEqual(map);
+    expect(clone).not.toBe(map);
+    expect(clone.get('b')).not.toBe(map.get('b'));
+  });
+
+  it('clones Set objects', () => {
+    const set = new Set([1, 2, { nested: true }]);
+    const clone = deepClone(set);
+    expect(clone).toEqual(set);
+    expect(clone).not.toBe(set);
+  });
+
+  it('handles circular references', () => {
+    const obj: any = { a: 1 };
+    obj.self = obj;
+    obj.nested = { parent: obj };
+    
+    const clone = deepClone(obj);
+    expect(clone.a).toBe(1);
+    expect(clone.self).toBe(clone);
+    expect(clone.nested.parent).toBe(clone);
+  });
+
+  it('handles complex circular references', () => {
+    const a: any = { name: 'a' };
+    const b: any = { name: 'b' };
+    a.ref = b;
+    b.ref = a;
+    
+    const clone = deepClone(a);
+    expect(clone.name).toBe('a');
+    expect(clone.ref.name).toBe('b');
+    expect(clone.ref.ref).toBe(clone);
+  });
+
+  it('clones arrays with mixed types', () => {
+    const arr = [1, 'two', true, null, { obj: true }, [1, 2], new Date()];
+    const clone = deepClone(arr);
+    expect(clone).toEqual(arr);
+    expect(clone).not.toBe(arr);
+    expect(clone[4]).not.toBe(arr[4]);
+    expect(clone[5]).not.toBe(arr[5]);
+    expect(clone[6]).not.toBe(arr[6]);
+  });
+
+  it('clones empty structures', () => {
+    expect(deepClone({})).toEqual({});
+    expect(deepClone([])).toEqual([]);
+    expect(deepClone(new Map())).toEqual(new Map());
+    expect(deepClone(new Set())).toEqual(new Set());
+  });
+
+  it('preserves symbol keys', () => {
+    const sym = Symbol('key');
+    const obj = { [sym]: 'value', regular: 'prop' };
+    const clone = deepClone(obj);
+    expect(clone[sym]).toBe('value');
+    expect(clone.regular).toBe('prop');
+  });
+
+  it('clones objects with symbol keys', () => {
+    const sym1 = Symbol('a');
+    const sym2 = Symbol('b');
+    const obj = {
+      [sym1]: { nested: true },
+      [sym2]: 'value'
+    };
+    const clone = deepClone(obj);
+    expect(clone[sym1]).toEqual({ nested: true });
+    expect(clone[sym1]).not.toBe(obj[sym1]);
+  });
+
+  it('functions are copied by reference', () => {
+    const fn = () => 42;
+    const obj = { handler: fn };
+    const clone = deepClone(obj);
+    expect(clone.handler).toBe(fn);
+  });
+
+  it('clones deeply nested arrays', () => {
+    const arr = [1, [2, [3, [4, [5]]]]];
+    const clone = deepClone(arr);
+    expect(clone).toEqual(arr);
+    expect(clone[1]).not.toBe(arr[1]);
+    expect(clone[1][1]).not.toBe(arr[1][1]);
+  });
+
+  it('clones objects with prototype chain', () => {
+    class Parent {
+      parentProp = 'inherited';
+    }
+    class Child extends Parent {
+      childProp = 'own';
+    }
+    const obj = new Child();
+    const clone = deepClone(obj);
+    expect(clone.childProp).toBe('own');
+    // Only own properties are cloned
+    expect(clone.parentProp).toBeUndefined();
+  });
+
+  it('handles BigInt', () => {
+    const big = BigInt(9007199254740991);
+    const clone = deepClone(big);
+    expect(clone).toBe(big);
+  });
+
+  it('clones WeakMap and WeakSet are skipped (cannot iterate)', () => {
+    const wm = new WeakMap();
+    const ws = new WeakSet();
+    const obj = { weakMap: wm, weakSet: ws };
+    const clone = deepClone(obj);
+    // Weak collections cannot be deep cloned, should preserve reference or skip
+    expect(clone.weakMap).toBe(wm);
+    expect(clone.weakSet).toBe(ws);
+  });
+
+  it('stress test: deeply nested object', () => {
+    let obj: any = { value: 'base' };
+    for (let i = 0; i < 100; i++) {
+      obj = { nested: obj };
+    }
+    const clone = deepClone(obj);
+    expect(clone).not.toBe(obj);
+    // Traverse to verify structure
+    let current: any = clone;
+    for (let i = 0; i < 100; i++) {
+      current = current.nested;
+    }
+    expect(current.value).toBe('base');
+  });
+
+  it('stress test: large array', () => {
+    const arr = Array.from({ length: 1000 }, (_, i) => ({ index: i }));
+    const clone = deepClone(arr);
+    expect(clone).toEqual(arr);
+    expect(clone[0]).not.toBe(arr[0]);
+    expect(clone[999]).not.toBe(arr[999]);
+  });
+
+  it('clones object with all special types', () => {
+    const obj = {
+      date: new Date(),
+      regex: /test/gi,
+      map: new Map([['key', 'value']]),
+      set: new Set([1, 2, 3]),
+      nested: { deep: true }
+    };
+    const clone = deepClone(obj);
+    expect(clone.date).not.toBe(obj.date);
+    expect(clone.regex).not.toBe(obj.regex);
+    expect(clone.map).not.toBe(obj.map);
+    expect(clone.set).not.toBe(obj.set);
+    expect(clone.nested).not.toBe(obj.nested);
+  });
+});
+]=],
+  },
 }
 
 return M
