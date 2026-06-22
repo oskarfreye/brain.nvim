@@ -5028,6 +5028,217 @@ describe('deepClone', () => {
 });
 ]=],
   },
+  {
+    name = "Merge Intervals",
+    difficulty = "easy",
+    stub = [=[
+/**
+ * Merge Intervals
+ *
+ * Implement a function that merges overlapping intervals.
+ *
+ * Given an array of intervals where intervals[i] = [start, end],
+ * merge all overlapping intervals and return an array of the
+ * non-overlapping intervals that cover all the intervals in the input.
+ *
+ * Two intervals [a, b] and [c, d] overlap if:
+ * - a <= d AND c <= b
+ *
+ * Examples:
+ * - [[1,3],[2,6],[8,10],[15,18]] → [[1,6],[8,10],[15,18]]
+ * - [[1,4],[4,5]] → [[1,5]] (touching intervals merge)
+ * - [[1,2],[3,4]] → [[1,2],[3,4]] (no overlap)
+ *
+ * Implement:
+ * - merge(intervals: number[][]): number[][]
+ *   Return merged intervals sorted by start time.
+ *
+ * - mergeWithCustomComparator(intervals: number[][]): number[][]
+ *   Same as merge, but demonstrate where a custom comparator
+ *   could be used (e.g., for different interval ordering).
+ *
+ * - hasOverlap(a: number[], b: number[]): boolean
+ *   Helper function to check if two intervals overlap.
+ *
+ * Constraints:
+ * - 0 <= intervals.length <= 1000
+ * - 0 <= start <= end <= 10000
+ * - Each interval is [start, end] with start <= end
+ *
+ * Bonus: Implement mergeKSortedIntervals that merges intervals
+ * from k sorted input arrays efficiently.
+ */
+
+export function merge(intervals: number[][]): number[][] {
+  // YOUR CODE HERE
+  return [];
+}
+
+export function mergeWithCustomComparator(intervals: number[][]): number[][] {
+  // YOUR CODE HERE
+  return [];
+}
+
+export function hasOverlap(a: number[], b: number[]): boolean {
+  // YOUR CODE HERE
+  return false;
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { merge, mergeWithCustomComparator, hasOverlap } from './challenge';
+
+describe('hasOverlap', () => {
+  it('overlapping intervals', () => {
+    expect(hasOverlap([1, 3], [2, 6])).toBe(true);
+    expect(hasOverlap([2, 6], [1, 3])).toBe(true);
+  });
+
+  it('touching intervals overlap', () => {
+    expect(hasOverlap([1, 4], [4, 5])).toBe(true);
+    expect(hasOverlap([4, 5], [1, 4])).toBe(true);
+  });
+
+  it('non-overlapping intervals', () => {
+    expect(hasOverlap([1, 2], [3, 4])).toBe(false);
+    expect(hasOverlap([3, 4], [1, 2])).toBe(false);
+  });
+
+  it('contained intervals', () => {
+    expect(hasOverlap([1, 10], [3, 5])).toBe(true);
+    expect(hasOverlap([3, 5], [1, 10])).toBe(true);
+  });
+
+  it('identical intervals', () => {
+    expect(hasOverlap([5, 10], [5, 10])).toBe(true);
+  });
+
+  it('single point intervals', () => {
+    expect(hasOverlap([5, 5], [5, 5])).toBe(true);
+    expect(hasOverlap([5, 5], [6, 6])).toBe(false);
+  });
+});
+
+describe('merge', () => {
+  it('empty array', () => {
+    expect(merge([])).toEqual([]);
+  });
+
+  it('single interval', () => {
+    expect(merge([[1, 3]])).toEqual([[1, 3]]);
+  });
+
+  it('no overlapping intervals', () => {
+    expect(merge([[1, 2], [3, 4], [5, 6]])).toEqual([[1, 2], [3, 4], [5, 6]]);
+  });
+
+  it('basic overlap', () => {
+    expect(merge([[1, 3], [2, 6], [8, 10], [15, 18]])).toEqual([[1, 6], [8, 10], [15, 18]]);
+  });
+
+  it('touching intervals merge', () => {
+    expect(merge([[1, 4], [4, 5]])).toEqual([[1, 5]]);
+  });
+
+  it('all intervals overlap', () => {
+    expect(merge([[1, 4], [2, 5], [3, 6]])).toEqual([[1, 6]]);
+  });
+
+  it('unsorted input', () => {
+    expect(merge([[8, 10], [1, 3], [2, 6], [15, 18]])).toEqual([[1, 6], [8, 10], [15, 18]]);
+  });
+
+  it('contained interval', () => {
+    expect(merge([[1, 10], [3, 5], [6, 8]])).toEqual([[1, 10]]);
+  });
+
+  it('multiple merges', () => {
+    expect(merge([[1, 4], [0, 2], [3, 5]])).toEqual([[0, 5]]);
+  });
+
+  it('intervals with same start', () => {
+    expect(merge([[1, 4], [1, 5], [1, 3]])).toEqual([[1, 5]]);
+  });
+
+  it('intervals with same end', () => {
+    expect(merge([[1, 5], [2, 5], [3, 5]])).toEqual([[1, 5]]);
+  });
+
+  it('single point intervals', () => {
+    expect(merge([[1, 1], [2, 2], [3, 3]])).toEqual([[1, 1], [2, 2], [3, 3]]);
+  });
+
+  it('single point merges with range', () => {
+    expect(merge([[1, 5], [3, 3], [6, 7]])).toEqual([[1, 5], [6, 7]]);
+  });
+
+  it('large intervals', () => {
+    expect(merge([[1, 100], [50, 150], [200, 300]])).toEqual([[1, 150], [200, 300]]);
+  });
+
+  it('zero intervals', () => {
+    expect(merge([[0, 0], [0, 0], [0, 0]])).toEqual([[0, 0]]);
+  });
+
+  it('negative numbers (if allowed)', () => {
+    expect(merge([[-5, -2], [-3, 0], [1, 3]])).toEqual([[-5, 0], [1, 3]]);
+  });
+
+  it('already merged', () => {
+    expect(merge([[1, 6], [8, 10], [15, 18]])).toEqual([[1, 6], [8, 10], [15, 18]]);
+  });
+
+  it('complex case', () => {
+    const input = [[2, 3], [4, 5], [6, 7], [8, 9], [1, 10]];
+    expect(merge(input)).toEqual([[1, 10]]);
+  });
+
+  it('stress test - many small intervals', () => {
+    const intervals = Array.from({ length: 100 }, (_, i) => [i * 2, i * 2 + 3]);
+    const result = merge(intervals);
+    expect(result.length).toBeLessThan(100);
+    expect(result).toEqual([[0, 201]]);
+  });
+
+  it('stress test - no overlaps', () => {
+    const intervals = Array.from({ length: 50 }, (_, i) => [i * 10, i * 10 + 5]);
+    const result = merge(intervals);
+    expect(result.length).toBe(50);
+  });
+});
+
+describe('mergeWithCustomComparator', () => {
+  it('produces same result as merge', () => {
+    const input = [[1, 3], [2, 6], [8, 10], [15, 18]];
+    expect(mergeWithCustomComparator(input)).toEqual(merge(input));
+  });
+
+  it('handles empty array', () => {
+    expect(mergeWithCustomComparator([])).toEqual([]);
+  });
+
+  it('handles single interval', () => {
+    expect(mergeWithCustomComparator([[1, 5]])).toEqual([[1, 5]]);
+  });
+});
+
+describe('edge cases', () => {
+  it('interval with start > end (invalid input handling)', () => {
+    expect(() => merge([[3, 1]])).not.toThrow();
+  });
+
+  it('very large numbers', () => {
+    expect(merge([[1, 10000], [5000, 15000]])).toEqual([[1, 15000]]);
+  });
+
+  it('maximum constraint size', () => {
+    const intervals = Array.from({ length: 1000 }, (_, i) => [i, i + 1]);
+    const result = merge(intervals);
+    expect(result.length).toBeLessThanOrEqual(1000);
+  });
+});
+]=],
+  },
 }
 
 return M
