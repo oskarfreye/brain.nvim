@@ -5239,6 +5239,179 @@ describe('edge cases', () => {
 });
 ]=],
   },
+  {
+    name = "Valid Parentheses",
+    difficulty = "easy",
+    stub = [=[
+/**
+ * Valid Parentheses
+ *
+ * Implement a function that determines if a string containing parentheses is valid.
+ *
+ * A string is valid if:
+ * - Open brackets must be closed by the same type of brackets
+ * - Open brackets must be closed in the correct order
+ * - Every closing bracket has a corresponding opening bracket of the same type
+ *
+ * Implement:
+ * - isValid(s: string): boolean — Return true if the string is valid
+ *
+ * Supported bracket types:
+ * - '(' and ')'
+ * - '{' and '}'
+ * - '[' and ']'
+ * - '<' and '>'
+ *
+ * Examples:
+ * - "()" => true
+ * - "()[]{}" => true
+ * - "(]" => false
+ * - "([)]" => false
+ * - "{[]}" => true
+ * - "((()))" => true
+ * - "" => true (empty string is valid)
+ *
+ * Bonus: Implement getMismatchIndex(s: string): number that returns the index
+ * of the first character that makes the string invalid, or -1 if valid.
+ */
+
+export function isValid(s: string): boolean {
+  // YOUR CODE HERE
+  return false;
+}
+
+export function getMismatchIndex(s: string): number {
+  // YOUR CODE HERE
+  return -1;
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { isValid, getMismatchIndex } from './challenge';
+
+describe('isValid', () => {
+  it('empty string is valid', () => {
+    expect(isValid('')).toBe(true);
+  });
+
+  it('single pair of parentheses', () => {
+    expect(isValid('()')).toBe(true);
+    expect(isValid('{}')).toBe(true);
+    expect(isValid('[]')).toBe(true);
+    expect(isValid('<>')).toBe(true);
+  });
+
+  it('multiple pairs', () => {
+    expect(isValid('()[]{}')).toBe(true);
+    expect(isValid('<>[]{}()')).toBe(true);
+  });
+
+  it('nested parentheses', () => {
+    expect(isValid('((()))')).toBe(true);
+    expect(isValid('{{{}}}')).toBe(true);
+    expect(isValid('[[[]]]')).toBe(true);
+  });
+
+  it('complex nesting', () => {
+    expect(isValid('([{}])')).toBe(true);
+    expect(isValid('{[()]}')).toBe(true);
+    expect(isValid('<{[()]}>>')).toBe(false);
+  });
+
+  it('mismatched types', () => {
+    expect(isValid('(]')).toBe(false);
+    expect(isValid('([)]')).toBe(false);
+    expect(isValid('{[}]')).toBe(false);
+    expect(isValid('(}')).toBe(false);
+  });
+
+  it('unbalanced - extra opening', () => {
+    expect(isValid('(')).toBe(false);
+    expect(isValid('(()')).toBe(false);
+    expect(isValid('{{')).toBe(false);
+    expect(isValid('([{})')).toBe(false);
+  });
+
+  it('unbalanced - extra closing', () => {
+    expect(isValid(')')).toBe(false);
+    expect(isValid('())')).toBe(false);
+    expect(isValid('}}')).toBe(false);
+    expect(isValid(']{'))).toBe(false);
+  });
+
+  it('closing before opening', () => {
+    expect(isValid(')(')).toBe(false);
+    expect(isValid('}{')).toBe(false);
+    expect(isValid('][' )).toBe(false);
+  });
+
+  it('all four bracket types nested', () => {
+    expect(isValid('(<{}[]>)')).toBe(true);
+    expect(isValid('{[<()>]}')).toBe(true);
+  });
+
+  it('long valid string', () => {
+    const valid = '()'.repeat(50) + '{}'.repeat(50) + '[]'.repeat(50);
+    expect(isValid(valid)).toBe(true);
+  });
+
+  it('long invalid string', () => {
+    const invalid = '('.repeat(50) + ')'.repeat(49);
+    expect(isValid(invalid)).toBe(false);
+  });
+
+  it('string with non-bracket characters', () => {
+    expect(isValid('a(b)c')).toBe(true);
+    expect(isValid('hello(world)')).toBe(true);
+  });
+});
+
+describe('getMismatchIndex', () => {
+  it('returns -1 for valid strings', () => {
+    expect(getMismatchIndex('')).toBe(-1);
+    expect(getMismatchIndex('()')).toBe(-1);
+    expect(getMismatchIndex('([{}])')).toBe(-1);
+  });
+
+  it('returns index of wrong closing bracket', () => {
+    expect(getMismatchIndex('(]')).toBe(1);
+    expect(getMismatchIndex('([)]')).toBe(2);
+  });
+
+  it('returns index of extra closing bracket', () => {
+    expect(getMismatchIndex('())')).toBe(2);
+    expect(getMismatchIndex(')')).toBe(0);
+  });
+
+  it('returns index after last char for extra opening', () => {
+    expect(getMismatchIndex('(')).toBe(1);
+    expect(getMismatchIndex('(()')).toBe(3);
+  });
+
+  it('handles complex cases', () => {
+    expect(getMismatchIndex('{[()]}')).toBe(-1);
+    expect(getMismatchIndex('{[(])}')).toBe(3);
+  });
+});
+
+describe('edge cases', () => {
+  it('whitespace only', () => {
+    expect(isValid('   ')).toBe(true);
+  });
+
+  it('single character', () => {
+    expect(isValid('(')).toBe(false);
+    expect(isValid(')')).toBe(false);
+    expect(isValid('a')).toBe(true);
+  });
+
+  it('alternating pattern', () => {
+    expect(isValid('()()()()')).toBe(true);
+    expect(isValid(')()(')).toBe(false);
+  });
+});
+]=],
+  },
 }
 
 return M
