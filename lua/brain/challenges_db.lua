@@ -5240,174 +5240,119 @@ describe('edge cases', () => {
 ]=],
   },
   {
-    name = "Valid Parentheses",
-    difficulty = "easy",
+    name = "Curry Function",
+    difficulty = "medium",
     stub = [=[
 /**
- * Valid Parentheses
+ * Curry Function
  *
- * Implement a function that determines if a string containing parentheses is valid.
+ * Implement function currying for JavaScript and TypeScript functions.
  *
- * A string is valid if:
- * - Open brackets must be closed by the same type of brackets
- * - Open brackets must be closed in the correct order
- * - Every closing bracket has a corresponding opening bracket of the same type
+ * Currying transforms a function that takes multiple arguments into a
+ * sequence of functions that can each receive one or more arguments until
+ * enough values are collected to call the original function.
  *
  * Implement:
- * - isValid(s: string): boolean — Return true if the string is valid
+ * - curry(fn: Function): Function
+ *   Returns a curried version of fn using fn.length as the expected arity.
  *
- * Supported bracket types:
- * - '(' and ')'
- * - '{' and '}'
- * - '[' and ']'
- * - '<' and '>'
+ * - curryN(arity: number, fn: Function): Function
+ *   Returns a curried version that waits for exactly arity arguments.
+ *
+ * Requirements:
+ * - Support one argument at a time: curried(1)(2)(3)
+ * - Support grouped arguments: curried(1, 2)(3)
+ * - Preserve the calling context when the final invocation happens
+ * - Ignore extra arguments after the required arity
  *
  * Examples:
- * - "()" => true
- * - "()[]{}" => true
- * - "(]" => false
- * - "([)]" => false
- * - "{[]}" => true
- * - "((()))" => true
- * - "" => true (empty string is valid)
- *
- * Bonus: Implement getMismatchIndex(s: string): number that returns the index
- * of the first character that makes the string invalid, or -1 if valid.
+ * - curry((a, b, c) => a + b + c)(1)(2)(3) -> 6
+ * - curry((a, b, c) => a + b + c)(1, 2)(3) -> 6
+ * - curryN(2, Math.max)(4)(9) -> 9
  */
 
-export function isValid(s: string): boolean {
+export function curry(fn: Function): Function {
   // YOUR CODE HERE
-  return false;
+  return () => undefined;
 }
 
-export function getMismatchIndex(s: string): number {
+export function curryN(arity: number, fn: Function): Function {
   // YOUR CODE HERE
-  return -1;
+  return () => undefined;
 }
 ]=],
     tests = [=[
 import { describe, it, expect } from 'vitest';
-import { isValid, getMismatchIndex } from './challenge';
+import { curry, curryN } from './challenge';
 
-describe('isValid', () => {
-  it('empty string is valid', () => {
-    expect(isValid('')).toBe(true);
+describe('curry', () => {
+  it('curries one argument at a time', () => {
+    const add = (a: number, b: number, c: number) => a + b + c;
+    expect(curry(add)(1)(2)(3)).toBe(6);
   });
 
-  it('single pair of parentheses', () => {
-    expect(isValid('()')).toBe(true);
-    expect(isValid('{}')).toBe(true);
-    expect(isValid('[]')).toBe(true);
-    expect(isValid('<>')).toBe(true);
+  it('accepts grouped arguments', () => {
+    const add = (a: number, b: number, c: number) => a + b + c;
+    expect(curry(add)(1, 2)(3)).toBe(6);
+    expect(curry(add)(1)(2, 3)).toBe(6);
   });
 
-  it('multiple pairs', () => {
-    expect(isValid('()[]{}')).toBe(true);
-    expect(isValid('<>[]{}()')).toBe(true);
+  it('calls immediately when enough arguments are supplied', () => {
+    const join = (a: string, b: string, c: string) => `${a}-${b}-${c}`;
+    expect(curry(join)('a', 'b', 'c')).toBe('a-b-c');
   });
 
-  it('nested parentheses', () => {
-    expect(isValid('((()))')).toBe(true);
-    expect(isValid('{{{}}}')).toBe(true);
-    expect(isValid('[[[]]]')).toBe(true);
+  it('ignores extra arguments after arity is met', () => {
+    const pair = (a: number, b: number) => [a, b];
+    expect(curry(pair)(1, 2, 3, 4)).toEqual([1, 2]);
   });
 
-  it('complex nesting', () => {
-    expect(isValid('([{}])')).toBe(true);
-    expect(isValid('{[()]}')).toBe(true);
-    expect(isValid('<{[()]}>>')).toBe(false);
+  it('works with unary functions', () => {
+    const double = (n: number) => n * 2;
+    expect(curry(double)(4)).toBe(8);
   });
 
-  it('mismatched types', () => {
-    expect(isValid('(]')).toBe(false);
-    expect(isValid('([)]')).toBe(false);
-    expect(isValid('{[}]')).toBe(false);
-    expect(isValid('(}')).toBe(false);
+  it('works with zero-arity functions', () => {
+    const now = () => 42;
+    expect(curry(now)()).toBe(42);
   });
 
-  it('unbalanced - extra opening', () => {
-    expect(isValid('(')).toBe(false);
-    expect(isValid('(()')).toBe(false);
-    expect(isValid('{{')).toBe(false);
-    expect(isValid('([{})')).toBe(false);
-  });
-
-  it('unbalanced - extra closing', () => {
-    expect(isValid(')')).toBe(false);
-    expect(isValid('())')).toBe(false);
-    expect(isValid('}}')).toBe(false);
-    expect(isValid(']{'))).toBe(false);
-  });
-
-  it('closing before opening', () => {
-    expect(isValid(')(')).toBe(false);
-    expect(isValid('}{')).toBe(false);
-    expect(isValid('][' )).toBe(false);
-  });
-
-  it('all four bracket types nested', () => {
-    expect(isValid('(<{}[]>)')).toBe(true);
-    expect(isValid('{[<()>]}')).toBe(true);
-  });
-
-  it('long valid string', () => {
-    const valid = '()'.repeat(50) + '{}'.repeat(50) + '[]'.repeat(50);
-    expect(isValid(valid)).toBe(true);
-  });
-
-  it('long invalid string', () => {
-    const invalid = '('.repeat(50) + ')'.repeat(49);
-    expect(isValid(invalid)).toBe(false);
-  });
-
-  it('string with non-bracket characters', () => {
-    expect(isValid('a(b)c')).toBe(true);
-    expect(isValid('hello(world)')).toBe(true);
+  it('preserves this context on final call', () => {
+    const obj = {
+      factor: 3,
+      scale(a: number, b: number) {
+        return (a + b) * this.factor;
+      }
+    };
+    const curried = curry(obj.scale);
+    expect(curried.call(obj, 2)(4)).toBe(18);
   });
 });
 
-describe('getMismatchIndex', () => {
-  it('returns -1 for valid strings', () => {
-    expect(getMismatchIndex('')).toBe(-1);
-    expect(getMismatchIndex('()')).toBe(-1);
-    expect(getMismatchIndex('([{}])')).toBe(-1);
+describe('curryN', () => {
+  it('uses explicit arity for variadic functions', () => {
+    expect(curryN(2, Math.max)(4)(9)).toBe(9);
   });
 
-  it('returns index of wrong closing bracket', () => {
-    expect(getMismatchIndex('(]')).toBe(1);
-    expect(getMismatchIndex('([)]')).toBe(2);
+  it('supports grouped arguments with explicit arity', () => {
+    const list = (...items: string[]) => items.join(',');
+    expect(curryN(3, list)('a', 'b')('c')).toBe('a,b,c');
   });
 
-  it('returns index of extra closing bracket', () => {
-    expect(getMismatchIndex('())')).toBe(2);
-    expect(getMismatchIndex(')')).toBe(0);
+  it('does not call before enough arguments are collected', () => {
+    const add = (a: number, b: number, c: number) => a + b + c;
+    const partial = curryN(3, add)(1);
+    expect(typeof partial).toBe('function');
+    expect(partial(2)(3)).toBe(6);
   });
 
-  it('returns index after last char for extra opening', () => {
-    expect(getMismatchIndex('(')).toBe(1);
-    expect(getMismatchIndex('(()')).toBe(3);
+  it('handles arity of one', () => {
+    const shout = (value: string) => value.toUpperCase();
+    expect(curryN(1, shout)('ok')).toBe('OK');
   });
 
-  it('handles complex cases', () => {
-    expect(getMismatchIndex('{[()]}')).toBe(-1);
-    expect(getMismatchIndex('{[(])}')).toBe(3);
-  });
-});
-
-describe('edge cases', () => {
-  it('whitespace only', () => {
-    expect(isValid('   ')).toBe(true);
-  });
-
-  it('single character', () => {
-    expect(isValid('(')).toBe(false);
-    expect(isValid(')')).toBe(false);
-    expect(isValid('a')).toBe(true);
-  });
-
-  it('alternating pattern', () => {
-    expect(isValid('()()()()')).toBe(true);
-    expect(isValid(')()(')).toBe(false);
+  it('handles arity of zero', () => {
+    expect(curryN(0, () => 'ready')()).toBe('ready');
   });
 });
 ]=],
