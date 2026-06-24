@@ -1789,6 +1789,7 @@ describe('memoize', () => {
     const keyGen = (x: number) => `custom:${x}`;
     const memoized = memoize(fn, { keyGenerator: keyGen });
     
+
     memoized(5);
     expect(memoized.cache.has('custom:5')).toBe(true);
   });
@@ -2259,1458 +2260,83 @@ describe('MinHeap', () => {
       return verifyHeapProperty(arr, left) && verifyHeapProperty(arr, right);
     }
     
-    // Extract all and verify at each step
+    // This is a structural check - we verify by extracting in order
+    const result: number[] = [];
     while (!heap.isEmpty()) {
-      heap.extractMin();
+      result.push(heap.extractMin()!);
     }
-  });
-
-  it('interleaved insert and extract', () => {
-    const heap = new MinHeap();
-    heap.insert(10);
-    heap.insert(5);
-    expect(heap.extractMin()).toBe(5);
-    heap.insert(3);
-    expect(heap.extractMin()).toBe(3);
-    heap.insert(8);
-    expect(heap.extractMin()).toBe(8);
-    expect(heap.extractMin()).toBe(10);
-    expect(heap.isEmpty()).toBe(true);
-  });
-});
-
-// Edge cases
-describe('MinHeap edge cases', () => {
-  it('heapify empty array', () => {
-    const heap = new MinHeap([]);
-    heap.heapify();
-    expect(heap.isEmpty()).toBe(true);
-  });
-
-  it('heapify single element', () => {
-    const heap = new MinHeap([42]);
-    heap.heapify();
-    expect(heap.peek()).toBe(42);
-  });
-
-  it('large heap operations', () => {
-    const heap = new MinHeap();
-    for (let i = 0; i < 10000; i++) {
-      heap.insert(Math.random());
-    }
-    expect(heap.size()).toBe(10000);
-    
-    let last = -Infinity;
-    while (!heap.isEmpty()) {
-      const val = heap.extractMin()!;
-      expect(val).toBeGreaterThanOrEqual(last);
-      last = val;
+    for (let i = 1; i < result.length; i++) {
+      expect(result[i]).toBeGreaterThanOrEqual(result[i - 1]);
     }
   });
 });
 ]=],
   },
   {
-    name = "Coin Change",
+    name = "Trie (Prefix Tree)",
     difficulty = "medium",
     stub = [=[
 /**
- * Coin Change
+ * Trie (Prefix Tree)
  *
- * Implement classic dynamic programming coin change problems.
+ * Implement a Trie data structure for efficient string operations.
  *
- * The coin change family of problems asks you to find optimal ways
- * to make change using a set of coin denominations. These problems
- * are fundamental examples of dynamic programming and appear in:
- * - Currency systems
- * - Resource allocation
- * - Knapsack variants
- * - Combinatorial optimization
+ * A Trie is a tree-like structure where each node represents a character,
+ * and paths from root to nodes represent strings. Commonly used for:
+ * - Autocomplete and search suggestions
+ * - Spell checkers
+ * - IP routing (longest prefix match)
+ * - Dictionary implementations
  *
- * Implement:
- * - coinChange(coins: number[], amount: number): number
- *   Return the minimum number of coins needed to make the amount.
- *   Return -1 if it's impossible to make the amount.
+ * Implement the Trie class with:
+ * - constructor() — Initialize an empty trie
+ * - insert(word: string): void — Insert a word into the trie
+ * - search(word: string): boolean — Return true if word exists in trie
+ * - startsWith(prefix: string): boolean — Return true if any word starts with prefix
+ * - delete(word: string): boolean — Remove a word, return true if found
+ * - findWordsWithPrefix(prefix: string, limit?: number): string[] — Return all
+ *   words with given prefix, optionally limited to N results
+ * - countWords(): number — Return total number of words in trie
+ * - isEmpty(): boolean — Check if trie has no words
  *
- * - coinChangeWays(coins: number[], amount: number): number
- *   Return the number of distinct ways to make the amount.
- *   Order doesn't matter (combinations, not permutations).
- *
- * - coinChangePermutations(coins: number[], amount: number): number
- *   Return the number of distinct permutations to make the amount.
- *   Order matters (different sequences count separately).
- *
- * - coinChangeWithLimit(coins: number[], amount: number, limits: number[]): number
- *   Each coin has a maximum usage limit. Return minimum coins needed,
- *   or -1 if impossible.
- *
- * Constraints:
- * - 1 <= coins.length <= 12
- * - 1 <= coins[i] <= 2^31 - 1
- * - 0 <= amount <= 10^4
- * - For coinChangeWithLimit: limits.length === coins.length
- *
- * Examples:
- * - coins = [1, 2, 5], amount = 11 → coinChange returns 3 (5+5+1)
- * - coins = [2], amount = 3 → coinChange returns -1 (impossible)
- * - coins = [1, 2, 5], amount = 5 → coinChangeWays returns 4:
- *   (5), (2+2+1), (2+1+1+1), (1+1+1+1+1)
- * - coins = [1, 2], amount = 3 → coinChangePermutations returns 3:
- *   (1+1+1), (1+2), (2+1)
+ * Bonus methods:
+ * - findShortestPrefixOf(word: string): string | null — Find shortest prefix
+ *   that matches any word in trie
+ * - longestCommonPrefix(): string — Find longest common prefix of all words
+ * - autoComplete(prefix: string, limit?: number): Array<{word: string, score: number}>
+ *   with scoring based on word frequency or length
  */
 
-export function coinChange(coins: number[], amount: number): number {
-  // YOUR CODE HERE
-  return -1;
-}
-
-export function coinChangeWays(coins: number[], amount: number): number {
-  // YOUR CODE HERE
-  return 0;
-}
-
-export function coinChangePermutations(coins: number[], amount: number): number {
-  // YOUR CODE HERE
-  return 0;
-}
-
-export function coinChangeWithLimit(
-  coins: number[],
-  amount: number,
-  limits: number[]
-): number {
-  // YOUR CODE HERE
-  return -1;
-}
-]=],
-    tests = [=[
-import { describe, it, expect } from 'vitest';
-import { coinChange, coinChangeWays, coinChangePermutations, coinChangeWithLimit } from './challenge';
-
-describe('coinChange', () => {
-  it('basic example', () => {
-    expect(coinChange([1, 2, 5], 11)).toBe(3); // 5+5+1
-  });
-
-  it('impossible case', () => {
-    expect(coinChange([2], 3)).toBe(-1);
-  });
-
-  it('amount of 0', () => {
-    expect(coinChange([1, 2, 5], 0)).toBe(0);
-  });
-
-  it('single coin matches amount', () => {
-    expect(coinChange([5], 5)).toBe(1);
-  });
-
-  it('single coin cannot make amount', () => {
-    expect(coinChange([5], 7)).toBe(-1);
-  });
-
-  it('multiple coins same value', () => {
-    expect(coinChange([1, 1, 1], 3)).toBe(3);
-  });
-
-  it('large coins', () => {
-    expect(coinChange([100, 50, 25], 75)).toBe(2); // 50+25
-  });
-
-  it('greedy would fail', () => {
-    // Coins [1, 3, 4], amount 6
-    // Greedy: 4+1+1 = 3 coins
-    // Optimal: 3+3 = 2 coins
-    expect(coinChange([1, 3, 4], 6)).toBe(2);
-  });
-
-  it('all coins larger than amount', () => {
-    expect(coinChange([5, 10, 25], 3)).toBe(-1);
-  });
-
-  it('complex case', () => {
-    expect(coinChange([1, 5, 10, 25], 63)).toBe(6); // 25+25+10+1+1+1
-  });
-
-  it('stress test', () => {
-    expect(coinChange([1, 2, 5, 10, 20, 50, 100], 999)).toBe(12);
-  });
-});
-
-describe('coinChangeWays', () => {
-  it('basic example', () => {
-    expect(coinChangeWays([1, 2, 5], 5)).toBe(4);
-    // Ways: (5), (2+2+1), (2+1+1+1), (1+1+1+1+1)
-  });
-
-  it('amount of 0', () => {
-    expect(coinChangeWays([1, 2, 5], 0)).toBe(1); // One way: use nothing
-  });
-
-  it('single coin', () => {
-    expect(coinChangeWays([3], 6)).toBe(1); // Only 3+3
-    expect(coinChangeWays([3], 5)).toBe(0); // Impossible
-  });
-
-  it('no ways to make amount', () => {
-    expect(coinChangeWays([2, 4, 6], 5)).toBe(0);
-  });
-
-  it('coins include 1', () => {
-    expect(coinChangeWays([1, 2], 3)).toBe(2);
-    // Ways: (1+1+1), (2+1)
-  });
-
-  it('larger example', () => {
-    expect(coinChangeWays([1, 2, 5], 10)).toBe(10);
-  });
-
-  it('order does not matter', () => {
-    // (1+2) and (2+1) count as the same way
-    expect(coinChangeWays([1, 2], 4)).toBe(3);
-    // Ways: (1+1+1+1), (2+1+1), (2+2)
-  });
-});
-
-describe('coinChangePermutations', () => {
-  it('basic example', () => {
-    expect(coinChangePermutations([1, 2], 3)).toBe(3);
-    // Permutations: (1+1+1), (1+2), (2+1)
-  });
-
-  it('amount of 0', () => {
-    expect(coinChangePermutations([1, 2, 5], 0)).toBe(1); // One way: use nothing
-  });
-
-  it('single coin', () => {
-    expect(coinChangePermutations([3], 6)).toBe(1); // Only 3+3
-    expect(coinChangePermutations([3], 5)).toBe(0); // Impossible
-  });
-
-  it('order matters', () => {
-    // (1+2) and (2+1) count as different permutations
-    expect(coinChangePermutations([1, 2], 4)).toBe(5);
-    // Permutations: (1+1+1+1), (1+1+2), (1+2+1), (2+1+1), (2+2)
-  });
-
-  it('larger example', () => {
-    expect(coinChangePermutations([1, 2, 5], 5)).toBe(13);
-  });
-
-  it('no permutations possible', () => {
-    expect(coinChangePermutations([2, 4, 6], 5)).toBe(0);
-  });
-});
-
-describe('coinChangeWithLimit', () => {
-  it('basic example with limits', () => {
-    // coins [1, 2, 5], limits [3, 2, 1], amount 11
-    // Can use at most: three 1s, two 2s, one 5
-    // Best: 5+2+2+1+1 = 5 coins (uses all limits)
-    expect(coinChangeWithLimit([1, 2, 5], 11, [3, 2, 1])).toBe(5);
-  });
-
-  it('limits make it impossible', () => {
-    // coins [1, 2, 5], limits [1, 1, 1], amount 10
-    // Max possible: 1+2+5 = 8, cannot reach 10
-    expect(coinChangeWithLimit([1, 2, 5], 10, [1, 1, 1])).toBe(-1);
-  });
-
-  it('amount of 0', () => {
-    expect(coinChangeWithLimit([1, 2, 5], 0, [3, 2, 1])).toBe(0);
-  });
-
-  it('limits not binding', () => {
-    // Limits are high enough not to matter
-    expect(coinChangeWithLimit([1, 2, 5], 11, [100, 100, 100])).toBe(3);
-  });
-
-  it('single coin with limit', () => {
-    expect(coinChangeWithLimit([5], 15, [3])).toBe(3); // 5+5+5
-    expect(coinChangeWithLimit([5], 20, [3])).toBe(-1); // Can only use 3 coins = 15
-  });
-
-  it('complex limits', () => {
-    // coins [2, 3, 5], limits [2, 3, 2], amount 17
-    // Best: 5+5+3+2+2 = 5 coins
-    expect(coinChangeWithLimit([2, 3, 5], 17, [2, 3, 2])).toBe(5);
-  });
-
-  it('zero limit for a coin', () => {
-    // Cannot use coin at index 1 (value 3)
-    expect(coinChangeWithLimit([1, 3, 5], 6, [6, 0, 6])).toBe(2); // 1+5
-  });
-});
-
-describe('edge cases', () => {
-  it('empty coins array', () => {
-    expect(coinChange([], 5)).toBe(-1);
-    expect(coinChangeWays([], 5)).toBe(0);
-    expect(coinChangePermutations([], 5)).toBe(0);
-    expect(coinChangeWithLimit([], 5, [])).toBe(-1);
-  });
-
-  it('coin with value 1', () => {
-    expect(coinChange([1], 100)).toBe(100);
-    expect(coinChangeWays([1], 100)).toBe(1);
-    expect(coinChangePermutations([1], 100)).toBe(1);
-  });
-
-  it('large amount with efficient coins', () => {
-    expect(coinChange([1, 10, 100], 999)).toBe(18); // 9*100 + 9*10 + 9*1
-  });
-
-  it('coins not sorted', () => {
-    expect(coinChange([5, 1, 2], 11)).toBe(3);
-    expect(coinChangeWays([5, 1, 2], 5)).toBe(4);
-  });
-
-  it('duplicate coin values', () => {
-    expect(coinChange([1, 1, 2], 3)).toBe(2); // 1+2 or 1+2
-    expect(coinChangeWays([1, 1, 2], 3)).toBe(2); // (1+1+1), (1+2)
-  });
-});
-]=],
-  },
-  {
-    name = "Task Scheduler with Priority and Delay",
-    difficulty = "hard",
-    stub = [=[
-/**
- * Task Scheduler with Priority and Delay
- *
- * Implement a task scheduler that supports priority-based execution
- * with optional delayed scheduling.
- *
- * This combines concepts from:
- * - Priority queues (heap-based scheduling)
- * - Delayed execution (setTimeout-like behavior)
- * - Task cancellation
- * - Concurrent execution limits
- *
- * Implement the TaskScheduler class with:
- * - constructor(maxConcurrency?: number) — Initialize with max parallel tasks
- * - schedule(task: () => Promise<void>, options?: { priority?: number, delay?: number, id?: string }): string
- *   Schedule a task for execution. Returns a task ID.
- *   - priority: higher number = higher priority (default: 0)
- *   - delay: milliseconds to wait before task becomes eligible (default: 0)
- *   - id: optional custom ID; if omitted, generate unique ID
- * - cancel(taskId: string): boolean — Cancel a pending task. Returns true if cancelled.
- * - cancelAll(): number — Cancel all pending tasks. Returns count cancelled.
- * - getPendingCount(): number — Return number of tasks waiting to execute
- * - getRunningCount(): number — Return number of currently executing tasks
- * - setMaxConcurrency(max: number): void — Change max concurrency at runtime
- * - getMaxConcurrency(): number — Return current max concurrency setting
- * - waitForAll(): Promise<void> — Wait until all tasks complete (pending + running)
- * - pause(): void — Pause execution of new tasks (running tasks continue)
- * - resume(): void — Resume execution after pause
- * - isPaused(): boolean — Check if scheduler is paused
- *
- * The scheduler should:
- * - Execute tasks in priority order (highest first)
- * - Respect delay: tasks only become eligible after delay ms
- * - Never exceed maxConcurrency running tasks
- * - When a slot opens, pick the highest-priority eligible task
- * - Handle task errors gracefully (don't crash the scheduler)
- *
- * Bonus: Implement drain(timeoutMs?: number): Promise<number> that cancels all
- * pending tasks and waits for running tasks to complete, optionally timing out.
- */
-
-export interface ScheduleOptions {
-  priority?: number;
-  delay?: number;
-  id?: string;
-}
-
-export class TaskScheduler {
-  constructor(maxConcurrency?: number) {
-    // YOUR CODE HERE
-  }
-
-  schedule(task: () => Promise<void>, options?: ScheduleOptions): string {
-    // YOUR CODE HERE
-    return '';
-  }
-
-  cancel(taskId: string): boolean {
-    // YOUR CODE HERE
-    return false;
-  }
-
-  cancelAll(): number {
-    // YOUR CODE HERE
-    return 0;
-  }
-
-  getPendingCount(): number {
-    // YOUR CODE HERE
-    return 0;
-  }
-
-  getRunningCount(): number {
-    // YOUR CODE HERE
-    return 0;
-  }
-
-  setMaxConcurrency(max: number): void {
-    // YOUR CODE HERE
-  }
-
-  getMaxConcurrency(): number {
-    // YOUR CODE HERE
-    return 0;
-  }
-
-  waitForAll(): Promise<void> {
-    // YOUR CODE HERE
-    return Promise.resolve();
-  }
-
-  pause(): void {
-    // YOUR CODE HERE
-  }
-
-  resume(): void {
-    // YOUR CODE HERE
-  }
-
-  isPaused(): boolean {
-    // YOUR CODE HERE
-    return true;
-  }
-
-  drain(timeoutMs?: number): Promise<number> {
-    // YOUR CODE HERE
-    return Promise.resolve(0);
-  }
-}
-]=],
-    tests = [=[
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { TaskScheduler } from './challenge';
-
-describe('TaskScheduler', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
-  it('executes single task immediately', async () => {
-    const scheduler = new TaskScheduler(1);
-    const task = vi.fn(async () => {});
-    scheduler.schedule(task);
-    
-    vi.advanceTimersByTime(0);
-    await scheduler.waitForAll();
-    
-    expect(task).toHaveBeenCalledTimes(1);
-  });
-
-  it('respects maxConcurrency', async () => {
-    const scheduler = new TaskScheduler(2);
-    const starts: number[] = [];
-    const ends: number[] = [];
-    
-    scheduler.schedule(async () => {
-      starts.push(1);
-      await new Promise(resolve => setTimeout(resolve, 100));
-      ends.push(1);
-    });
-    scheduler.schedule(async () => {
-      starts.push(2);
-      await new Promise(resolve => setTimeout(resolve, 100));
-      ends.push(2);
-    });
-    scheduler.schedule(async () => {
-      starts.push(3);
-      await new Promise(resolve => setTimeout(resolve, 100));
-      ends.push(3);
-    });
-    
-    vi.advanceTimersByTime(0);
-    expect(starts).toEqual([1, 2]); // Only 2 start
-    expect(scheduler.getRunningCount()).toBe(2);
-    expect(scheduler.getPendingCount()).toBe(1);
-    
-    vi.advanceTimersByTime(100);
-    await scheduler.waitForAll();
-    expect(starts).toEqual([1, 2, 3]);
-  });
-
-  it('executes by priority', async () => {
-    const scheduler = new TaskScheduler(1);
-    const order: number[] = [];
-    
-    scheduler.schedule(async () => { order.push(1); }, { priority: 1 });
-    scheduler.schedule(async () => { order.push(2); }, { priority: 3 });
-    scheduler.schedule(async () => { order.push(3); }, { priority: 2 });
-    
-    vi.advanceTimersByTime(0);
-    await scheduler.waitForAll();
-    
-    expect(order).toEqual([2, 3, 1]); // Highest priority first
-  });
-
-  it('respects delay', async () => {
-    const scheduler = new TaskScheduler(1);
-    const order: string[] = [];
-    
-    scheduler.schedule(async () => { order.push('immediate'); });
-    scheduler.schedule(async () => { order.push('delayed'); }, { delay: 50 });
-    
-    vi.advanceTimersByTime(0);
-    expect(order).toEqual(['immediate']);
-    
-    vi.advanceTimersByTime(50);
-    await scheduler.waitForAll();
-    expect(order).toEqual(['immediate', 'delayed']);
-  });
-
-  it('priority overrides delay when both eligible', async () => {
-    const scheduler = new TaskScheduler(1);
-    const order: string[] = [];
-    
-    scheduler.schedule(async () => { order.push('low-priority'); }, { priority: 1, delay: 0 });
-    scheduler.schedule(async () => { order.push('high-priority'); }, { priority: 10, delay: 0 });
-    
-    vi.advanceTimersByTime(0);
-    await scheduler.waitForAll();
-    
-    expect(order).toEqual(['high-priority', 'low-priority']);
-  });
-
-  it('cancel removes pending task', async () => {
-    const scheduler = new TaskScheduler(1);
-    const task = vi.fn(async () => {});
-    const taskId = scheduler.schedule(task, { delay: 100 });
-    
-    expect(scheduler.cancel(taskId)).toBe(true);
-    
-    vi.advanceTimersByTime(100);
-    await scheduler.waitForAll();
-    
-    expect(task).not.toHaveBeenCalled();
-    expect(scheduler.getPendingCount()).toBe(0);
-  });
-
-  it('cancel returns false for already running task', async () => {
-    const scheduler = new TaskScheduler(1);
-    let resolveTask: (() => void) | null = null;
-    const task = vi.fn(async () => {
-      await new Promise(resolve => { resolveTask = resolve; });
-    });
-    const taskId = scheduler.schedule(task);
-    
-    vi.advanceTimersByTime(0);
-    expect(scheduler.getRunningCount()).toBe(1);
-    expect(scheduler.cancel(taskId)).toBe(false);
-    
-    resolveTask!();
-    await scheduler.waitForAll();
-    expect(task).toHaveBeenCalledTimes(1);
-  });
-
-  it('cancelAll removes all pending', async () => {
-    const scheduler = new TaskScheduler(2);
-    const task1 = vi.fn(async () => {});
-    const task2 = vi.fn(async () => {});
-    const task3 = vi.fn(async () => {});
-    
-    scheduler.schedule(task1);
-    scheduler.schedule(task2);
-    scheduler.schedule(task3, { delay: 100 });
-    
-    expect(scheduler.cancelAll()).toBe(1); // Only task3 is pending
-    
-    vi.advanceTimersByTime(0);
-    await scheduler.waitForAll();
-    expect(task1).toHaveBeenCalled();
-    expect(task2).toHaveBeenCalled();
-    expect(task3).not.toHaveBeenCalled();
-  });
-
-  it('getPendingCount and getRunningCount are accurate', async () => {
-    const scheduler = new TaskScheduler(2);
-    
-    scheduler.schedule(async () => { await new Promise(resolve => setTimeout(resolve, 100)); });
-    scheduler.schedule(async () => { await new Promise(resolve => setTimeout(resolve, 100)); });
-    scheduler.schedule(async () => { await new Promise(resolve => setTimeout(resolve, 100)); });
-    scheduler.schedule(async () => {}, { delay: 200 });
-    
-    expect(scheduler.getPendingCount()).toBe(2); // 1 waiting, 1 delayed
-    expect(scheduler.getRunningCount()).toBe(0);
-    
-    vi.advanceTimersByTime(0);
-    expect(scheduler.getRunningCount()).toBe(2);
-    expect(scheduler.getPendingCount()).toBe(1); // 1 delayed not yet eligible
-    
-    vi.advanceTimersByTime(100);
-    expect(scheduler.getRunningCount()).toBe(1); // 3rd task now running
-    expect(scheduler.getPendingCount()).toBe(0);
-  });
-
-  it('setMaxConcurrency changes limit at runtime', async () => {
-    const scheduler = new TaskScheduler(1);
-    const starts: number[] = [];
-    
-    scheduler.schedule(async () => { starts.push(1); await new Promise(resolve => setTimeout(resolve, 50)); });
-    scheduler.schedule(async () => { starts.push(2); await new Promise(resolve => setTimeout(resolve, 50)); });
-    scheduler.schedule(async () => { starts.push(3); await new Promise(resolve => setTimeout(resolve, 50)); });
-    
-    vi.advanceTimersByTime(0);
-    expect(starts).toEqual([1]);
-    
-    scheduler.setMaxConcurrency(3);
-    vi.advanceTimersByTime(0);
-    expect(starts).toEqual([1, 2, 3]);
-    
-    await scheduler.waitForAll();
-  });
-
-  it('pause prevents new task execution', async () => {
-    const scheduler = new TaskScheduler(2);
-    const order: string[] = [];
-    
-    scheduler.schedule(async () => { order.push('1'); await new Promise(resolve => setTimeout(resolve, 50)); });
-    scheduler.pause();
-    scheduler.schedule(async () => { order.push('2'); });
-    
-    vi.advanceTimersByTime(0);
-    expect(order).toEqual(['1']);
-    expect(scheduler.getPendingCount()).toBe(1);
-    
-    scheduler.resume();
-    vi.advanceTimersByTime(0);
-    await scheduler.waitForAll();
-    expect(order).toEqual(['1', '2']);
-  });
-
-  it('isPaused returns correct state', () => {
-    const scheduler = new TaskScheduler(1);
-    expect(scheduler.isPaused()).toBe(false);
-    
-    scheduler.pause();
-    expect(scheduler.isPaused()).toBe(true);
-    
-    scheduler.resume();
-    expect(scheduler.isPaused()).toBe(false);
-  });
-
-  it('waitForAll waits for all tasks', async () => {
-    const scheduler = new TaskScheduler(1);
-    let completed = false;
-    
-    scheduler.schedule(async () => {
-      await new Promise(resolve => setTimeout(resolve, 100));
-      completed = true;
-    });
-    
-    vi.advanceTimersByTime(0);
-    expect(completed).toBe(false);
-    
-    const waitPromise = scheduler.waitForAll();
-    vi.advanceTimersByTime(100);
-    await waitPromise;
-    expect(completed).toBe(true);
-  });
-
-  it('task errors do not crash scheduler', async () => {
-    const scheduler = new TaskScheduler(1);
-    const goodTask = vi.fn(async () => {});
-    const badTask = vi.fn(async () => { throw new Error('task failed'); });
-    
-    scheduler.schedule(badTask);
-    scheduler.schedule(goodTask);
-    
-    vi.advanceTimersByTime(0);
-    await scheduler.waitForAll();
-    
-    expect(badTask).toHaveBeenCalledTimes(1);
-    expect(goodTask).toHaveBeenCalledTimes(1);
-  });
-
-  it('custom task IDs', async () => {
-    const scheduler = new TaskScheduler(1);
-    const taskId = scheduler.schedule(async () => {}, { id: 'my-task' });
-    
-    expect(taskId).toBe('my-task');
-    expect(scheduler.cancel('my-task')).toBe(true);
-  });
-
-  it('duplicate task IDs not allowed', () => {
-    const scheduler = new TaskScheduler(1);
-    scheduler.schedule(async () => {}, { id: 'duplicate' });
-    
-    expect(() => scheduler.schedule(async () => {}, { id: 'duplicate' })).toThrow();
-  });
-
-  it('delayed task becomes eligible after delay', async () => {
-    const scheduler = new TaskScheduler(1);
-    const order: string[] = [];
-    
-    scheduler.schedule(async () => { order.push('first'); }, { delay: 100 });
-    scheduler.schedule(async () => { order.push('second'); }, { delay: 50 });
-    
-    vi.advanceTimersByTime(0);
-    expect(order).toEqual([]);
-    
-    vi.advanceTimersByTime(50);
-    expect(order).toEqual(['second']);
-    
-    vi.advanceTimersByTime(50);
-    await scheduler.waitForAll();
-    expect(order).toEqual(['second', 'first']);
-  });
-
-  it('stress test with many tasks', async () => {
-    const scheduler = new TaskScheduler(5);
-    const completed: number[] = [];
-    
-    for (let i = 0; i < 100; i++) {
-      scheduler.schedule(async () => {
-        await new Promise(resolve => setTimeout(resolve, 10));
-        completed.push(i);
-      }, { priority: Math.random() * 100 });
-    }
-    
-    vi.advanceTimersByTime(0);
-    expect(scheduler.getRunningCount()).toBe(5);
-    expect(scheduler.getPendingCount()).toBe(95);
-    
-    vi.advanceTimersByTime(100);
-    await scheduler.waitForAll();
-    expect(completed).toHaveLength(100);
-  });
-
-  it('drain cancels pending and waits for running', async () => {
-    const scheduler = new TaskScheduler(2);
-    const runningResolve: Array<() => void> = [];
-    
-    scheduler.schedule(async () => {
-      await new Promise(resolve => runningResolve.push(resolve));
-    });
-    scheduler.schedule(async () => {
-      await new Promise(resolve => runningResolve.push(resolve));
-    });
-    scheduler.schedule(async () => {}); // pending
-    scheduler.schedule(async () => {}); // pending
-    
-    vi.advanceTimersByTime(0);
-    expect(scheduler.getRunningCount()).toBe(2);
-    expect(scheduler.getPendingCount()).toBe(2);
-    
-    const drainPromise = scheduler.drain();
-    expect(scheduler.getPendingCount()).toBe(0);
-    
-    runningResolve.forEach(resolve => resolve());
-    const cancelled = await drainPromise;
-    expect(cancelled).toBe(2);
-  });
-
-  it('drain with timeout', async () => {
-    const scheduler = new TaskScheduler(1);
-    
-    scheduler.schedule(async () => {
-      await new Promise(resolve => setTimeout(resolve, 200));
-    });
-    
-    vi.advanceTimersByTime(0);
-    
-    const drainPromise = scheduler.drain(100);
-    vi.advanceTimersByTime(100);
-    
-    await expect(drainPromise).resolves.toBe(0); // Running task not cancelled
-  });
-});
-]=],
-  },
-  {
-    name = "Linked List Reversal",
-    difficulty = "easy",
-    stub = [=[
-/**
- * Linked List Reversal
- *
- * Implement functions to reverse a singly linked list.
- *
- * Linked lists are fundamental data structures that test understanding
- * of pointers/references and traversal. Reversing a linked list is a
- * classic interview problem that can be solved iteratively or recursively.
- *
- * Implement:
- * - ListNode class — represents a node in the linked list
- * - reverseList(head: ListNode | null): ListNode | null
- *   Reverse the linked list iteratively and return the new head.
- * - reverseListRecursive(head: ListNode | null): ListNode | null
- *   Reverse the linked list recursively and return the new head.
- * - reverseBetween(head: ListNode | null, left: number, right: number): ListNode | null
- *   Reverse the nodes of the linked list from position left to right (1-indexed).
- * - isPalindrome(head: ListNode | null): boolean
- *   Check if the linked list is a palindrome (reads the same forwards and backwards).
- *
- * Constraints:
- * - The number of nodes in the list is in the range [0, 5000]
- * - -5000 <= Node.val <= 5000
- * - 1 <= left <= right <= length of list
- *
- * Examples:
- * - Input: 1 -> 2 -> 3 -> 4 -> 5 -> null
- *   reverseList output: 5 -> 4 -> 3 -> 2 -> 1 -> null
- *
- * - Input: 1 -> 2 -> 3 -> 4 -> 5 -> null, left = 2, right = 4
- *   reverseBetween output: 1 -> 4 -> 3 -> 2 -> 5 -> null
- *
- * - Input: 1 -> 2 -> 3 -> 2 -> 1 -> null
- *   isPalindrome output: true
- */
-
-export class ListNode {
-  val: number;
-  next: ListNode | null;
-
-  constructor(val?: number, next?: ListNode | null) {
-    // YOUR CODE HERE
-    this.val = val === undefined ? 0 : val;
-    this.next = next === undefined ? null : next;
-  }
-}
-
-export function reverseList(head: ListNode | null): ListNode | null {
-  // YOUR CODE HERE
-  return null;
-}
-
-export function reverseListRecursive(head: ListNode | null): ListNode | null {
-  // YOUR CODE HERE
-  return null;
-}
-
-export function reverseBetween(
-  head: ListNode | null,
-  left: number,
-  right: number
-): ListNode | null {
-  // YOUR CODE HERE
-  return null;
-}
-
-export function isPalindrome(head: ListNode | null): boolean {
-  // YOUR CODE HERE
-  return true;
-}
-]=],
-    tests = [=[
-import { describe, it, expect } from 'vitest';
-import { ListNode, reverseList, reverseListRecursive, reverseBetween, isPalindrome } from './challenge';
-
-function createList(values: number[]): ListNode | null {
-  if (values.length === 0) return null;
-  const head = new ListNode(values[0]);
-  let current = head;
-  for (let i = 1; i < values.length; i++) {
-    current.next = new ListNode(values[i]);
-    current = current.next;
-  }
-  return head;
-}
-
-function listToArray(head: ListNode | null): number[] {
-  const result: number[] = [];
-  while (head !== null) {
-    result.push(head.val);
-    head = head.next;
-  }
-  return result;
-}
-
-describe('reverseList', () => {
-  it('reverses a list with multiple nodes', () => {
-    const head = createList([1, 2, 3, 4, 5]);
-    const reversed = reverseList(head);
-    expect(listToArray(reversed)).toEqual([5, 4, 3, 2, 1]);
-  });
-
-  it('reverses a single node list', () => {
-    const head = new ListNode(1);
-    const reversed = reverseList(head);
-    expect(listToArray(reversed)).toEqual([1]);
-  });
-
-  it('reverses an empty list', () => {
-    expect(reverseList(null)).toBeNull();
-  });
-
-  it('reverses a two node list', () => {
-    const head = createList([1, 2]);
-    const reversed = reverseList(head);
-    expect(listToArray(reversed)).toEqual([2, 1]);
-  });
-
-  it('handles negative values', () => {
-    const head = createList([-1, -2, -3]);
-    const reversed = reverseList(head);
-    expect(listToArray(reversed)).toEqual([-3, -2, -1]);
-  });
-
-  it('preserves all values', () => {
-    const head = createList([1, 2, 3, 4, 5]);
-    const reversed = reverseList(head);
-    const values = listToArray(reversed);
-    expect(values).toHaveLength(5);
-    expect(values.sort()).toEqual([1, 2, 3, 4, 5]);
-  });
-});
-
-describe('reverseListRecursive', () => {
-  it('reverses a list with multiple nodes', () => {
-    const head = createList([1, 2, 3, 4, 5]);
-    const reversed = reverseListRecursive(head);
-    expect(listToArray(reversed)).toEqual([5, 4, 3, 2, 1]);
-  });
-
-  it('reverses a single node list', () => {
-    const head = new ListNode(1);
-    const reversed = reverseListRecursive(head);
-    expect(listToArray(reversed)).toEqual([1]);
-  });
-
-  it('reverses an empty list', () => {
-    expect(reverseListRecursive(null)).toBeNull();
-  });
-
-  it('reverses a two node list', () => {
-    const head = createList([1, 2]);
-    const reversed = reverseListRecursive(head);
-    expect(listToArray(reversed)).toEqual([2, 1]);
-  });
-
-  it('handles negative values', () => {
-    const head = createList([-1, -2, -3]);
-    const reversed = reverseListRecursive(head);
-    expect(listToArray(reversed)).toEqual([-3, -2, -1]);
-  });
-
-  it('produces same result as iterative', () => {
-    const values = [1, 2, 3, 4, 5];
-    const head1 = createList(values);
-    const head2 = createList(values);
-    
-    const reversed1 = reverseList(head1);
-    const reversed2 = reverseListRecursive(head2);
-    
-    expect(listToArray(reversed1)).toEqual(listToArray(reversed2));
-  });
-});
-
-describe('reverseBetween', () => {
-  it('reverses middle section', () => {
-    const head = createList([1, 2, 3, 4, 5]);
-    const reversed = reverseBetween(head, 2, 4);
-    expect(listToArray(reversed)).toEqual([1, 4, 3, 2, 5]);
-  });
-
-  it('reverses entire list', () => {
-    const head = createList([1, 2, 3, 4, 5]);
-    const reversed = reverseBetween(head, 1, 5);
-    expect(listToArray(reversed)).toEqual([5, 4, 3, 2, 1]);
-  });
-
-  it('reverses from start', () => {
-    const head = createList([1, 2, 3, 4, 5]);
-    const reversed = reverseBetween(head, 1, 3);
-    expect(listToArray(reversed)).toEqual([3, 2, 1, 4, 5]);
-  });
-
-  it('reverses to end', () => {
-    const head = createList([1, 2, 3, 4, 5]);
-    const reversed = reverseBetween(head, 3, 5);
-    expect(listToArray(reversed)).toEqual([1, 2, 5, 4, 3]);
-  });
-
-  it('single node range does nothing', () => {
-    const head = createList([1, 2, 3, 4, 5]);
-    const reversed = reverseBetween(head, 3, 3);
-    expect(listToArray(reversed)).toEqual([1, 2, 3, 4, 5]);
-  });
-
-  it('two node range', () => {
-    const head = createList([1, 2, 3, 4, 5]);
-    const reversed = reverseBetween(head, 2, 3);
-    expect(listToArray(reversed)).toEqual([1, 3, 2, 4, 5]);
-  });
-
-  it('empty list', () => {
-    expect(reverseBetween(null, 1, 1)).toBeNull();
-  });
-
-  it('single node list', () => {
-    const head = new ListNode(1);
-    const reversed = reverseBetween(head, 1, 1);
-    expect(listToArray(reversed)).toEqual([1]);
-  });
-});
-
-describe('isPalindrome', () => {
-  it('single node is palindrome', () => {
-    expect(isPalindrome(new ListNode(1))).toBe(true);
-  });
-
-  it('empty list is palindrome', () => {
-    expect(isPalindrome(null)).toBe(true);
-  });
-
-  it('two same nodes is palindrome', () => {
-    const head = createList([1, 1]);
-    expect(isPalindrome(head)).toBe(true);
-  });
-
-  it('two different nodes is not palindrome', () => {
-    const head = createList([1, 2]);
-    expect(isPalindrome(head)).toBe(false);
-  });
-
-  it('odd length palindrome', () => {
-    const head = createList([1, 2, 3, 2, 1]);
-    expect(isPalindrome(head)).toBe(true);
-  });
-
-  it('even length palindrome', () => {
-    const head = createList([1, 2, 2, 1]);
-    expect(isPalindrome(head)).toBe(true);
-  });
-
-  it('not a palindrome', () => {
-    const head = createList([1, 2, 3]);
-    expect(isPalindrome(head)).toBe(false);
-  });
-
-  it('all same values is palindrome', () => {
-    const head = createList([5, 5, 5, 5]);
-    expect(isPalindrome(head)).toBe(true);
-  });
-
-  it('negative values palindrome', () => {
-    const head = createList([-1, -2, -1]);
-    expect(isPalindrome(head)).toBe(true);
-  });
-
-  it('negative values not palindrome', () => {
-    const head = createList([-1, -2, -3]);
-    expect(isPalindrome(head)).toBe(false);
-  });
-});
-
-describe('edge cases', () => {
-  it('large list reversal', () => {
-    const values = Array.from({ length: 100 }, (_, i) => i + 1);
-    const head = createList(values);
-    const reversed = reverseList(head);
-    const result = listToArray(reversed);
-    expect(result).toEqual(values.reverse());
-  });
-
-  it('reverseBetween with left equals right', () => {
-    const head = createList([1, 2, 3, 4, 5]);
-    const reversed = reverseBetween(head, 3, 3);
-    expect(listToArray(reversed)).toEqual([1, 2, 3, 4, 5]);
-  });
-
-  it('reverseBetween bounds validation', () => {
-    const head = createList([1, 2, 3]);
-    // left = 1, right = 3 should reverse entire list
-    const reversed = reverseBetween(head, 1, 3);
-    expect(listToArray(reversed)).toEqual([3, 2, 1]);
-  });
-
-  it('isPalindrome with many nodes', () => {
-    const head = createList([1, 2, 3, 4, 5, 4, 3, 2, 1]);
-    expect(isPalindrome(head)).toBe(true);
-  });
-
-  it('isPalindrome almost palindrome', () => {
-    const head = createList([1, 2, 3, 4, 5, 4, 3, 2, 2]);
-    expect(isPalindrome(head)).toBe(false);
-  });
-});
-]=],
-  },
-  {
-    name = "Dijkstra's Shortest Path",
-    difficulty = "medium",
-    stub = [=[
-/**
- * Dijkstra's Shortest Path
- *
- * Implement Dijkstra's algorithm for finding the shortest path in a weighted graph.
- *
- * Dijkstra's algorithm finds the shortest path from a source node to all other
- * nodes in a graph with non-negative edge weights. It's widely used in:
- * - GPS navigation systems
- * - Network routing protocols
- * - Social network analysis
- * - Game AI pathfinding
- *
- * The graph is represented as an adjacency list:
- * type Graph = Map<number, Array<{ to: number, weight: number }>>
- *
- * Implement:
- * - dijkstra(graph: Map<number, Array<{to: number, weight: number}>>, source: number): Map<number, number>
- *   Return a map of node -> shortest distance from source. Use Infinity for unreachable nodes.
- *
- * - shortestPath(graph: Map<number, Array<{to: number, weight: number}>>, source: number, target: number): number[]
- *   Return the actual path (array of node IDs) from source to target.
- *   Return empty array if no path exists.
- *
- * - dijkstraWithPredecessors(graph: Map<number, Array<{to: number, weight: number}>>, source: number): { distances: Map<number, number>, predecessors: Map<number, number | null> }
- *   Return both distances and the predecessor map for path reconstruction.
- *
- * Requirements:
- * - Time complexity: O((V + E) log V) using a min-heap priority queue
- * - Handle disconnected graphs (return Infinity for unreachable nodes)
- * - Handle graphs with isolated nodes
- * - Source node distance should be 0
- *
- * Bonus: Implement dijkstraWithLimit that stops early once all nodes within
- * a certain distance threshold have been processed.
- */
-
-export function dijkstra(
-  graph: Map<number, Array<{ to: number; weight: number }>>,
-  source: number
-): Map<number, number> {
-  // YOUR CODE HERE
-  return new Map();
-}
-
-export function shortestPath(
-  graph: Map<number, Array<{ to: number; weight: number }>>,
-  source: number,
-  target: number
-): number[] {
-  // YOUR CODE HERE
-  return [];
-}
-
-export function dijkstraWithPredecessors(
-  graph: Map<number, Array<{ to: number; weight: number }>>,
-  source: number
-): { distances: Map<number, number>; predecessors: Map<number, number | null> } {
-  // YOUR CODE HERE
-  return { distances: new Map(), predecessors: new Map() };
-}
-]=],
-    tests = [=[
-import { describe, it, expect } from 'vitest';
-import { dijkstra, shortestPath, dijkstraWithPredecessors } from './challenge';
-
-function createGraph(edges: Array<[number, number, number]>): Map<number, Array<{ to: number; weight: number }>> {
-  const graph = new Map<number, Array<{ to: number; weight: number }>>();
-  for (const [from, to, weight] of edges) {
-    if (!graph.has(from)) graph.set(from, []);
-    graph.get(from)!.push({ to, weight });
-  }
-  return graph;
-}
-
-describe('dijkstra', () => {
-  it('single node returns distance 0', () => {
-    const graph = new Map();
-    graph.set(1, []);
-    const distances = dijkstra(graph, 1);
-    expect(distances.get(1)).toBe(0);
-  });
-
-  it('simple two-node graph', () => {
-    const graph = createGraph([[1, 2, 5]]);
-    const distances = dijkstra(graph, 1);
-    expect(distances.get(1)).toBe(0);
-    expect(distances.get(2)).toBe(5);
-  });
-
-  it('linear path', () => {
-    const graph = createGraph([[1, 2, 2], [2, 3, 3], [3, 4, 1]]);
-    const distances = dijkstra(graph, 1);
-    expect(distances.get(1)).toBe(0);
-    expect(distances.get(2)).toBe(2);
-    expect(distances.get(3)).toBe(5);
-    expect(distances.get(4)).toBe(6);
-  });
-
-  it('chooses shortest path over longer alternative', () => {
-    const graph = createGraph([
-      [1, 2, 10],
-      [1, 3, 1],
-      [3, 2, 2],
-    ]);
-    const distances = dijkstra(graph, 1);
-    expect(distances.get(2)).toBe(3); // 1->3->2 = 3, not 1->2 = 10
-    expect(distances.get(3)).toBe(1);
-  });
-
-  it('handles disconnected nodes', () => {
-    const graph = createGraph([[1, 2, 5]]);
-    graph.set(3, []); // isolated node
-    const distances = dijkstra(graph, 1);
-    expect(distances.get(1)).toBe(0);
-    expect(distances.get(2)).toBe(5);
-    expect(distances.get(3)).toBe(Infinity);
-  });
-
-  it('complex graph with multiple paths', () => {
-    const graph = createGraph([
-      [1, 2, 1],
-      [1, 3, 4],
-      [2, 3, 2],
-      [2, 4, 6],
-      [3, 4, 3],
-      [4, 5, 1],
-    ]);
-    const distances = dijkstra(graph, 1);
-    expect(distances.get(1)).toBe(0);
-    expect(distances.get(2)).toBe(1);
-    expect(distances.get(3)).toBe(3); // 1->2->3
-    expect(distances.get(4)).toBe(6); // 1->2->3->4
-    expect(distances.get(5)).toBe(7); // 1->2->3->4->5
-  });
-
-  it('graph with cycles', () => {
-    const graph = createGraph([
-      [1, 2, 1],
-      [2, 3, 1],
-      [3, 1, 1],
-      [2, 4, 2],
-    ]);
-    const distances = dijkstra(graph, 1);
-    expect(distances.get(1)).toBe(0);
-    expect(distances.get(2)).toBe(1);
-    expect(distances.get(3)).toBe(2);
-    expect(distances.get(4)).toBe(3);
-  });
-
-  it('all nodes reachable from source', () => {
-    const graph = createGraph([
-      [0, 1, 4],
-      [0, 2, 1],
-      [2, 1, 2],
-      [1, 3, 1],
-      [2, 3, 5],
-    ]);
-    const distances = dijkstra(graph, 0);
-    expect(distances.get(0)).toBe(0);
-    expect(distances.get(1)).toBe(3);
-    expect(distances.get(2)).toBe(1);
-    expect(distances.get(3)).toBe(4);
-  });
-
-  it('source node not in graph returns empty', () => {
-    const graph = createGraph([[1, 2, 5]]);
-    const distances = dijkstra(graph, 99);
-    expect(distances.size).toBe(0);
-  });
-
-  it('empty graph', () => {
-    const graph = new Map();
-    const distances = dijkstra(graph, 1);
-    expect(distances.size).toBe(0);
-  });
-});
-
-describe('shortestPath', () => {
-  it('returns path for simple graph', () => {
-    const graph = createGraph([[1, 2, 5], [2, 3, 3]]);
-    const path = shortestPath(graph, 1, 3);
-    expect(path).toEqual([1, 2, 3]);
-  });
-
-  it('returns empty array for unreachable target', () => {
-    const graph = createGraph([[1, 2, 5]]);
-    const path = shortestPath(graph, 1, 99);
-    expect(path).toEqual([]);
-  });
-
-  it('returns single element for source equals target', () => {
-    const graph = createGraph([[1, 2, 5]]);
-    const path = shortestPath(graph, 1, 1);
-    expect(path).toEqual([1]);
-  });
-
-  it('finds optimal path not just any path', () => {
-    const graph = createGraph([
-      [1, 2, 10],
-      [1, 3, 1],
-      [3, 2, 2],
-      [2, 4, 1],
-    ]);
-    const path = shortestPath(graph, 1, 4);
-    expect(path).toEqual([1, 3, 2, 4]); // not [1, 2, 4]
-  });
-
-  it('handles linear path', () => {
-    const graph = createGraph([[1, 2, 1], [2, 3, 1], [3, 4, 1]]);
-    const path = shortestPath(graph, 1, 4);
-    expect(path).toEqual([1, 2, 3, 4]);
-  });
-
-  it('no path exists', () => {
-    const graph = createGraph([[1, 2, 5], [3, 4, 5]]);
-    const path = shortestPath(graph, 1, 4);
-    expect(path).toEqual([]);
-  });
-});
-
-describe('dijkstraWithPredecessors', () => {
-  it('returns correct predecessors', () => {
-    const graph = createGraph([[1, 2, 5], [2, 3, 3]]);
-    const result = dijkstraWithPredecessors(graph, 1);
-    expect(result.distances.get(1)).toBe(0);
-    expect(result.distances.get(2)).toBe(5);
-    expect(result.distances.get(3)).toBe(8);
-    expect(result.predecessors.get(1)).toBeNull();
-    expect(result.predecessors.get(2)).toBe(1);
-    expect(result.predecessors.get(3)).toBe(2);
-  });
-
-  it('predecessors allow path reconstruction', () => {
-    const graph = createGraph([
-      [1, 2, 1],
-      [2, 3, 1],
-      [3, 4, 1],
-    ]);
-    const result = dijkstraWithPredecessors(graph, 1);
-    
-    // Reconstruct path to 4
-    const path: number[] = [];
-    let current: number | null = 4;
-    while (current !== null) {
-      path.unshift(current);
-      current = result.predecessors.get(current) ?? null;
-    }
-    expect(path).toEqual([1, 2, 3, 4]);
-  });
-});
-
-describe('edge cases', () => {
-  it('zero-weight edges', () => {
-    const graph = createGraph([[1, 2, 0], [2, 3, 0]]);
-    const distances = dijkstra(graph, 1);
-    expect(distances.get(1)).toBe(0);
-    expect(distances.get(2)).toBe(0);
-    expect(distances.get(3)).toBe(0);
-  });
-
-  it('large weights', () => {
-    const graph = createGraph([[1, 2, 1000000], [2, 3, 1000000]]);
-    const distances = dijkstra(graph, 1);
-    expect(distances.get(3)).toBe(2000000);
-  });
-
-  it('many nodes', () => {
-    const graph = new Map<number, Array<{ to: number; weight: number }>>();
-    for (let i = 1; i <= 100; i++) {
-      graph.set(i, [{ to: i + 1, weight: 1 }]);
-    }
-    graph.set(101, []);
-    const distances = dijkstra(graph, 1);
-    expect(distances.get(1)).toBe(0);
-    expect(distances.get(101)).toBe(100);
-  });
-
-  it('star graph', () => {
-    const graph = new Map<number, Array<{ to: number; weight: number }>>();
-    for (let i = 2; i <= 10; i++) {
-      graph.set(1, [...(graph.get(1) || []), { to: i, weight: i }]);
-      graph.set(i, []);
-    }
-    const distances = dijkstra(graph, 1);
-    for (let i = 2; i <= 10; i++) {
-      expect(distances.get(i)).toBe(i);
-    }
-  });
-});
-]=],
-  },
-  {
-    name = "Singly Linked List",
-    difficulty = "easy",
-    stub = [=[
-/**
- * Singly Linked List
- *
- * Implement a singly linked list with basic operations.
- *
- * A linked list is a linear data structure where elements are stored in nodes,
- * and each node points to the next node in the sequence. Unlike arrays,
- * linked lists provide efficient insertions and deletions at any position.
- *
- * Implement the LinkedList class with:
- * - constructor() — Initialize an empty list
- * - prepend(value: number): void — Add a value to the front (O(1))
- * - append(value: number): void — Add a value to the end (O(n) without tail, O(1) with tail)
- * - insertAt(index: number, value: number): boolean — Insert at index. Return false if index invalid.
- * - removeAt(index: number): number | null — Remove and return value at index. Return null if invalid.
- * - get(index: number): number | null — Get value at index. Return null if invalid.
- * - set(index: number, value: number): boolean — Set value at index. Return false if invalid.
- * - indexOf(value: number): number — Return first index of value, or -1 if not found.
- * - contains(value: number): boolean — Check if value exists in list.
- * - size(): number — Return the number of elements.
- * - isEmpty(): boolean — Check if list is empty.
- * - clear(): void — Remove all elements.
- * - toArray(): number[] — Return array representation.
- * - reverse(): void — Reverse the list in place.
- * - headValue(): number | null — Return head value without removing.
- * - tailValue(): number | null — Return tail value without removing.
- *
- * Bonus: Implement findMiddle(): number | null to find the middle element
- * using the slow/fast pointer technique (one pass, O(1) extra space).
- */
-
-export class LinkedList {
+export class Trie {
   constructor() {
     // YOUR CODE HERE
   }
 
-  prepend(value: number): void {
+  insert(word: string): void {
     // YOUR CODE HERE
   }
 
-  append(value: number): void {
-    // YOUR CODE HERE
-  }
-
-  insertAt(index: number, value: number): boolean {
+  search(word: string): boolean {
     // YOUR CODE HERE
     return false;
   }
 
-  removeAt(index: number): number | null {
-    // YOUR CODE HERE
-    return null;
-  }
-
-  get(index: number): number | null {
-    // YOUR CODE HERE
-    return null;
-  }
-
-  set(index: number, value: number): boolean {
+  startsWith(prefix: string): boolean {
     // YOUR CODE HERE
     return false;
   }
 
-  indexOf(value: number): number {
-    // YOUR CODE HERE
-    return -1;
-  }
-
-  contains(value: number): boolean {
+  delete(word: string): boolean {
     // YOUR CODE HERE
     return false;
   }
 
-  size(): number {
+  findWordsWithPrefix(prefix: string, limit?: number): string[] {
+    // YOUR CODE HERE
+    return [];
+  }
+
+  countWords(): number {
     // YOUR CODE HERE
     return 0;
   }
@@ -3720,1639 +2346,284 @@ export class LinkedList {
     return true;
   }
 
-  clear(): void {
-    // YOUR CODE HERE
-  }
-
-  toArray(): number[] {
-    // YOUR CODE HERE
-    return [];
-  }
-
-  reverse(): void {
-    // YOUR CODE HERE
-  }
-
-  headValue(): number | null {
+  findShortestPrefixOf(word: string): string | null {
     // YOUR CODE HERE
     return null;
   }
 
-  tailValue(): number | null {
+  longestCommonPrefix(): string {
     // YOUR CODE HERE
-    return null;
-  }
-
-  findMiddle(): number | null {
-    // YOUR CODE HERE
-    return null;
+    return '';
   }
 }
 ]=],
     tests = [=[
 import { describe, it, expect } from 'vitest';
-import { LinkedList } from './challenge';
+import { Trie } from './challenge';
 
-describe('LinkedList', () => {
-  it('creates empty list', () => {
-    const list = new LinkedList();
-    expect(list.isEmpty()).toBe(true);
-    expect(list.size()).toBe(0);
-    expect(list.headValue()).toBeNull();
-    expect(list.tailValue()).toBeNull();
+describe('Trie', () => {
+  it('creates empty trie', () => {
+    const trie = new Trie();
+    expect(trie.isEmpty()).toBe(true);
+    expect(trie.countWords()).toBe(0);
+    expect(trie.search('')).toBe(false);
   });
 
-  it('prepend adds to front', () => {
-    const list = new LinkedList();
-    list.prepend(1);
-    expect(list.headValue()).toBe(1);
-    expect(list.tailValue()).toBe(1);
-    list.prepend(2);
-    expect(list.headValue()).toBe(2);
-    expect(list.tailValue()).toBe(1);
-    expect(list.toArray()).toEqual([2, 1]);
+  it('inserts single word', () => {
+    const trie = new Trie();
+    trie.insert('hello');
+    expect(trie.search('hello')).toBe(true);
+    expect(trie.countWords()).toBe(1);
+    expect(trie.isEmpty()).toBe(false);
   });
 
-  it('append adds to end', () => {
-    const list = new LinkedList();
-    list.append(1);
-    expect(list.headValue()).toBe(1);
-    expect(list.tailValue()).toBe(1);
-    list.append(2);
-    list.append(3);
-    expect(list.headValue()).toBe(1);
-    expect(list.tailValue()).toBe(3);
-    expect(list.toArray()).toEqual([1, 2, 3]);
+  it('inserts multiple words', () => {
+    const trie = new Trie();
+    trie.insert('cat');
+    trie.insert('car');
+    trie.insert('dog');
+    expect(trie.search('cat')).toBe(true);
+    expect(trie.search('car')).toBe(true);
+    expect(trie.search('dog')).toBe(true);
+    expect(trie.countWords()).toBe(3);
   });
 
-  it('insertAt inserts at valid index', () => {
-    const list = new LinkedList();
-    list.append(1);
-    list.append(3);
-    expect(list.insertAt(1, 2)).toBe(true);
-    expect(list.toArray()).toEqual([1, 2, 3]);
+  it('search returns false for non-existent words', () => {
+    const trie = new Trie();
+    trie.insert('hello');
+    expect(trie.search('hell')).toBe(false);
+    expect(trie.search('helloo')).toBe(false);
+    expect(trie.search('help')).toBe(false);
   });
 
-  it('insertAt at beginning', () => {
-    const list = new LinkedList();
-    list.append(2);
-    list.append(3);
-    expect(list.insertAt(0, 1)).toBe(true);
-    expect(list.toArray()).toEqual([1, 2, 3]);
+  it('startsWith checks prefixes', () => {
+    const trie = new Trie();
+    trie.insert('hello');
+    expect(trie.startsWith('h')).toBe(true);
+    expect(trie.startsWith('he')).toBe(true);
+    expect(trie.startsWith('hel')).toBe(true);
+    expect(trie.startsWith('hell')).toBe(true);
+    expect(trie.startsWith('hello')).toBe(true);
+    expect(trie.startsWith('x')).toBe(false);
   });
 
-  it('insertAt at end', () => {
-    const list = new LinkedList();
-    list.append(1);
-    list.append(2);
-    expect(list.insertAt(2, 3)).toBe(true);
-    expect(list.toArray()).toEqual([1, 2, 3]);
+  it('startsWith after partial insert', () => {
+    const trie = new Trie();
+    trie.insert('hello');
+    expect(trie.startsWith('hello')).toBe(true);
+    expect(trie.startsWith('help')).toBe(false);
   });
 
-  it('insertAt returns false for invalid index', () => {
-    const list = new LinkedList();
-    list.append(1);
-    expect(list.insertAt(-1, 2)).toBe(false);
-    expect(list.insertAt(2, 2)).toBe(false);
-    expect(list.insertAt(10, 2)).toBe(false);
+  it('handles common prefixes', () => {
+    const trie = new Trie();
+    trie.insert('apple');
+    trie.insert('app');
+    trie.insert('application');
+    expect(trie.search('app')).toBe(true);
+    expect(trie.search('apple')).toBe(true);
+    expect(trie.search('application')).toBe(true);
+    expect(trie.startsWith('app')).toBe(true);
+    expect(trie.startsWith('appl')).toBe(true);
   });
 
-  it('get returns value at index', () => {
-    const list = new LinkedList();
-    [10, 20, 30, 40, 50].forEach(v => list.append(v));
-    expect(list.get(0)).toBe(10);
-    expect(list.get(2)).toBe(30);
-    expect(list.get(4)).toBe(50);
+  it('delete existing word', () => {
+    const trie = new Trie();
+    trie.insert('test');
+    expect(trie.delete('test')).toBe(true);
+    expect(trie.search('test')).toBe(false);
+    expect(trie.countWords()).toBe(0);
   });
 
-  it('get returns null for invalid index', () => {
-    const list = new LinkedList();
-    list.append(1);
-    expect(list.get(-1)).toBeNull();
-    expect(list.get(1)).toBeNull();
-    expect(list.get(100)).toBeNull();
+  it('delete non-existent word', () => {
+    const trie = new Trie();
+    trie.insert('test');
+    expect(trie.delete('other')).toBe(false);
   });
 
-  it('set updates value at index', () => {
-    const list = new LinkedList();
-    [1, 2, 3].forEach(v => list.append(v));
-    expect(list.set(1, 20)).toBe(true);
-    expect(list.toArray()).toEqual([1, 20, 3]);
+  it('delete preserves shared prefixes', () => {
+    const trie = new Trie();
+    trie.insert('hello');
+    trie.insert('hell');
+    trie.delete('hell');
+    expect(trie.search('hell')).toBe(false);
+    expect(trie.search('hello')).toBe(true);
+    expect(trie.startsWith('hell')).toBe(true);
   });
 
-  it('set returns false for invalid index', () => {
-    const list = new LinkedList();
-    expect(list.set(0, 1)).toBe(false);
-    list.append(1);
-    expect(list.set(1, 2)).toBe(false);
+  it('delete word with longer word sharing prefix', () => {
+    const trie = new Trie();
+    trie.insert('app');
+    trie.insert('apple');
+    trie.delete('apple');
+    expect(trie.search('apple')).toBe(false);
+    expect(trie.search('app')).toBe(true);
   });
 
-  it('removeAt removes and returns value', () => {
-    const list = new LinkedList();
-    [1, 2, 3, 4, 5].forEach(v => list.append(v));
-    expect(list.removeAt(2)).toBe(3);
-    expect(list.toArray()).toEqual([1, 2, 4, 5]);
-  });
-
-  it('removeAt at beginning', () => {
-    const list = new LinkedList();
-    [1, 2, 3].forEach(v => list.append(v));
-    expect(list.removeAt(0)).toBe(1);
-    expect(list.toArray()).toEqual([2, 3]);
-    expect(list.headValue()).toBe(2);
-  });
-
-  it('removeAt at end', () => {
-    const list = new LinkedList();
-    [1, 2, 3].forEach(v => list.append(v));
-    expect(list.removeAt(2)).toBe(3);
-    expect(list.toArray()).toEqual([1, 2]);
-    expect(list.tailValue()).toBe(2);
-  });
-
-  it('removeAt returns null for invalid index', () => {
-    const list = new LinkedList();
-    expect(list.removeAt(0)).toBeNull();
-    list.append(1);
-    expect(list.removeAt(1)).toBeNull();
-  });
-
-  it('indexOf returns first occurrence', () => {
-    const list = new LinkedList();
-    [1, 2, 3, 2, 4].forEach(v => list.append(v));
-    expect(list.indexOf(2)).toBe(1);
-    expect(list.indexOf(4)).toBe(4);
-  });
-
-  it('indexOf returns -1 for missing value', () => {
-    const list = new LinkedList();
-    [1, 2, 3].forEach(v => list.append(v));
-    expect(list.indexOf(99)).toBe(-1);
-  });
-
-  it('contains returns boolean', () => {
-    const list = new LinkedList();
-    [1, 2, 3].forEach(v => list.append(v));
-    expect(list.contains(2)).toBe(true);
-    expect(list.contains(99)).toBe(false);
-  });
-
-  it('size tracks correctly', () => {
-    const list = new LinkedList();
-    expect(list.size()).toBe(0);
-    list.append(1);
-    expect(list.size()).toBe(1);
-    list.prepend(2);
-    expect(list.size()).toBe(2);
-    list.removeAt(0);
-    expect(list.size()).toBe(1);
-  });
-
-  it('clear empties list', () => {
-    const list = new LinkedList();
-    [1, 2, 3, 4, 5].forEach(v => list.append(v));
-    list.clear();
-    expect(list.isEmpty()).toBe(true);
-    expect(list.size()).toBe(0);
-    expect(list.headValue()).toBeNull();
-    expect(list.tailValue()).toBeNull();
-  });
-
-  it('toArray returns correct array', () => {
-    const list = new LinkedList();
-    [5, 3, 8, 1].forEach(v => list.append(v));
-    expect(list.toArray()).toEqual([5, 3, 8, 1]);
-  });
-
-  it('reverse reverses in place', () => {
-    const list = new LinkedList();
-    [1, 2, 3, 4, 5].forEach(v => list.append(v));
-    list.reverse();
-    expect(list.toArray()).toEqual([5, 4, 3, 2, 1]);
-    expect(list.headValue()).toBe(5);
-    expect(list.tailValue()).toBe(1);
-  });
-
-  it('reverse empty list', () => {
-    const list = new LinkedList();
-    list.reverse();
-    expect(list.toArray()).toEqual([]);
-  });
-
-  it('reverse single element', () => {
-    const list = new LinkedList();
-    list.append(42);
-    list.reverse();
-    expect(list.toArray()).toEqual([42]);
-  });
-
-  it('findMiddle on odd length', () => {
-    const list = new LinkedList();
-    [1, 2, 3, 4, 5].forEach(v => list.append(v));
-    expect(list.findMiddle()).toBe(3);
-  });
-
-  it('findMiddle on even length', () => {
-    const list = new LinkedList();
-    [1, 2, 3, 4, 5, 6].forEach(v => list.append(v));
-    expect(list.findMiddle()).toBe(4); // Second middle
-  });
-
-  it('findMiddle on single element', () => {
-    const list = new LinkedList();
-    list.append(42);
-    expect(list.findMiddle()).toBe(42);
-  });
-
-  it('findMiddle on empty list', () => {
-    const list = new LinkedList();
-    expect(list.findMiddle()).toBeNull();
-  });
-
-  it('stress test with many operations', () => {
-    const list = new LinkedList();
-    for (let i = 0; i < 100; i++) {
-      list.append(i);
-    }
-    expect(list.size()).toBe(100);
-    expect(list.headValue()).toBe(0);
-    expect(list.tailValue()).toBe(99);
+  it('findWordsWithPrefix returns matching words', () => {
+    const trie = new Trie();
+    trie.insert('cat');
+    trie.insert('car');
+    trie.insert('card');
+    trie.insert('dog');
     
-    for (let i = 0; i < 100; i++) {
-      expect(list.get(i)).toBe(i);
-    }
+    const words = trie.findWordsWithPrefix('ca');
+    expect(words).toContain('cat');
+    expect(words).toContain('car');
+    expect(words).toContain('card');
+    expect(words).not.toContain('dog');
+  });
+
+  it('findWordsWithPrefix with limit', () => {
+    const trie = new Trie();
+    trie.insert('test1');
+    trie.insert('test2');
+    trie.insert('test3');
+    trie.insert('test4');
     
-    list.reverse();
-    expect(list.headValue()).toBe(99);
-    expect(list.tailValue()).toBe(0);
+    const words = trie.findWordsWithPrefix('test', 2);
+    expect(words.length).toBeLessThanOrEqual(2);
   });
 
-  it('handles negative values', () => {
-    const list = new LinkedList();
-    [-5, -10, 0, 10, -1].forEach(v => list.append(v));
-    expect(list.toArray()).toEqual([-5, -10, 0, 10, -1]);
-    expect(list.contains(-10)).toBe(true);
-    expect(list.indexOf(-1)).toBe(4);
+  it('findWordsWithPrefix returns empty for non-existent prefix', () => {
+    const trie = new Trie();
+    trie.insert('hello');
+    expect(trie.findWordsWithPrefix('x')).toEqual([]);
   });
 
-  it('insertAt and removeAt at same index', () => {
-    const list = new LinkedList();
-    [1, 2, 3].forEach(v => list.append(v));
-    list.insertAt(1, 99);
-    expect(list.toArray()).toEqual([1, 99, 2, 3]);
-    expect(list.removeAt(1)).toBe(99);
-    expect(list.toArray()).toEqual([1, 2, 3]);
-  });
-});
-]=],
-  },
-  {
-    name = "Queue",
-    difficulty = "easy",
-    stub = [=[
-/**
- * Queue
- *
- * Implement a First-In-First-Out (FIFO) queue data structure.
- *
- * A queue is a linear data structure where elements are added at the rear
- * (enqueue) and removed from the front (dequeue). Queues are commonly used for:
- * - BFS graph traversal
- * - Task scheduling
- * - Buffer management
- * - Print job queues
- * - Message queues
- *
- * Implement the Queue class with:
- * - constructor(initialValues?: number[]) — Optionally initialize with an array
- * - enqueue(value: number): void — Add a value to the rear of the queue (O(1))
- * - dequeue(): number | null — Remove and return the front value (O(1))
- * - peek(): number | null — Return the front value without removing (O(1))
- * - size(): number — Return the number of elements in the queue
- * - isEmpty(): boolean — Check if the queue is empty
- * - clear(): void — Remove all elements from the queue
- * - toArray(): number[] — Return a copy of the queue as an array (front to rear)
- *
- * Bonus: Implement a generic Queue<T> that works with any type.
- * Bonus: Implement CircularQueue with fixed capacity that wraps around.
- */
-
-export class Queue {
-  constructor(initialValues?: number[]) {
-    // YOUR CODE HERE
-  }
-
-  enqueue(value: number): void {
-    // YOUR CODE HERE
-  }
-
-  dequeue(): number | null {
-    // YOUR CODE HERE
-    return null;
-  }
-
-  peek(): number | null {
-    // YOUR CODE HERE
-    return null;
-  }
-
-  size(): number {
-    // YOUR CODE HERE
-    return 0;
-  }
-
-  isEmpty(): boolean {
-    // YOUR CODE HERE
-    return true;
-  }
-
-  clear(): void {
-    // YOUR CODE HERE
-  }
-
-  toArray(): number[] {
-    // YOUR CODE HERE
-    return [];
-  }
-}
-]=],
-    tests = [=[
-import { describe, it, expect } from 'vitest';
-import { Queue } from './challenge';
-
-describe('Queue', () => {
-  it('creates empty queue', () => {
-    const queue = new Queue();
-    expect(queue.isEmpty()).toBe(true);
-    expect(queue.size()).toBe(0);
-    expect(queue.peek()).toBeNull();
+  it('countWords tracks total words', () => {
+    const trie = new Trie();
+    expect(trie.countWords()).toBe(0);
+    trie.insert('one');
+    expect(trie.countWords()).toBe(1);
+    trie.insert('two');
+    expect(trie.countWords()).toBe(2);
+    trie.insert('three');
+    expect(trie.countWords()).toBe(3);
   });
 
-  it('enqueues single value', () => {
-    const queue = new Queue();
-    queue.enqueue(5);
-    expect(queue.size()).toBe(1);
-    expect(queue.peek()).toBe(5);
-    expect(queue.isEmpty()).toBe(false);
+  it('handles empty string insert', () => {
+    const trie = new Trie();
+    trie.insert('');
+    expect(trie.search('')).toBe(true);
+    expect(trie.countWords()).toBe(1);
   });
 
-  it('enqueues multiple values', () => {
-    const queue = new Queue();
-    queue.enqueue(1);
-    queue.enqueue(2);
-    queue.enqueue(3);
-    expect(queue.size()).toBe(3);
-    expect(queue.peek()).toBe(1);
+  it('handles single character words', () => {
+    const trie = new Trie();
+    trie.insert('a');
+    trie.insert('b');
+    trie.insert('c');
+    expect(trie.search('a')).toBe(true);
+    expect(trie.search('b')).toBe(true);
+    expect(trie.search('c')).toBe(true);
+    expect(trie.search('ab')).toBe(false);
   });
 
-  it('dequeues in FIFO order', () => {
-    const queue = new Queue();
-    queue.enqueue(1);
-    queue.enqueue(2);
-    queue.enqueue(3);
+  it('findShortestPrefixOf finds matching prefix', () => {
+    const trie = new Trie();
+    trie.insert('app');
+    trie.insert('apple');
     
-    expect(queue.dequeue()).toBe(1);
-    expect(queue.dequeue()).toBe(2);
-    expect(queue.dequeue()).toBe(3);
-    expect(queue.dequeue()).toBeNull();
+    expect(trie.findShortestPrefixOf('application')).toBe('app');
+    expect(trie.findShortestPrefixOf('applepie')).toBe('app');
   });
 
-  it('dequeue from empty queue returns null', () => {
-    const queue = new Queue();
-    expect(queue.dequeue()).toBeNull();
+  it('findShortestPrefixOf returns null for no match', () => {
+    const trie = new Trie();
+    trie.insert('hello');
+    expect(trie.findShortestPrefixOf('world')).toBeNull();
   });
 
-  it('peek does not remove element', () => {
-    const queue = new Queue();
-    queue.enqueue(42);
-    expect(queue.peek()).toBe(42);
-    expect(queue.peek()).toBe(42);
-    expect(queue.size()).toBe(1);
+  it('longestCommonPrefix with single word', () => {
+    const trie = new Trie();
+    trie.insert('testing');
+    expect(trie.longestCommonPrefix()).toBe('testing');
   });
 
-  it('initializes with array', () => {
-    const queue = new Queue([1, 2, 3]);
-    expect(queue.size()).toBe(3);
-    expect(queue.peek()).toBe(1);
-    expect(queue.dequeue()).toBe(1);
-    expect(queue.dequeue()).toBe(2);
-    expect(queue.dequeue()).toBe(3);
+  it('longestCommonPrefix with multiple words', () => {
+    const trie = new Trie();
+    trie.insert('flower');
+    trie.insert('flow');
+    trie.insert('flight');
+    expect(trie.longestCommonPrefix()).toBe('fl');
   });
 
-  it('clear empties the queue', () => {
-    const queue = new Queue([1, 2, 3]);
-    expect(queue.size()).toBe(3);
-    queue.clear();
-    expect(queue.size()).toBe(0);
-    expect(queue.isEmpty()).toBe(true);
-    expect(queue.peek()).toBeNull();
+  it('longestCommonPrefix with no common prefix', () => {
+    const trie = new Trie();
+    trie.insert('dog');
+    trie.insert('cat');
+    expect(trie.longestCommonPrefix()).toBe('');
   });
 
-  it('toArray returns copy front to rear', () => {
-    const queue = new Queue([3, 1, 4]);
-    expect(queue.toArray()).toEqual([3, 1, 4]);
+  it('longestCommonPrefix on empty trie', () => {
+    const trie = new Trie();
+    expect(trie.longestCommonPrefix()).toBe('');
+  });
+
+  it('stress test with many words', () => {
+    const trie = new Trie();
+    const words = ['apple', 'application', 'apply', 'app', 'banana', 'band', 'bandana', 'cat', 'car', 'card'];
+    words.forEach(w => trie.insert(w));
     
-    // Modifying returned array should not affect queue
-    const arr = queue.toArray();
-    arr[0] = 999;
-    expect(queue.peek()).toBe(3);
+    expect(trie.countWords()).toBe(10);
+    words.forEach(w => expect(trie.search(w)).toBe(true));
+    expect(trie.startsWith('app')).toBe(true);
+    expect(trie.startsWith('ban')).toBe(true);
+    expect(trie.startsWith('ca')).toBe(true);
   });
 
-  it('interleaved enqueue and dequeue', () => {
-    const queue = new Queue();
-    queue.enqueue(1);
-    queue.enqueue(2);
-    expect(queue.dequeue()).toBe(1);
-    queue.enqueue(3);
-    queue.enqueue(4);
-    expect(queue.dequeue()).toBe(2);
-    expect(queue.dequeue()).toBe(3);
-    queue.enqueue(5);
-    expect(queue.toArray()).toEqual([4, 5]);
+  it('insert and search with special characters', () => {
+    const trie = new Trie();
+    trie.insert('hello-world');
+    trie.insert('hello_world');
+    expect(trie.search('hello-world')).toBe(true);
+    expect(trie.search('hello_world')).toBe(true);
+    expect(trie.search('hello')).toBe(false);
   });
 
-  it('stress test with many operations', () => {
-    const queue = new Queue();
+  it('case sensitivity', () => {
+    const trie = new Trie();
+    trie.insert('Hello');
+    expect(trie.search('Hello')).toBe(true);
+    expect(trie.search('hello')).toBe(false);
+    expect(trie.search('HELLO')).toBe(false);
+  });
+
+  it('duplicate insertions', () => {
+    const trie = new Trie();
+    trie.insert('test');
+    trie.insert('test');
+    trie.insert('test');
+    expect(trie.search('test')).toBe(true);
+    // Depending on implementation, count might be 1 or 3
+    expect(trie.countWords()).toBeGreaterThanOrEqual(1);
+  });
+
+  it('delete all words', () => {
+    const trie = new Trie();
+    trie.insert('a');
+    trie.insert('b');
+    trie.insert('c');
+    trie.delete('a');
+    trie.delete('b');
+    trie.delete('c');
+    expect(trie.isEmpty()).toBe(true);
+    expect(trie.countWords()).toBe(0);
+  });
+
+  it('complex prefix tree', () => {
+    const trie = new Trie();
+    const words = ['de', 'ded', 'deer', 'deal', 'des', 'desk'];
+    words.forEach(w => trie.insert(w));
     
-    for (let i = 0; i < 100; i++) {
-      queue.enqueue(i);
-    }
-    expect(queue.size()).toBe(100);
+    expect(trie.startsWith('de')).toBe(true);
+    expect(trie.startsWith('dea')).toBe(true);
+    expect(trie.startsWith('dee')).toBe(true);
+    expect(trie.startsWith('des')).toBe(true);
     
-    for (let i = 0; i < 50; i++) {
-      expect(queue.dequeue()).toBe(i);
-    }
-    expect(queue.size()).toBe(50);
-    
-    for (let i = 100; i < 150; i++) {
-      queue.enqueue(i);
-    }
-    expect(queue.size()).toBe(100);
-    
-    for (let i = 50; i < 150; i++) {
-      expect(queue.dequeue()).toBe(i);
-    }
-    expect(queue.isEmpty()).toBe(true);
-  });
-
-  it('handles negative values', () => {
-    const queue = new Queue();
-    queue.enqueue(-5);
-    queue.enqueue(-10);
-    queue.enqueue(0);
-    expect(queue.dequeue()).toBe(-5);
-    expect(queue.dequeue()).toBe(-10);
-    expect(queue.dequeue()).toBe(0);
-  });
-
-  it('toArray on empty queue', () => {
-    const queue = new Queue();
-    expect(queue.toArray()).toEqual([]);
-  });
-
-  it('clear on empty queue', () => {
-    const queue = new Queue();
-    expect(() => queue.clear()).not.toThrow();
-  });
-});
-]=],
-  },
-  {
-    name = "Valid Parentheses",
-    difficulty = "easy",
-    stub = [=[
-/**
- * Valid Parentheses
- *
- * Implement a function that checks if a string of parentheses is valid.
- *
- * A string is valid if:
- * - Open brackets are closed by the same type of brackets
- * - Open brackets are closed in the correct order
- * - Every closing bracket has a corresponding opening bracket
- *
- * Supported bracket types: (), {}, []
- *
- * Implement:
- * - isValid(s: string): boolean — Return true if the string is valid
- *
- * Examples:
- * - "()" → true
- * - "()[]{}" → true
- * - "(]" → false
- * - "([)]" → false
- * - "{[]}" → true
- * - "" → true (empty string is valid)
- * - "(" → false
- * - ")" → false
- *
- * Bonus: Implement getMismatchIndex(s: string): number that returns the
- * index of the first character that makes the string invalid, or -1 if valid.
- */
-
-export function isValid(s: string): boolean {
-  // YOUR CODE HERE
-  return false;
-}
-
-export function getMismatchIndex(s: string): number {
-  // YOUR CODE HERE
-  return -1;
-}
-]=],
-    tests = [=[
-import { describe, it, expect } from 'vitest';
-import { isValid, getMismatchIndex } from './challenge';
-
-describe('isValid', () => {
-  it('empty string is valid', () => {
-    expect(isValid('')).toBe(true);
-  });
-
-  it('single pair of parentheses', () => {
-    expect(isValid('()')).toBe(true);
-  });
-
-  it('single pair of braces', () => {
-    expect(isValid('{}')).toBe(true);
-  });
-
-  it('single pair of brackets', () => {
-    expect(isValid('[]')).toBe(true);
-  });
-
-  it('multiple pairs', () => {
-    expect(isValid('()[]{}')).toBe(true);
-  });
-
-  it('nested parentheses', () => {
-    expect(isValid('(())')).toBe(true);
-  });
-
-  it('nested mixed brackets', () => {
-    expect(isValid('{[()]}')).toBe(true);
-  });
-
-  it('complex valid nesting', () => {
-    expect(isValid('({[]})')).toBe(true);
-    expect(isValid('[{()}]')).toBe(true);
-    expect(isValid('{()}[{}]')).toBe(true);
-  });
-
-  it('mismatched types', () => {
-    expect(isValid('(]')).toBe(false);
-    expect(isValid('([)]')).toBe(false);
-    expect(isValid('{)')).toBe(false);
-  });
-
-  it('unclosed opening bracket', () => {
-    expect(isValid('(')).toBe(false);
-    expect(isValid('[')).toBe(false);
-    expect(isValid('{')).toBe(false);
-    expect(isValid('(()')).toBe(false);
-  });
-
-  it('unmatched closing bracket', () => {
-    expect(isValid(')')).toBe(false);
-    expect(isValid(']')).toBe(false);
-    expect(isValid('}')).toBe(false);
-    expect(isValid('())')).toBe(false);
-  });
-
-  it('closing before opening', () => {
-    expect(isValid(')(')).toBe(false);
-    expect(isValid('][' )).toBe(false);
-    expect(isValid('}{')).toBe(false);
-  });
-
-  it('long valid string', () => {
-    expect(isValid('()()()()()')).toBe(true);
-    expect(isValid('((((()))))')).toBe(true);
-  });
-
-  it('long invalid string', () => {
-    expect(isValid('((((()))')).toBe(false);
-  });
-
-  it('string with other characters (treat as invalid)', () => {
-    expect(isValid('a')).toBe(false);
-    expect(isValid('(a)')).toBe(false);
-  });
-});
-
-describe('getMismatchIndex', () => {
-  it('returns -1 for valid strings', () => {
-    expect(getMismatchIndex('')).toBe(-1);
-    expect(getMismatchIndex('()')).toBe(-1);
-    expect(getMismatchIndex('{[()]}')).toBe(-1);
-  });
-
-  it('returns index of wrong closing bracket', () => {
-    expect(getMismatchIndex('(]')).toBe(1);
-    expect(getMismatchIndex('([)]')).toBe(2);
-  });
-
-  it('returns index of unmatched closing bracket', () => {
-    expect(getMismatchIndex(')')).toBe(0);
-    expect(getMismatchIndex('())')).toBe(2);
-  });
-
-  it('returns index after last char for unclosed opening', () => {
-    expect(getMismatchIndex('(')).toBe(1);
-    expect(getMismatchIndex('(()')).toBe(3);
-  });
-
-  it('complex mismatch', () => {
-    expect(getMismatchIndex('{[}')).toBe(2);
-  });
-});
-
-// Edge cases
-describe('edge cases', () => {
-  it('very long valid string', () => {
-    const valid = '()'.repeat(1000);
-    expect(isValid(valid)).toBe(true);
-  });
-
-  it('very long invalid string', () => {
-    const invalid = '('.repeat(1000) + ')'.repeat(999);
-    expect(isValid(invalid)).toBe(false);
-  });
-
-  it('alternating valid', () => {
-    expect(isValid('(){}[](){}[]')).toBe(true);
-  });
-
-  it('deeply nested', () => {
-    expect(isValid('(((((((((())))))))))')).toBe(true);
-  });
-});
-]=],
-  },
-  {
-    name = "Singly Linked List",
-    difficulty = "easy",
-    stub = [=[
-/**
- * Singly Linked List
- *
- * Implement a singly linked list from scratch.
- *
- * A singly linked list is a linear data structure where each element (node)
- * contains a value and a reference to the next node. Unlike arrays, linked
- * lists provide efficient insertions/deletions at any position but have
- * O(n) random access.
- *
- * Implement the LinkedList class with:
- * - constructor(initialValues?: number[]) — Optionally initialize with an array
- * - append(value: number): void — Add a value to the end (O(1) with tail pointer)
- * - prepend(value: number): void — Add a value to the beginning (O(1))
- * - insert(index: number, value: number): boolean — Insert at index (O(n))
- * - get(index: number): number | null — Get value at index (O(n))
- * - remove(index: number): number | null — Remove and return value at index (O(n))
- * - removeValue(value: number): boolean — Remove first occurrence of value (O(n))
- * - indexOf(value: number): number — Return index of first occurrence, -1 if not found
- * - contains(value: number): boolean — Check if value exists in list
- * - size(): number — Return the number of elements
- * - isEmpty(): boolean — Check if list is empty
- * - clear(): void — Remove all elements
- * - toArray(): number[] — Convert to array
- * - reverse(): void — Reverse the list in place
- * - findMiddle(): number | null — Return the middle element (O(n), one pass)
- *
- * Bonus: Implement cycle detection:
- * - hasCycle(): boolean — Detect if list has a cycle (Floyd's tortoise and hare)
- */
-
-export class LinkedList {
-  constructor(initialValues?: number[]) {
-    // YOUR CODE HERE
-  }
-
-  append(value: number): void {
-    // YOUR CODE HERE
-  }
-
-  prepend(value: number): void {
-    // YOUR CODE HERE
-  }
-
-  insert(index: number, value: number): boolean {
-    // YOUR CODE HERE
-    return false;
-  }
-
-  get(index: number): number | null {
-    // YOUR CODE HERE
-    return null;
-  }
-
-  remove(index: number): number | null {
-    // YOUR CODE HERE
-    return null;
-  }
-
-  removeValue(value: number): boolean {
-    // YOUR CODE HERE
-    return false;
-  }
-
-  indexOf(value: number): number {
-    // YOUR CODE HERE
-    return -1;
-  }
-
-  contains(value: number): boolean {
-    // YOUR CODE HERE
-    return false;
-  }
-
-  size(): number {
-    // YOUR CODE HERE
-    return 0;
-  }
-
-  isEmpty(): boolean {
-    // YOUR CODE HERE
-    return true;
-  }
-
-  clear(): void {
-    // YOUR CODE HERE
-  }
-
-  toArray(): number[] {
-    // YOUR CODE HERE
-    return [];
-  }
-
-  reverse(): void {
-    // YOUR CODE HERE
-  }
-
-  findMiddle(): number | null {
-    // YOUR CODE HERE
-    return null;
-  }
-
-  hasCycle(): boolean {
-    // YOUR CODE HERE
-    return false;
-  }
-}
-]=],
-    tests = [=[
-import { describe, it, expect } from 'vitest';
-import { LinkedList } from './challenge';
-
-describe('LinkedList', () => {
-  it('creates empty list', () => {
-    const list = new LinkedList();
-    expect(list.isEmpty()).toBe(true);
-    expect(list.size()).toBe(0);
-    expect(list.toArray()).toEqual([]);
-  });
-
-  it('initializes with array', () => {
-    const list = new LinkedList([1, 2, 3]);
-    expect(list.size()).toBe(3);
-    expect(list.toArray()).toEqual([1, 2, 3]);
-  });
-
-  it('appends single value', () => {
-    const list = new LinkedList();
-    list.append(5);
-    expect(list.size()).toBe(1);
-    expect(list.get(0)).toBe(5);
-    expect(list.toArray()).toEqual([5]);
-  });
-
-  it('appends multiple values', () => {
-    const list = new LinkedList();
-    list.append(1);
-    list.append(2);
-    list.append(3);
-    expect(list.toArray()).toEqual([1, 2, 3]);
-    expect(list.size()).toBe(3);
-  });
-
-  it('prepends single value', () => {
-    const list = new LinkedList();
-    list.prepend(5);
-    expect(list.get(0)).toBe(5);
-    expect(list.size()).toBe(1);
-  });
-
-  it('prepends multiple values', () => {
-    const list = new LinkedList();
-    list.prepend(3);
-    list.prepend(2);
-    list.prepend(1);
-    expect(list.toArray()).toEqual([1, 2, 3]);
-  });
-
-  it('insert at beginning', () => {
-    const list = new LinkedList([2, 3]);
-    expect(list.insert(0, 1)).toBe(true);
-    expect(list.toArray()).toEqual([1, 2, 3]);
-  });
-
-  it('insert at end', () => {
-    const list = new LinkedList([1, 2]);
-    expect(list.insert(2, 3)).toBe(true);
-    expect(list.toArray()).toEqual([1, 2, 3]);
-  });
-
-  it('insert in middle', () => {
-    const list = new LinkedList([1, 3]);
-    expect(list.insert(1, 2)).toBe(true);
-    expect(list.toArray()).toEqual([1, 2, 3]);
-  });
-
-  it('insert at invalid index returns false', () => {
-    const list = new LinkedList([1, 2]);
-    expect(list.insert(-1, 0)).toBe(false);
-    expect(list.insert(5, 3)).toBe(false);
-    expect(list.insert(3, 3)).toBe(false);
-  });
-
-  it('get returns correct values', () => {
-    const list = new LinkedList([10, 20, 30]);
-    expect(list.get(0)).toBe(10);
-    expect(list.get(1)).toBe(20);
-    expect(list.get(2)).toBe(30);
-  });
-
-  it('get returns null for invalid index', () => {
-    const list = new LinkedList([1, 2]);
-    expect(list.get(-1)).toBeNull();
-    expect(list.get(2)).toBeNull();
-    expect(list.get(100)).toBeNull();
-  });
-
-  it('remove from beginning', () => {
-    const list = new LinkedList([1, 2, 3]);
-    expect(list.remove(0)).toBe(1);
-    expect(list.toArray()).toEqual([2, 3]);
-  });
-
-  it('remove from end', () => {
-    const list = new LinkedList([1, 2, 3]);
-    expect(list.remove(2)).toBe(3);
-    expect(list.toArray()).toEqual([1, 2]);
-  });
-
-  it('remove from middle', () => {
-    const list = new LinkedList([1, 2, 3, 4]);
-    expect(list.remove(2)).toBe(3);
-    expect(list.toArray()).toEqual([1, 2, 4]);
-  });
-
-  it('remove returns null for invalid index', () => {
-    const list = new LinkedList([1, 2]);
-    expect(list.remove(-1)).toBeNull();
-    expect(list.remove(2)).toBeNull();
-  });
-
-  it('removeValue removes first occurrence', () => {
-    const list = new LinkedList([1, 2, 3, 2, 4]);
-    expect(list.removeValue(2)).toBe(true);
-    expect(list.toArray()).toEqual([1, 3, 2, 4]);
-  });
-
-  it('removeValue returns false if not found', () => {
-    const list = new LinkedList([1, 2, 3]);
-    expect(list.removeValue(99)).toBe(false);
-  });
-
-  it('indexOf returns correct index', () => {
-    const list = new LinkedList([10, 20, 30, 20]);
-    expect(list.indexOf(10)).toBe(0);
-    expect(list.indexOf(20)).toBe(1);
-    expect(list.indexOf(30)).toBe(2);
-  });
-
-  it('indexOf returns -1 if not found', () => {
-    const list = new LinkedList([1, 2, 3]);
-    expect(list.indexOf(99)).toBe(-1);
-  });
-
-  it('contains returns true for existing values', () => {
-    const list = new LinkedList([1, 2, 3]);
-    expect(list.contains(1)).toBe(true);
-    expect(list.contains(2)).toBe(true);
-    expect(list.contains(3)).toBe(true);
-  });
-
-  it('contains returns false for missing values', () => {
-    const list = new LinkedList([1, 2, 3]);
-    expect(list.contains(0)).toBe(false);
-    expect(list.contains(4)).toBe(false);
-  });
-
-  it('clear empties the list', () => {
-    const list = new LinkedList([1, 2, 3]);
-    list.clear();
-    expect(list.isEmpty()).toBe(true);
-    expect(list.size()).toBe(0);
-    expect(list.toArray()).toEqual([]);
-  });
-
-  it('reverse reverses the list', () => {
-    const list = new LinkedList([1, 2, 3, 4, 5]);
-    list.reverse();
-    expect(list.toArray()).toEqual([5, 4, 3, 2, 1]);
-  });
-
-  it('reverse on single element', () => {
-    const list = new LinkedList([42]);
-    list.reverse();
-    expect(list.toArray()).toEqual([42]);
-  });
-
-  it('reverse on empty list', () => {
-    const list = new LinkedList();
-    list.reverse();
-    expect(list.toArray()).toEqual([]);
-  });
-
-  it('findMiddle returns middle element (odd size)', () => {
-    const list = new LinkedList([1, 2, 3, 4, 5]);
-    expect(list.findMiddle()).toBe(3);
-  });
-
-  it('findMiddle returns middle element (even size)', () => {
-    const list = new LinkedList([1, 2, 3, 4]);
-    expect(list.findMiddle()).toBe(3);
-  });
-
-  it('findMiddle on single element', () => {
-    const list = new LinkedList([42]);
-    expect(list.findMiddle()).toBe(42);
-  });
-
-  it('findMiddle on empty list', () => {
-    const list = new LinkedList();
-    expect(list.findMiddle()).toBeNull();
-  });
-
-  it('hasCycle returns false for normal list', () => {
-    const list = new LinkedList([1, 2, 3, 4, 5]);
-    expect(list.hasCycle()).toBe(false);
-  });
-
-  it('hasCycle returns false for empty list', () => {
-    const list = new LinkedList();
-    expect(list.hasCycle()).toBe(false);
-  });
-
-  it('stress test with many operations', () => {
-    const list = new LinkedList();
-    for (let i = 0; i < 100; i++) {
-      list.append(i);
-    }
-    expect(list.size()).toBe(100);
-    expect(list.get(0)).toBe(0);
-    expect(list.get(99)).toBe(99);
-    list.reverse();
-    expect(list.get(0)).toBe(99);
-    expect(list.get(99)).toBe(0);
-    list.clear();
-    expect(list.isEmpty()).toBe(true);
-  });
-
-  it('handles duplicate values correctly', () => {
-    const list = new LinkedList([5, 5, 5, 5]);
-    expect(list.size()).toBe(4);
-    expect(list.indexOf(5)).toBe(0);
-    expect(list.contains(5)).toBe(true);
-    list.removeValue(5);
-    expect(list.size()).toBe(3);
-    expect(list.toArray()).toEqual([5, 5, 5]);
-  });
-
-  it('insert then get', () => {
-    const list = new LinkedList();
-    list.insert(0, 10);
-    list.insert(0, 20);
-    list.insert(1, 15);
-    expect(list.toArray()).toEqual([20, 15, 10]);
-  });
-
-  it('remove all elements one by one', () => {
-    const list = new LinkedList([1, 2, 3]);
-    expect(list.remove(0)).toBe(1);
-    expect(list.remove(0)).toBe(2);
-    expect(list.remove(0)).toBe(3);
-    expect(list.isEmpty()).toBe(true);
-  });
-
-  it('negative values work correctly', () => {
-    const list = new LinkedList([-5, -10, 0, 10]);
-    expect(list.toArray()).toEqual([-5, -10, 0, 10]);
-    expect(list.contains(-10)).toBe(true);
-    expect(list.indexOf(-10)).toBe(1);
-  });
-});
-]=],
-  },
-  {
-    name = "Deep Clone",
-    difficulty = "easy",
-    stub = [=[
-/**
- * Deep Clone
- *
- * Implement a function that creates a deep copy of a value, handling
- * nested objects and arrays without sharing references.
- *
- * A deep clone creates a completely independent copy where modifying
- * the clone does not affect the original. This is essential for:
- * - Immutable state updates
- * - Preventing accidental mutations
- * - Serialization/deserialization workflows
- * - Testing with isolated data
- *
- * Implement:
- * - deepClone<T>(value: T): T
- *
- * Requirements:
- * - Handle nested objects and arrays
- * - Preserve all primitive types (string, number, boolean, null, undefined)
- * - Handle Date objects (create new Date with same time)
- * - Handle RegExp objects (create new RegExp with same pattern and flags)
- * - Handle Map and Set (create new instances with cloned contents)
- * - Handle circular references (detect and preserve the circular structure)
- * - Functions should be copied by reference (functions are immutable)
- * - Symbols as property keys should be preserved
- *
- * Edge cases:
- * - Empty objects and arrays
- * - Deeply nested structures (100+ levels)
- * - Mixed types in arrays and objects
- * - Objects with prototype chains (only clone own properties)
- */
-
-export function deepClone<T>(value: T): T {
-  // YOUR CODE HERE
-  return value;
-}
-]=],
-    tests = [=[
-import { describe, it, expect } from 'vitest';
-import { deepClone } from './challenge';
-
-describe('deepClone', () => {
-  it('clones primitives', () => {
-    expect(deepClone(42)).toBe(42);
-    expect(deepClone('hello')).toBe('hello');
-    expect(deepClone(true)).toBe(true);
-    expect(deepClone(false)).toBe(false);
-    expect(deepClone(null)).toBe(null);
-    expect(deepClone(undefined)).toBe(undefined);
-    expect(deepClone(Symbol('test'))).toEqual(Symbol('test'));
-  });
-
-  it('clones shallow object', () => {
-    const obj = { a: 1, b: 'hello', c: true };
-    const clone = deepClone(obj);
-    expect(clone).toEqual(obj);
-    expect(clone).not.toBe(obj);
-  });
-
-  it('clones shallow array', () => {
-    const arr = [1, 2, 3, 4, 5];
-    const clone = deepClone(arr);
-    expect(clone).toEqual(arr);
-    expect(clone).not.toBe(arr);
-  });
-
-  it('clones nested objects', () => {
-    const obj = {
-      a: { b: { c: { d: 'deep' } } },
-      e: [1, 2, { f: 'nested' }]
-    };
-    const clone = deepClone(obj);
-    expect(clone).toEqual(obj);
-    expect(clone).not.toBe(obj);
-    expect(clone.a).not.toBe(obj.a);
-    expect(clone.a.b).not.toBe(obj.a.b);
-    expect(clone.a.b.c).not.toBe(obj.a.c);
-    expect(clone.e).not.toBe(obj.e);
-    expect(clone.e[2]).not.toBe(obj.e[2]);
-  });
-
-  it('modifying clone does not affect original', () => {
-    const obj = { a: 1, b: { c: 2 } };
-    const clone = deepClone(obj);
-    clone.a = 100;
-    clone.b.c = 200;
-    expect(obj.a).toBe(1);
-    expect(obj.b.c).toBe(2);
-  });
-
-  it('clones Date objects', () => {
-    const date = new Date('2024-01-15T10:30:00Z');
-    const clone = deepClone(date);
-    expect(clone).toEqual(date);
-    expect(clone).not.toBe(date);
-    expect(clone.getTime()).toBe(date.getTime());
-  });
-
-  it('clones RegExp objects', () => {
-    const regex = /test[0-9]+/gi;
-    const clone = deepClone(regex);
-    expect(clone.source).toBe(regex.source);
-    expect(clone.flags).toBe(regex.flags);
-    expect(clone).not.toBe(regex);
-  });
-
-  it('clones Map objects', () => {
-    const map = new Map([['a', 1], ['b', { nested: true }]]);
-    const clone = deepClone(map);
-    expect(clone).toEqual(map);
-    expect(clone).not.toBe(map);
-    expect(clone.get('b')).not.toBe(map.get('b'));
-  });
-
-  it('clones Set objects', () => {
-    const set = new Set([1, 2, { nested: true }]);
-    const clone = deepClone(set);
-    expect(clone).toEqual(set);
-    expect(clone).not.toBe(set);
-  });
-
-  it('handles circular references', () => {
-    const obj: any = { a: 1 };
-    obj.self = obj;
-    obj.nested = { parent: obj };
-    
-    const clone = deepClone(obj);
-    expect(clone.a).toBe(1);
-    expect(clone.self).toBe(clone);
-    expect(clone.nested.parent).toBe(clone);
-  });
-
-  it('handles complex circular references', () => {
-    const a: any = { name: 'a' };
-    const b: any = { name: 'b' };
-    a.ref = b;
-    b.ref = a;
-    
-    const clone = deepClone(a);
-    expect(clone.name).toBe('a');
-    expect(clone.ref.name).toBe('b');
-    expect(clone.ref.ref).toBe(clone);
-  });
-
-  it('clones arrays with mixed types', () => {
-    const arr = [1, 'two', true, null, { obj: true }, [1, 2], new Date()];
-    const clone = deepClone(arr);
-    expect(clone).toEqual(arr);
-    expect(clone).not.toBe(arr);
-    expect(clone[4]).not.toBe(arr[4]);
-    expect(clone[5]).not.toBe(arr[5]);
-    expect(clone[6]).not.toBe(arr[6]);
-  });
-
-  it('clones empty structures', () => {
-    expect(deepClone({})).toEqual({});
-    expect(deepClone([])).toEqual([]);
-    expect(deepClone(new Map())).toEqual(new Map());
-    expect(deepClone(new Set())).toEqual(new Set());
-  });
-
-  it('preserves symbol keys', () => {
-    const sym = Symbol('key');
-    const obj = { [sym]: 'value', regular: 'prop' };
-    const clone = deepClone(obj);
-    expect(clone[sym]).toBe('value');
-    expect(clone.regular).toBe('prop');
-  });
-
-  it('clones objects with symbol keys', () => {
-    const sym1 = Symbol('a');
-    const sym2 = Symbol('b');
-    const obj = {
-      [sym1]: { nested: true },
-      [sym2]: 'value'
-    };
-    const clone = deepClone(obj);
-    expect(clone[sym1]).toEqual({ nested: true });
-    expect(clone[sym1]).not.toBe(obj[sym1]);
-  });
-
-  it('functions are copied by reference', () => {
-    const fn = () => 42;
-    const obj = { handler: fn };
-    const clone = deepClone(obj);
-    expect(clone.handler).toBe(fn);
-  });
-
-  it('clones deeply nested arrays', () => {
-    const arr = [1, [2, [3, [4, [5]]]]];
-    const clone = deepClone(arr);
-    expect(clone).toEqual(arr);
-    expect(clone[1]).not.toBe(arr[1]);
-    expect(clone[1][1]).not.toBe(arr[1][1]);
-  });
-
-  it('clones objects with prototype chain', () => {
-    class Parent {
-      parentProp = 'inherited';
-    }
-    class Child extends Parent {
-      childProp = 'own';
-    }
-    const obj = new Child();
-    const clone = deepClone(obj);
-    expect(clone.childProp).toBe('own');
-    // Only own properties are cloned
-    expect(clone.parentProp).toBeUndefined();
-  });
-
-  it('handles BigInt', () => {
-    const big = BigInt(9007199254740991);
-    const clone = deepClone(big);
-    expect(clone).toBe(big);
-  });
-
-  it('clones WeakMap and WeakSet are skipped (cannot iterate)', () => {
-    const wm = new WeakMap();
-    const ws = new WeakSet();
-    const obj = { weakMap: wm, weakSet: ws };
-    const clone = deepClone(obj);
-    // Weak collections cannot be deep cloned, should preserve reference or skip
-    expect(clone.weakMap).toBe(wm);
-    expect(clone.weakSet).toBe(ws);
-  });
-
-  it('stress test: deeply nested object', () => {
-    let obj: any = { value: 'base' };
-    for (let i = 0; i < 100; i++) {
-      obj = { nested: obj };
-    }
-    const clone = deepClone(obj);
-    expect(clone).not.toBe(obj);
-    // Traverse to verify structure
-    let current: any = clone;
-    for (let i = 0; i < 100; i++) {
-      current = current.nested;
-    }
-    expect(current.value).toBe('base');
-  });
-
-  it('stress test: large array', () => {
-    const arr = Array.from({ length: 1000 }, (_, i) => ({ index: i }));
-    const clone = deepClone(arr);
-    expect(clone).toEqual(arr);
-    expect(clone[0]).not.toBe(arr[0]);
-    expect(clone[999]).not.toBe(arr[999]);
-  });
-
-  it('clones object with all special types', () => {
-    const obj = {
-      date: new Date(),
-      regex: /test/gi,
-      map: new Map([['key', 'value']]),
-      set: new Set([1, 2, 3]),
-      nested: { deep: true }
-    };
-    const clone = deepClone(obj);
-    expect(clone.date).not.toBe(obj.date);
-    expect(clone.regex).not.toBe(obj.regex);
-    expect(clone.map).not.toBe(obj.map);
-    expect(clone.set).not.toBe(obj.set);
-    expect(clone.nested).not.toBe(obj.nested);
-  });
-});
-]=],
-  },
-  {
-    name = "Merge Intervals",
-    difficulty = "easy",
-    stub = [=[
-/**
- * Merge Intervals
- *
- * Implement a function that merges overlapping intervals.
- *
- * Given an array of intervals where intervals[i] = [start, end],
- * merge all overlapping intervals and return an array of the
- * non-overlapping intervals that cover all the intervals in the input.
- *
- * Two intervals [a, b] and [c, d] overlap if:
- * - a <= d AND c <= b
- *
- * Examples:
- * - [[1,3],[2,6],[8,10],[15,18]] → [[1,6],[8,10],[15,18]]
- * - [[1,4],[4,5]] → [[1,5]] (touching intervals merge)
- * - [[1,2],[3,4]] → [[1,2],[3,4]] (no overlap)
- *
- * Implement:
- * - merge(intervals: number[][]): number[][]
- *   Return merged intervals sorted by start time.
- *
- * - mergeWithCustomComparator(intervals: number[][]): number[][]
- *   Same as merge, but demonstrate where a custom comparator
- *   could be used (e.g., for different interval ordering).
- *
- * - hasOverlap(a: number[], b: number[]): boolean
- *   Helper function to check if two intervals overlap.
- *
- * Constraints:
- * - 0 <= intervals.length <= 1000
- * - 0 <= start <= end <= 10000
- * - Each interval is [start, end] with start <= end
- *
- * Bonus: Implement mergeKSortedIntervals that merges intervals
- * from k sorted input arrays efficiently.
- */
-
-export function merge(intervals: number[][]): number[][] {
-  // YOUR CODE HERE
-  return [];
-}
-
-export function mergeWithCustomComparator(intervals: number[][]): number[][] {
-  // YOUR CODE HERE
-  return [];
-}
-
-export function hasOverlap(a: number[], b: number[]): boolean {
-  // YOUR CODE HERE
-  return false;
-}
-]=],
-    tests = [=[
-import { describe, it, expect } from 'vitest';
-import { merge, mergeWithCustomComparator, hasOverlap } from './challenge';
-
-describe('hasOverlap', () => {
-  it('overlapping intervals', () => {
-    expect(hasOverlap([1, 3], [2, 6])).toBe(true);
-    expect(hasOverlap([2, 6], [1, 3])).toBe(true);
-  });
-
-  it('touching intervals overlap', () => {
-    expect(hasOverlap([1, 4], [4, 5])).toBe(true);
-    expect(hasOverlap([4, 5], [1, 4])).toBe(true);
-  });
-
-  it('non-overlapping intervals', () => {
-    expect(hasOverlap([1, 2], [3, 4])).toBe(false);
-    expect(hasOverlap([3, 4], [1, 2])).toBe(false);
-  });
-
-  it('contained intervals', () => {
-    expect(hasOverlap([1, 10], [3, 5])).toBe(true);
-    expect(hasOverlap([3, 5], [1, 10])).toBe(true);
-  });
-
-  it('identical intervals', () => {
-    expect(hasOverlap([5, 10], [5, 10])).toBe(true);
-  });
-
-  it('single point intervals', () => {
-    expect(hasOverlap([5, 5], [5, 5])).toBe(true);
-    expect(hasOverlap([5, 5], [6, 6])).toBe(false);
-  });
-});
-
-describe('merge', () => {
-  it('empty array', () => {
-    expect(merge([])).toEqual([]);
-  });
-
-  it('single interval', () => {
-    expect(merge([[1, 3]])).toEqual([[1, 3]]);
-  });
-
-  it('no overlapping intervals', () => {
-    expect(merge([[1, 2], [3, 4], [5, 6]])).toEqual([[1, 2], [3, 4], [5, 6]]);
-  });
-
-  it('basic overlap', () => {
-    expect(merge([[1, 3], [2, 6], [8, 10], [15, 18]])).toEqual([[1, 6], [8, 10], [15, 18]]);
-  });
-
-  it('touching intervals merge', () => {
-    expect(merge([[1, 4], [4, 5]])).toEqual([[1, 5]]);
-  });
-
-  it('all intervals overlap', () => {
-    expect(merge([[1, 4], [2, 5], [3, 6]])).toEqual([[1, 6]]);
-  });
-
-  it('unsorted input', () => {
-    expect(merge([[8, 10], [1, 3], [2, 6], [15, 18]])).toEqual([[1, 6], [8, 10], [15, 18]]);
-  });
-
-  it('contained interval', () => {
-    expect(merge([[1, 10], [3, 5], [6, 8]])).toEqual([[1, 10]]);
-  });
-
-  it('multiple merges', () => {
-    expect(merge([[1, 4], [0, 2], [3, 5]])).toEqual([[0, 5]]);
-  });
-
-  it('intervals with same start', () => {
-    expect(merge([[1, 4], [1, 5], [1, 3]])).toEqual([[1, 5]]);
-  });
-
-  it('intervals with same end', () => {
-    expect(merge([[1, 5], [2, 5], [3, 5]])).toEqual([[1, 5]]);
-  });
-
-  it('single point intervals', () => {
-    expect(merge([[1, 1], [2, 2], [3, 3]])).toEqual([[1, 1], [2, 2], [3, 3]]);
-  });
-
-  it('single point merges with range', () => {
-    expect(merge([[1, 5], [3, 3], [6, 7]])).toEqual([[1, 5], [6, 7]]);
-  });
-
-  it('large intervals', () => {
-    expect(merge([[1, 100], [50, 150], [200, 300]])).toEqual([[1, 150], [200, 300]]);
-  });
-
-  it('zero intervals', () => {
-    expect(merge([[0, 0], [0, 0], [0, 0]])).toEqual([[0, 0]]);
-  });
-
-  it('negative numbers (if allowed)', () => {
-    expect(merge([[-5, -2], [-3, 0], [1, 3]])).toEqual([[-5, 0], [1, 3]]);
-  });
-
-  it('already merged', () => {
-    expect(merge([[1, 6], [8, 10], [15, 18]])).toEqual([[1, 6], [8, 10], [15, 18]]);
-  });
-
-  it('complex case', () => {
-    const input = [[2, 3], [4, 5], [6, 7], [8, 9], [1, 10]];
-    expect(merge(input)).toEqual([[1, 10]]);
-  });
-
-  it('stress test - many small intervals', () => {
-    const intervals = Array.from({ length: 100 }, (_, i) => [i * 2, i * 2 + 3]);
-    const result = merge(intervals);
-    expect(result.length).toBeLessThan(100);
-    expect(result).toEqual([[0, 201]]);
-  });
-
-  it('stress test - no overlaps', () => {
-    const intervals = Array.from({ length: 50 }, (_, i) => [i * 10, i * 10 + 5]);
-    const result = merge(intervals);
-    expect(result.length).toBe(50);
-  });
-});
-
-describe('mergeWithCustomComparator', () => {
-  it('produces same result as merge', () => {
-    const input = [[1, 3], [2, 6], [8, 10], [15, 18]];
-    expect(mergeWithCustomComparator(input)).toEqual(merge(input));
-  });
-
-  it('handles empty array', () => {
-    expect(mergeWithCustomComparator([])).toEqual([]);
-  });
-
-  it('handles single interval', () => {
-    expect(mergeWithCustomComparator([[1, 5]])).toEqual([[1, 5]]);
-  });
-});
-
-describe('edge cases', () => {
-  it('interval with start > end (invalid input handling)', () => {
-    expect(() => merge([[3, 1]])).not.toThrow();
-  });
-
-  it('very large numbers', () => {
-    expect(merge([[1, 10000], [5000, 15000]])).toEqual([[1, 15000]]);
-  });
-
-  it('maximum constraint size', () => {
-    const intervals = Array.from({ length: 1000 }, (_, i) => [i, i + 1]);
-    const result = merge(intervals);
-    expect(result.length).toBeLessThanOrEqual(1000);
-  });
-});
-]=],
-  },
-  {
-    name = "Curry Function",
-    difficulty = "medium",
-    stub = [=[
-/**
- * Curry Function
- *
- * Implement function currying for JavaScript and TypeScript functions.
- *
- * Currying transforms a function that takes multiple arguments into a
- * sequence of functions that can each receive one or more arguments until
- * enough values are collected to call the original function.
- *
- * Implement:
- * - curry(fn: Function): Function
- *   Returns a curried version of fn using fn.length as the expected arity.
- *
- * - curryN(arity: number, fn: Function): Function
- *   Returns a curried version that waits for exactly arity arguments.
- *
- * Requirements:
- * - Support one argument at a time: curried(1)(2)(3)
- * - Support grouped arguments: curried(1, 2)(3)
- * - Preserve the calling context when the final invocation happens
- * - Ignore extra arguments after the required arity
- *
- * Examples:
- * - curry((a, b, c) => a + b + c)(1)(2)(3) -> 6
- * - curry((a, b, c) => a + b + c)(1, 2)(3) -> 6
- * - curryN(2, Math.max)(4)(9) -> 9
- */
-
-export function curry(fn: Function): Function {
-  // YOUR CODE HERE
-  return () => undefined;
-}
-
-export function curryN(arity: number, fn: Function): Function {
-  // YOUR CODE HERE
-  return () => undefined;
-}
-]=],
-    tests = [=[
-import { describe, it, expect } from 'vitest';
-import { curry, curryN } from './challenge';
-
-describe('curry', () => {
-  it('curries one argument at a time', () => {
-    const add = (a: number, b: number, c: number) => a + b + c;
-    expect(curry(add)(1)(2)(3)).toBe(6);
-  });
-
-  it('accepts grouped arguments', () => {
-    const add = (a: number, b: number, c: number) => a + b + c;
-    expect(curry(add)(1, 2)(3)).toBe(6);
-    expect(curry(add)(1)(2, 3)).toBe(6);
-  });
-
-  it('calls immediately when enough arguments are supplied', () => {
-    const join = (a: string, b: string, c: string) => `${a}-${b}-${c}`;
-    expect(curry(join)('a', 'b', 'c')).toBe('a-b-c');
-  });
-
-  it('ignores extra arguments after arity is met', () => {
-    const pair = (a: number, b: number) => [a, b];
-    expect(curry(pair)(1, 2, 3, 4)).toEqual([1, 2]);
-  });
-
-  it('works with unary functions', () => {
-    const double = (n: number) => n * 2;
-    expect(curry(double)(4)).toBe(8);
-  });
-
-  it('works with zero-arity functions', () => {
-    const now = () => 42;
-    expect(curry(now)()).toBe(42);
-  });
-
-  it('preserves this context on final call', () => {
-    const obj = {
-      factor: 3,
-      scale(a: number, b: number) {
-        return (a + b) * this.factor;
-      }
-    };
-    const curried = curry(obj.scale);
-    expect(curried.call(obj, 2)(4)).toBe(18);
-  });
-});
-
-describe('curryN', () => {
-  it('uses explicit arity for variadic functions', () => {
-    expect(curryN(2, Math.max)(4)(9)).toBe(9);
-  });
-
-  it('supports grouped arguments with explicit arity', () => {
-    const list = (...items: string[]) => items.join(',');
-    expect(curryN(3, list)('a', 'b')('c')).toBe('a,b,c');
-  });
-
-  it('does not call before enough arguments are collected', () => {
-    const add = (a: number, b: number, c: number) => a + b + c;
-    const partial = curryN(3, add)(1);
-    expect(typeof partial).toBe('function');
-    expect(partial(2)(3)).toBe(6);
-  });
-
-  it('handles arity of one', () => {
-    const shout = (value: string) => value.toUpperCase();
-    expect(curryN(1, shout)('ok')).toBe('OK');
-  });
-
-  it('handles arity of zero', () => {
-    expect(curryN(0, () => 'ready')()).toBe('ready');
+    const deWords = trie.findWordsWithPrefix('de');
+    expect(deWords.length).toBe(6);
+    words.forEach(w => expect(deWords).toContain(w));
   });
 });
 ]=],
