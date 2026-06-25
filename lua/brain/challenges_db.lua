@@ -2628,6 +2628,336 @@ describe('Trie', () => {
 });
 ]=],
   },
+  {
+    name = "Edit Distance",
+    difficulty = "medium",
+    stub = [=[
+/**
+ * Edit Distance (Levenshtein Distance)
+ *
+ * Implement the classic edit distance algorithm using dynamic programming.
+ *
+ * The edit distance between two strings is the minimum number of operations
+ * required to transform one string into the other. Allowed operations:
+ * - Insert a character
+ * - Delete a character
+ * - Replace a character
+ *
+ * This is a fundamental algorithm used in:
+ * - Spell checkers and autocorrect
+ * - DNA sequence alignment
+ * - Plagiarism detection
+ * - Fuzzy string matching
+ * - Natural language processing
+ *
+ * Implement:
+ * - editDistance(word1: string, word2: string): number
+ *   Return the minimum number of operations to convert word1 to word2.
+ *
+ * - editDistanceWithOps(word1: string, word2: string): { distance: number, operations: Operation[] }
+ *   Return both the distance and the actual sequence of operations.
+ *   Operation types: { type: 'insert' | 'delete' | 'replace', index: number, char?: string }
+ *
+ * - editDistanceWithLimit(word1: string, word2: string, maxDistance: number): number
+ *   Optimized version that returns early if distance exceeds maxDistance.
+ *   Useful for fuzzy search where you only care about "close enough" matches.
+ *   Return -1 if the actual distance exceeds maxDistance.
+ *
+ * Approach: Use a 2D DP table where dp[i][j] represents the edit distance
+ * between word1[0..i-1] and word2[0..j-1].
+ *
+ * Base cases:
+ * - dp[0][j] = j (insert j characters)
+ * - dp[i][0] = i (delete i characters)
+ *
+ * Recurrence:
+ * - If word1[i-1] === word2[j-1]: dp[i][j] = dp[i-1][j-1]
+ * - Otherwise: dp[i][j] = 1 + min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1])
+ *   (delete, insert, replace)
+ *
+ * Bonus: Implement editDistanceWithWeights that accepts custom costs:
+ * - insertCost: number (default: 1)
+ * - deleteCost: number (default: 1)
+ * - replaceCost: number (default: 1)
+ */
+
+export function editDistance(word1: string, word2: string): number {
+  // YOUR CODE HERE
+  return 0;
+}
+
+export interface Operation {
+  type: 'insert' | 'delete' | 'replace';
+  index: number;
+  char?: string;
+}
+
+export function editDistanceWithOps(
+  word1: string,
+  word2: string
+): { distance: number; operations: Operation[] } {
+  // YOUR CODE HERE
+  return { distance: 0, operations: [] };
+}
+
+export function editDistanceWithLimit(
+  word1: string,
+  word2: string,
+  maxDistance: number
+): number {
+  // YOUR CODE HERE
+  return 0;
+}
+
+export function editDistanceWithWeights(
+  word1: string,
+  word2: string,
+  costs?: { insertCost?: number; deleteCost?: number; replaceCost?: number }
+): number {
+  // YOUR CODE HERE
+  return 0;
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { editDistance, editDistanceWithOps, editDistanceWithLimit, editDistanceWithWeights } from './challenge';
+
+describe('editDistance', () => {
+  it('identical strings have distance 0', () => {
+    expect(editDistance('hello', 'hello')).toBe(0);
+    expect(editDistance('', '')).toBe(0);
+    expect(editDistance('a', 'a')).toBe(0);
+  });
+
+  it('empty to non-empty requires insertions', () => {
+    expect(editDistance('', 'abc')).toBe(3);
+    expect(editDistance('', 'hello')).toBe(5);
+  });
+
+  it('non-empty to empty requires deletions', () => {
+    expect(editDistance('abc', '')).toBe(3);
+    expect(editDistance('hello', '')).toBe(5);
+  });
+
+  it('single character replacement', () => {
+    expect(editDistance('cat', 'bat')).toBe(1);
+    expect(editDistance('dog', 'log')).toBe(1);
+  });
+
+  it('single character insertion', () => {
+    expect(editDistance('cat', 'cart')).toBe(1);
+    expect(editDistance('hello', 'heillo')).toBe(1);
+  });
+
+  it('single character deletion', () => {
+    expect(editDistance('cart', 'cat')).toBe(1);
+    expect(editDistance('heillo', 'hello')).toBe(1);
+  });
+
+  it('multiple operations needed', () => {
+    expect(editDistance('kitten', 'sitting')).toBe(3);
+  });
+
+  it('completely different strings', () => {
+    expect(editDistance('abc', 'xyz')).toBe(3);
+    expect(editDistance('abcd', 'wxyz')).toBe(4);
+  });
+
+  it('same length different chars', () => {
+    expect(editDistance('abc', 'def')).toBe(3);
+    expect(editDistance('hello', 'world')).toBe(4);
+  });
+
+  it('one char difference in length', () => {
+    expect(editDistance('abc', 'abcd')).toBe(1);
+    expect(editDistance('test', 'testing')).toBe(3);
+  });
+
+  it('case sensitive', () => {
+    expect(editDistance('Hello', 'hello')).toBe(1);
+    expect(editDistance('ABC', 'abc')).toBe(3);
+  });
+
+  it('unicode characters', () => {
+    expect(editDistance('café', 'cafe')).toBe(1);
+    expect(editDistance('你好', '你好')).toBe(0);
+  });
+
+  it('longer strings', () => {
+    expect(editDistance('algorithm', 'altruistic')).toBe(6);
+  });
+
+  it('palindrome transformation', () => {
+    expect(editDistance('race', 'care')).toBe(2);
+  });
+
+  it('anagram transformation', () => {
+    expect(editDistance('listen', 'silent')).toBe(4);
+  });
+});
+
+describe('editDistanceWithOps', () => {
+  it('identical strings have no operations', () => {
+    const result = editDistanceWithOps('hello', 'hello');
+    expect(result.distance).toBe(0);
+    expect(result.operations).toEqual([]);
+  });
+
+  it('single replacement', () => {
+    const result = editDistanceWithOps('cat', 'bat');
+    expect(result.distance).toBe(1);
+    expect(result.operations).toHaveLength(1);
+    expect(result.operations[0].type).toBe('replace');
+  });
+
+  it('single insertion', () => {
+    const result = editDistanceWithOps('cat', 'cart');
+    expect(result.distance).toBe(1);
+    expect(result.operations).toHaveLength(1);
+    expect(result.operations[0].type).toBe('insert');
+  });
+
+  it('single deletion', () => {
+    const result = editDistanceWithOps('cart', 'cat');
+    expect(result.distance).toBe(1);
+    expect(result.operations).toHaveLength(1);
+    expect(result.operations[0].type).toBe('delete');
+  });
+
+  it('kitten to sitting with operations', () => {
+    const result = editDistanceWithOps('kitten', 'sitting');
+    expect(result.distance).toBe(3);
+    expect(result.operations).toHaveLength(3);
+  });
+
+  it('empty to non-empty', () => {
+    const result = editDistanceWithOps('', 'abc');
+    expect(result.distance).toBe(3);
+    expect(result.operations.every(op => op.type === 'insert')).toBe(true);
+  });
+
+  it('non-empty to empty', () => {
+    const result = editDistanceWithOps('abc', '');
+    expect(result.distance).toBe(3);
+    expect(result.operations.every(op => op.type === 'delete')).toBe(true);
+  });
+});
+
+describe('editDistanceWithLimit', () => {
+  it('returns distance when under limit', () => {
+    expect(editDistanceWithLimit('cat', 'bat', 5)).toBe(1);
+    expect(editDistanceWithLimit('kitten', 'sitting', 5)).toBe(3);
+  });
+
+  it('returns -1 when exceeds limit', () => {
+    expect(editDistanceWithLimit('algorithm', 'altruistic', 3)).toBe(-1);
+    expect(editDistanceWithLimit('hello', 'world', 2)).toBe(-1);
+  });
+
+  it('returns exact value at limit', () => {
+    expect(editDistanceWithLimit('cat', 'bat', 1)).toBe(1);
+    expect(editDistanceWithLimit('kitten', 'sitting', 3)).toBe(3);
+  });
+
+  it('limit of 0', () => {
+    expect(editDistanceWithLimit('hello', 'hello', 0)).toBe(0);
+    expect(editDistanceWithLimit('hello', 'world', 0)).toBe(-1);
+  });
+
+  it('early termination optimization', () => {
+    const start = Date.now();
+    const result = editDistanceWithLimit('a'.repeat(1000), 'b'.repeat(1000), 5);
+    const elapsed = Date.now() - start;
+    expect(result).toBe(-1);
+    expect(elapsed).toBeLessThan(100);
+  });
+});
+
+describe('editDistanceWithWeights', () => {
+  it('default weights match editDistance', () => {
+    expect(editDistanceWithWeights('cat', 'bat')).toBe(editDistance('cat', 'bat'));
+    expect(editDistanceWithWeights('kitten', 'sitting')).toBe(editDistance('kitten', 'sitting'));
+  });
+
+  it('custom insert cost', () => {
+    expect(editDistanceWithWeights('', 'abc', { insertCost: 2 })).toBe(6);
+    expect(editDistanceWithWeights('abc', '', { insertCost: 2 })).toBe(3);
+  });
+
+  it('custom delete cost', () => {
+    expect(editDistanceWithWeights('abc', '', { deleteCost: 2 })).toBe(6);
+    expect(editDistanceWithWeights('', 'abc', { deleteCost: 2 })).toBe(3);
+  });
+
+  it('custom replace cost', () => {
+    expect(editDistanceWithWeights('cat', 'bat', { replaceCost: 2 })).toBe(2);
+    expect(editDistanceWithWeights('abc', 'xyz', { replaceCost: 0.5 })).toBe(1.5);
+  });
+
+  it('mixed custom costs', () => {
+    const result = editDistanceWithWeights('kitten', 'sitting', {
+      insertCost: 1,
+      deleteCost: 1,
+      replaceCost: 2
+    });
+    expect(result).toBeGreaterThanOrEqual(3);
+  });
+
+  it('zero cost operations', () => {
+    expect(editDistanceWithWeights('cat', 'bat', { replaceCost: 0 })).toBe(0);
+  });
+
+  it('fractional costs', () => {
+    expect(editDistanceWithWeights('abc', 'xyz', { replaceCost: 0.5 })).toBe(1.5);
+  });
+});
+
+describe('edge cases', () => {
+  it('very long strings', () => {
+    const s1 = 'a'.repeat(100);
+    const s2 = 'b'.repeat(100);
+    expect(editDistance(s1, s2)).toBe(100);
+  });
+
+  it('one very long, one short', () => {
+    expect(editDistance('a'.repeat(100), 'b')).toBe(100);
+    expect(editDistance('a', 'b'.repeat(100))).toBe(100);
+  });
+
+  it('special characters', () => {
+    expect(editDistance('a!@#', 'a!@#')).toBe(0);
+    expect(editDistance('a!@#', 'b!@#')).toBe(1);
+  });
+
+  it('whitespace', () => {
+    expect(editDistance('hello world', 'hello  world')).toBe(1);
+    expect(editDistance('hello', 'hello ')).toBe(1);
+  });
+
+  it('newlines', () => {
+    expect(editDistance('hello\nworld', 'hello world')).toBe(1);
+  });
+});
+
+describe('performance', () => {
+  it('handles 500 char strings in reasonable time', () => {
+    const s1 = Array.from({ length: 500 }, () => 
+      String.fromCharCode(97 + Math.floor(Math.random() * 26))
+    ).join('');
+    const s2 = Array.from({ length: 500 }, () => 
+      String.fromCharCode(97 + Math.floor(Math.random() * 26))
+    ).join('');
+    
+    const start = Date.now();
+    const result = editDistance(s1, s2);
+    const elapsed = Date.now() - start;
+    
+    expect(result).toBeLessThan(500);
+    expect(elapsed).toBeLessThan(1000);
+  });
+});
+]=],
+  },
 }
 
 return M
