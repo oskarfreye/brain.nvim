@@ -2958,6 +2958,412 @@ describe('performance', () => {
 });
 ]=],
   },
+  {
+    name = "Binary Search",
+    difficulty = "medium",
+    stub = [=[
+/**
+ * Binary Search
+ *
+ * Implement binary search and its variations.
+ *
+ * Binary search is a fundamental algorithm for finding a target value
+ * in a sorted array by repeatedly dividing the search interval in half.
+ * Time complexity: O(log n)
+ *
+ * Implement:
+ * - binarySearch(arr: number[], target: number): number
+ *   Return the index of target if found, -1 otherwise.
+ *
+ * - binarySearchLeft(arr: number[], target: number): number
+ *   Return the leftmost index where target could be inserted
+ *   while maintaining sorted order (first occurrence if exists).
+ *
+ * - binarySearchRight(arr: number[], target: number): number
+ *   Return the rightmost index where target could be inserted
+ *   while maintaining sorted order (index after last occurrence if exists).
+ *
+ * - findFirstOccurrence(arr: number[], target: number): number
+ *   Return the index of the first occurrence of target, or -1 if not found.
+ *
+ * - findLastOccurrence(arr: number[], target: number): number
+ *   Return the index of the last occurrence of target, or -1 if not found.
+ *
+ * - countOccurrences(arr: number[], target: number): number
+ *   Return how many times target appears in the array.
+ *
+ * - findMinInRotatedSorted(arr: number[]): number
+ *   Find the minimum element in a rotated sorted array.
+ *   Example: [4,5,6,7,0,1,2] → 0
+ *
+ * - searchInRotatedSorted(arr: number[], target: number): number
+ *   Search for target in a rotated sorted array. Return index or -1.
+ *
+ * Edge cases to handle:
+ * - Empty array
+ * - Single element array
+ * - Target smaller/larger than all elements
+ * - Duplicate elements
+ * - All elements the same
+ */
+
+export function binarySearch(arr: number[], target: number): number {
+  // YOUR CODE HERE
+  return -1;
+}
+
+export function binarySearchLeft(arr: number[], target: number): number {
+  // YOUR CODE HERE
+  return 0;
+}
+
+export function binarySearchRight(arr: number[], target: number): number {
+  // YOUR CODE HERE
+  return 0;
+}
+
+export function findFirstOccurrence(arr: number[], target: number): number {
+  // YOUR CODE HERE
+  return -1;
+}
+
+export function findLastOccurrence(arr: number[], target: number): number {
+  // YOUR CODE HERE
+  return -1;
+}
+
+export function countOccurrences(arr: number[], target: number): number {
+  // YOUR CODE HERE
+  return 0;
+}
+
+export function findMinInRotatedSorted(arr: number[]): number {
+  // YOUR CODE HERE
+  return 0;
+}
+
+export function searchInRotatedSorted(arr: number[], target: number): number {
+  // YOUR CODE HERE
+  return -1;
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import {
+  binarySearch,
+  binarySearchLeft,
+  binarySearchRight,
+  findFirstOccurrence,
+  findLastOccurrence,
+  countOccurrences,
+  findMinInRotatedSorted,
+  searchInRotatedSorted
+} from './challenge';
+
+describe('binarySearch', () => {
+  it('finds element in middle', () => {
+    expect(binarySearch([1, 3, 5, 7, 9], 5)).toBe(2);
+  });
+
+  it('finds element at start', () => {
+    expect(binarySearch([1, 3, 5, 7, 9], 1)).toBe(0);
+  });
+
+  it('finds element at end', () => {
+    expect(binarySearch([1, 3, 5, 7, 9], 9)).toBe(4);
+  });
+
+  it('returns -1 for missing element smaller than all', () => {
+    expect(binarySearch([1, 3, 5], 0)).toBe(-1);
+  });
+
+  it('returns -1 for missing element larger than all', () => {
+    expect(binarySearch([1, 3, 5], 10)).toBe(-1);
+  });
+
+  it('returns -1 for missing element in middle', () => {
+    expect(binarySearch([1, 3, 5, 7], 4)).toBe(-1);
+  });
+
+  it('works with single element array found', () => {
+    expect(binarySearch([5], 5)).toBe(0);
+  });
+
+  it('works with single element array not found', () => {
+    expect(binarySearch([5], 3)).toBe(-1);
+  });
+
+  it('works with empty array', () => {
+    expect(binarySearch([], 5)).toBe(-1);
+  });
+
+  it('works with two elements', () => {
+    expect(binarySearch([1, 2], 1)).toBe(0);
+    expect(binarySearch([1, 2], 2)).toBe(1);
+    expect(binarySearch([1, 2], 3)).toBe(-1);
+  });
+
+  it('works with duplicates returns any occurrence', () => {
+    const arr = [1, 2, 2, 2, 3];
+    const result = binarySearch(arr, 2);
+    expect(result).toBeGreaterThanOrEqual(1);
+    expect(result).toBeLessThanOrEqual(3);
+  });
+
+  it('works with negative numbers', () => {
+    expect(binarySearch([-5, -3, -1, 0, 2], -3)).toBe(1);
+    expect(binarySearch([-5, -3, -1, 0, 2], -4)).toBe(-1);
+  });
+
+  it('large array', () => {
+    const arr = Array.from({ length: 10000 }, (_, i) => i * 2);
+    expect(binarySearch(arr, 5000)).toBe(2500);
+    expect(binarySearch(arr, 5001)).toBe(-1);
+  });
+});
+
+describe('binarySearchLeft', () => {
+  it('returns index of first occurrence', () => {
+    expect(binarySearchLeft([1, 2, 2, 2, 3], 2)).toBe(1);
+  });
+
+  it('returns insertion point for missing element', () => {
+    expect(binarySearchLeft([1, 3, 5], 2)).toBe(1);
+  });
+
+  it('returns 0 for element smaller than all', () => {
+    expect(binarySearchLeft([1, 3, 5], 0)).toBe(0);
+  });
+
+  it('returns array.length for element larger than all', () => {
+    expect(binarySearchLeft([1, 3, 5], 10)).toBe(3);
+  });
+
+  it('works with empty array', () => {
+    expect(binarySearchLeft([], 5)).toBe(0);
+  });
+
+  it('works with single element', () => {
+    expect(binarySearchLeft([5], 5)).toBe(0);
+    expect(binarySearchLeft([5], 3)).toBe(0);
+    expect(binarySearchLeft([5], 7)).toBe(1);
+  });
+
+  it('all elements same', () => {
+    expect(binarySearchLeft([2, 2, 2, 2], 2)).toBe(0);
+    expect(binarySearchLeft([2, 2, 2, 2], 1)).toBe(0);
+    expect(binarySearchLeft([2, 2, 2, 2], 3)).toBe(4);
+  });
+});
+
+describe('binarySearchRight', () => {
+  it('returns index after last occurrence', () => {
+    expect(binarySearchRight([1, 2, 2, 2, 3], 2)).toBe(4);
+  });
+
+  it('returns insertion point for missing element', () => {
+    expect(binarySearchRight([1, 3, 5], 2)).toBe(1);
+  });
+
+  it('returns 0 for element smaller than all', () => {
+    expect(binarySearchRight([1, 3, 5], 0)).toBe(0);
+  });
+
+  it('returns array.length for element larger than all', () => {
+    expect(binarySearchRight([1, 3, 5], 10)).toBe(3);
+  });
+
+  it('works with empty array', () => {
+    expect(binarySearchRight([], 5)).toBe(0);
+  });
+
+  it('all elements same', () => {
+    expect(binarySearchRight([2, 2, 2, 2], 2)).toBe(4);
+  });
+});
+
+describe('findFirstOccurrence', () => {
+  it('finds first occurrence with duplicates', () => {
+    expect(findFirstOccurrence([1, 2, 2, 2, 3], 2)).toBe(1);
+  });
+
+  it('returns -1 for missing element', () => {
+    expect(findFirstOccurrence([1, 3, 5], 2)).toBe(-1);
+  });
+
+  it('works with single occurrence', () => {
+    expect(findFirstOccurrence([1, 2, 3], 2)).toBe(1);
+  });
+
+  it('works with empty array', () => {
+    expect(findFirstOccurrence([], 5)).toBe(-1);
+  });
+
+  it('first of many duplicates', () => {
+    expect(findFirstOccurrence([2, 2, 2, 2, 2], 2)).toBe(0);
+  });
+});
+
+describe('findLastOccurrence', () => {
+  it('finds last occurrence with duplicates', () => {
+    expect(findLastOccurrence([1, 2, 2, 2, 3], 2)).toBe(3);
+  });
+
+  it('returns -1 for missing element', () => {
+    expect(findLastOccurrence([1, 3, 5], 2)).toBe(-1);
+  });
+
+  it('works with single occurrence', () => {
+    expect(findLastOccurrence([1, 2, 3], 2)).toBe(1);
+  });
+
+  it('works with empty array', () => {
+    expect(findLastOccurrence([], 5)).toBe(-1);
+  });
+
+  it('last of many duplicates', () => {
+    expect(findLastOccurrence([2, 2, 2, 2, 2], 2)).toBe(4);
+  });
+});
+
+describe('countOccurrences', () => {
+  it('counts duplicates correctly', () => {
+    expect(countOccurrences([1, 2, 2, 2, 3], 2)).toBe(3);
+  });
+
+  it('returns 0 for missing element', () => {
+    expect(countOccurrences([1, 3, 5], 2)).toBe(0);
+  });
+
+  it('returns 1 for single occurrence', () => {
+    expect(countOccurrences([1, 2, 3], 2)).toBe(1);
+  });
+
+  it('works with empty array', () => {
+    expect(countOccurrences([], 5)).toBe(0);
+  });
+
+  it('all elements same', () => {
+    expect(countOccurrences([2, 2, 2, 2, 2], 2)).toBe(5);
+  });
+
+  it('large array with many duplicates', () => {
+    const arr = [1, ...Array(1000).fill(2), 3];
+    expect(countOccurrences(arr, 2)).toBe(1000);
+  });
+});
+
+describe('findMinInRotatedSorted', () => {
+  it('finds min in rotated array', () => {
+    expect(findMinInRotatedSorted([4, 5, 6, 7, 0, 1, 2])).toBe(0);
+  });
+
+  it('works with no rotation', () => {
+    expect(findMinInRotatedSorted([1, 2, 3, 4, 5])).toBe(1);
+  });
+
+  it('works with single element', () => {
+    expect(findMinInRotatedSorted([5])).toBe(5);
+  });
+
+  it('works with two elements rotated', () => {
+    expect(findMinInRotatedSorted([2, 1])).toBe(1);
+  });
+
+  it('works with two elements not rotated', () => {
+    expect(findMinInRotatedSorted([1, 2])).toBe(1);
+  });
+
+  it('works with empty array', () => {
+    expect(findMinInRotatedSorted([])).toBe(0);
+  });
+
+  it('all elements same', () => {
+    expect(findMinInRotatedSorted([3, 3, 3, 3])).toBe(3);
+  });
+
+  it('rotation at different positions', () => {
+    expect(findMinInRotatedSorted([3, 4, 5, 1, 2])).toBe(1);
+    expect(findMinInRotatedSorted([5, 1, 2, 3, 4])).toBe(1);
+  });
+});
+
+describe('searchInRotatedSorted', () => {
+  it('finds element in rotated array', () => {
+    expect(searchInRotatedSorted([4, 5, 6, 7, 0, 1, 2], 0)).toBe(4);
+  });
+
+  it('returns -1 for missing element', () => {
+    expect(searchInRotatedSorted([4, 5, 6, 7, 0, 1, 2], 3)).toBe(-1);
+  });
+
+  it('works with no rotation', () => {
+    expect(searchInRotatedSorted([1, 2, 3, 4, 5], 3)).toBe(2);
+  });
+
+  it('works with single element found', () => {
+    expect(searchInRotatedSorted([5], 5)).toBe(0);
+  });
+
+  it('works with single element not found', () => {
+    expect(searchInRotatedSorted([5], 3)).toBe(-1);
+  });
+
+  it('works with empty array', () => {
+    expect(searchInRotatedSorted([], 5)).toBe(-1);
+  });
+
+  it('search at pivot point', () => {
+    const arr = [4, 5, 6, 7, 0, 1, 2];
+    expect(searchInRotatedSorted(arr, 7)).toBe(3);
+    expect(searchInRotatedSorted(arr, 0)).toBe(4);
+  });
+
+  it('duplicates in rotated array', () => {
+    expect(searchInRotatedSorted([2, 2, 2, 0, 2], 0)).toBe(3);
+    expect(searchInRotatedSorted([2, 2, 2, 0, 2], 3)).toBe(-1);
+  });
+});
+
+describe('edge cases', () => {
+  it('negative numbers in binary search', () => {
+    expect(binarySearch([-10, -5, -2, 0, 3], -5)).toBe(1);
+  });
+
+  it('floating point numbers', () => {
+    expect(binarySearch([1.5, 2.5, 3.5, 4.5], 3.5)).toBe(2);
+  });
+
+  it('very large numbers', () => {
+    expect(binarySearch([Number.MAX_SAFE_INTEGER - 2, Number.MAX_SAFE_INTEGER - 1, Number.MAX_SAFE_INTEGER], Number.MAX_SAFE_INTEGER - 1)).toBe(1);
+  });
+
+  it('min in rotated with duplicates', () => {
+    expect(findMinInRotatedSorted([2, 2, 2, 0, 1, 2])).toBe(0);
+  });
+});
+
+describe('performance', () => {
+  it('binary search on 1 million elements completes quickly', () => {
+    const arr = Array.from({ length: 1000000 }, (_, i) => i);
+    const start = Date.now();
+    const result = binarySearch(arr, 500000);
+    const elapsed = Date.now() - start;
+    expect(result).toBe(500000);
+    expect(elapsed).toBeLessThan(100);
+  });
+
+  it('findMinInRotatedSorted on large array', () => {
+    const arr = [...Array(500000).keys()].slice(250000).concat([...Array(500000).keys()].slice(0, 250000));
+    const start = Date.now();
+    const result = findMinInRotatedSorted(arr);
+    const elapsed = Date.now() - start;
+    expect(result).toBe(0);
+    expect(elapsed).toBeLessThan(100);
+  });
+});
+]=],
+  },
 }
 
 return M
