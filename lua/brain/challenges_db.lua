@@ -3364,6 +3364,302 @@ describe('performance', () => {
 });
 ]=],
   },
+  {
+    name = "Segment Tree",
+    difficulty = "hard",
+    stub = [=[
+/**
+ * Segment Tree
+ *
+ * Implement a Segment Tree for efficient range queries and updates.
+ *
+ * A Segment Tree is a binary tree data structure that allows answering
+ * range queries over an array in O(log n) time while supporting
+ * point updates in O(log n) time. It's commonly used for:
+ * - Range sum queries
+ * - Range minimum/maximum queries
+ * - Range product queries
+ * - Any associative operation over ranges
+ *
+ * Implement the SegmentTree class with:
+ * - constructor(arr: number[]) — Initialize with an array
+ * - update(index: number, value: number): void — Update value at index (O(log n))
+ * - queryRange(left: number, right: number): number — Query sum in range [left, right] (O(log n))
+ * - queryMin(left: number, right: number): number — Query minimum in range (O(log n))
+ * - queryMax(left: number, right: number): number — Query maximum in range (O(log n))
+ *
+ * The tree should be built in O(n) time during construction.
+ * Use 0-based indexing for the public API.
+ *
+ * Bonus: Implement rangeUpdate(left: number, right: number, delta: number): void
+ * using lazy propagation for O(log n) range updates.
+ */
+
+export class SegmentTree {
+  constructor(arr: number[]) {
+    // YOUR CODE HERE
+  }
+
+  update(index: number, value: number): void {
+    // YOUR CODE HERE
+  }
+
+  queryRange(left: number, right: number): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  queryMin(left: number, right: number): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  queryMax(left: number, right: number): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  rangeUpdate(left: number, right: number, delta: number): void {
+    // YOUR CODE HERE
+  }
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { SegmentTree } from './challenge';
+
+describe('SegmentTree', () => {
+  it('creates tree from array', () => {
+    const arr = [1, 3, 5, 7, 9, 11];
+    const tree = new SegmentTree(arr);
+    expect(tree.queryRange(0, 5)).toBe(36);
+  });
+
+  it('queryRange returns sum of range', () => {
+    const arr = [1, 2, 3, 4, 5];
+    const tree = new SegmentTree(arr);
+    expect(tree.queryRange(0, 4)).toBe(15);
+    expect(tree.queryRange(1, 3)).toBe(9);
+    expect(tree.queryRange(2, 2)).toBe(3);
+  });
+
+  it('queryRange on single element', () => {
+    const arr = [10, 20, 30, 40, 50];
+    const tree = new SegmentTree(arr);
+    expect(tree.queryRange(0, 0)).toBe(10);
+    expect(tree.queryRange(4, 4)).toBe(50);
+  });
+
+  it('update changes value', () => {
+    const arr = [1, 2, 3, 4, 5];
+    const tree = new SegmentTree(arr);
+    expect(tree.queryRange(0, 4)).toBe(15);
+    tree.update(2, 10);
+    expect(tree.queryRange(0, 4)).toBe(22);
+    expect(tree.queryRange(2, 2)).toBe(10);
+  });
+
+  it('multiple updates', () => {
+    const arr = [1, 1, 1, 1, 1];
+    const tree = new SegmentTree(arr);
+    tree.update(0, 5);
+    tree.update(1, 5);
+    tree.update(2, 5);
+    expect(tree.queryRange(0, 4)).toBe(17);
+  });
+
+  it('queryMin returns minimum in range', () => {
+    const arr = [5, 2, 8, 1, 9, 3];
+    const tree = new SegmentTree(arr);
+    expect(tree.queryMin(0, 5)).toBe(1);
+    expect(tree.queryMin(0, 2)).toBe(2);
+    expect(tree.queryMin(3, 5)).toBe(1);
+  });
+
+  it('queryMin after update', () => {
+    const arr = [5, 2, 8, 1, 9];
+    const tree = new SegmentTree(arr);
+    expect(tree.queryMin(0, 4)).toBe(1);
+    tree.update(3, 10);
+    expect(tree.queryMin(0, 4)).toBe(2);
+  });
+
+  it('queryMax returns maximum in range', () => {
+    const arr = [5, 2, 8, 1, 9, 3];
+    const tree = new SegmentTree(arr);
+    expect(tree.queryMax(0, 5)).toBe(9);
+    expect(tree.queryMax(0, 2)).toBe(8);
+    expect(tree.queryMax(3, 5)).toBe(9);
+  });
+
+  it('queryMax after update', () => {
+    const arr = [5, 2, 8, 1, 9];
+    const tree = new SegmentTree(arr);
+    expect(tree.queryMax(0, 4)).toBe(9);
+    tree.update(4, 3);
+    expect(tree.queryMax(0, 4)).toBe(8);
+  });
+
+  it('works with negative numbers', () => {
+    const arr = [-5, -2, -8, -1, -9];
+    const tree = new SegmentTree(arr);
+    expect(tree.queryRange(0, 4)).toBe(-25);
+    expect(tree.queryMin(0, 4)).toBe(-9);
+    expect(tree.queryMax(0, 4)).toBe(-1);
+  });
+
+  it('works with mixed positive and negative', () => {
+    const arr = [-3, 5, -2, 8, -1];
+    const tree = new SegmentTree(arr);
+    expect(tree.queryRange(0, 4)).toBe(7);
+    expect(tree.queryMin(0, 4)).toBe(-3);
+    expect(tree.queryMax(0, 4)).toBe(8);
+  });
+
+  it('single element array', () => {
+    const tree = new SegmentTree([42]);
+    expect(tree.queryRange(0, 0)).toBe(42);
+    expect(tree.queryMin(0, 0)).toBe(42);
+    expect(tree.queryMax(0, 0)).toBe(42);
+    tree.update(0, 100);
+    expect(tree.queryRange(0, 0)).toBe(100);
+  });
+
+  it('two element array', () => {
+    const tree = new SegmentTree([10, 20]);
+    expect(tree.queryRange(0, 1)).toBe(30);
+    expect(tree.queryMin(0, 1)).toBe(10);
+    expect(tree.queryMax(0, 1)).toBe(20);
+    tree.update(0, 5);
+    expect(tree.queryRange(0, 1)).toBe(25);
+    expect(tree.queryMin(0, 1)).toBe(5);
+  });
+
+  it('large array', () => {
+    const arr = Array.from({ length: 1000 }, (_, i) => i + 1);
+    const tree = new SegmentTree(arr);
+    expect(tree.queryRange(0, 999)).toBe(500500);
+    expect(tree.queryRange(0, 9)).toBe(55);
+    expect(tree.queryRange(990, 999)).toBe(9955);
+  });
+
+  it('update on large array', () => {
+    const arr = Array.from({ length: 100 }, (_, i) => i);
+    const tree = new SegmentTree(arr);
+    tree.update(50, 1000);
+    expect(tree.queryRange(50, 50)).toBe(1000);
+    expect(tree.queryRange(0, 99)).toBe(4950 + 1000 - 50);
+  });
+
+  it('query entire range', () => {
+    const arr = [1, 2, 3, 4, 5, 6, 7, 8];
+    const tree = new SegmentTree(arr);
+    expect(tree.queryRange(0, 7)).toBe(36);
+  });
+
+  it('query partial ranges', () => {
+    const arr = [1, 2, 3, 4, 5, 6, 7, 8];
+    const tree = new SegmentTree(arr);
+    expect(tree.queryRange(0, 3)).toBe(10);
+    expect(tree.queryRange(4, 7)).toBe(26);
+    expect(tree.queryRange(2, 5)).toBe(18);
+  });
+
+  it('all elements same value', () => {
+    const arr = [5, 5, 5, 5, 5];
+    const tree = new SegmentTree(arr);
+    expect(tree.queryRange(0, 4)).toBe(25);
+    expect(tree.queryMin(0, 4)).toBe(5);
+    expect(tree.queryMax(0, 4)).toBe(5);
+  });
+
+  it('zeros in array', () => {
+    const arr = [0, 1, 0, 2, 0];
+    const tree = new SegmentTree(arr);
+    expect(tree.queryRange(0, 4)).toBe(3);
+    expect(tree.queryMin(0, 4)).toBe(0);
+    expect(tree.queryMax(0, 4)).toBe(2);
+  });
+
+  it('rangeUpdate adds delta to range', () => {
+    const arr = [1, 2, 3, 4, 5];
+    const tree = new SegmentTree(arr);
+    tree.rangeUpdate(1, 3, 10);
+    expect(tree.queryRange(0, 4)).toBe(45);
+    expect(tree.queryRange(1, 3)).toBe(39);
+  });
+
+  it('rangeUpdate with negative delta', () => {
+    const arr = [10, 20, 30, 40, 50];
+    const tree = new SegmentTree(arr);
+    tree.rangeUpdate(0, 2, -5);
+    expect(tree.queryRange(0, 4)).toBe(135);
+    expect(tree.queryRange(0, 2)).toBe(45);
+  });
+
+  it('multiple rangeUpdates', () => {
+    const arr = [1, 1, 1, 1, 1];
+    const tree = new SegmentTree(arr);
+    tree.rangeUpdate(0, 4, 1);
+    tree.rangeUpdate(0, 4, 1);
+    expect(tree.queryRange(0, 4)).toBe(15);
+  });
+
+  it('rangeUpdate and point update combination', () => {
+    const arr = [1, 2, 3, 4, 5];
+    const tree = new SegmentTree(arr);
+    tree.rangeUpdate(0, 2, 10);
+    tree.update(1, 100);
+    expect(tree.queryRange(0, 4)).toBe(129);
+  });
+
+  it('queryMin after rangeUpdate', () => {
+    const arr = [5, 3, 8, 2, 9];
+    const tree = new SegmentTree(arr);
+    tree.rangeUpdate(0, 4, -3);
+    expect(tree.queryMin(0, 4)).toBe(-1);
+  });
+
+  it('queryMax after rangeUpdate', () => {
+    const arr = [5, 3, 8, 2, 9];
+    const tree = new SegmentTree(arr);
+    tree.rangeUpdate(0, 4, 10);
+    expect(tree.queryMax(0, 4)).toBe(19);
+  });
+
+  it('stress test with many operations', () => {
+    const arr = Array.from({ length: 100 }, (_, i) => i);
+    const tree = new SegmentTree(arr);
+    
+    for (let i = 0; i < 100; i++) {
+      tree.update(i, i * 2);
+    }
+    
+    expect(tree.queryRange(0, 99)).toBe(9900);
+    expect(tree.queryMin(0, 99)).toBe(0);
+    expect(tree.queryMax(0, 99)).toBe(198);
+  });
+});
+
+describe('edge cases', () => {
+  it('empty array throws or handles gracefully', () => {
+    expect(() => new SegmentTree([])).not.toThrow();
+  });
+
+  it('query with left > right', () => {
+    const arr = [1, 2, 3, 4, 5];
+    const tree = new SegmentTree(arr);
+    expect(tree.queryRange(3, 1)).toBe(0);
+  });
+
+  it('query with out of bounds indices', () => {
+    const arr = [1, 2, 3];
+    const tree = new SegmentTree(arr);
+    expect(tree.queryRange(0, 10)).toBe(6);
+  });
+});
+]=],
+  },
 }
 
 return M
