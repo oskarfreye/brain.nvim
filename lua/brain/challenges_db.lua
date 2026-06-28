@@ -3660,6 +3660,249 @@ describe('edge cases', () => {
 });
 ]=],
   },
+  {
+    name = "Topological Sort",
+    difficulty = "medium",
+    stub = [=[
+/**
+ * Topological Sort
+ *
+ * Implement topological sorting for a directed acyclic graph (DAG).
+ *
+ * Topological sorting orders vertices such that for every directed edge (u, v),
+ * vertex u comes before v in the ordering. This is essential for:
+ * - Task scheduling with dependencies
+ * - Build system dependency resolution
+ * - Course prerequisite ordering
+ * - Package dependency installation
+ *
+ * Implement the TopologicalSorter class with:
+ * - constructor() — Initialize an empty graph
+ * - addEdge(from: number, to: number): void — Add a directed edge
+ * - addNode(node: number): void — Add an isolated node
+ * - sort(): number[] | null — Return topological order, or null if cycle detected
+ * - hasCycle(): boolean — Check if the graph contains a cycle
+ * - clear(): void — Reset the graph to empty state
+ *
+ * Use Kahn's algorithm (BFS-based) or DFS-based approach.
+ * Handle disconnected components and isolated nodes correctly.
+ *
+ * Bonus: Implement sortWithGroups(): number[][] that groups nodes
+ * that can be processed in parallel (same topological level).
+ */
+
+export class TopologicalSorter {
+  constructor() {
+    // YOUR CODE HERE
+  }
+
+  addEdge(from: number, to: number): void {
+    // YOUR CODE HERE
+  }
+
+  addNode(node: number): void {
+    // YOUR CODE HERE
+  }
+
+  sort(): number[] | null {
+    // YOUR CODE HERE
+    return null;
+  }
+
+  hasCycle(): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  clear(): void {
+    // YOUR CODE HERE
+  }
+
+  sortWithGroups(): number[][] | null {
+    // YOUR CODE HERE
+    return null;
+  }
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { TopologicalSorter } from './challenge';
+
+describe('TopologicalSorter', () => {
+  it('sorts empty graph', () => {
+    const sorter = new TopologicalSorter();
+    expect(sorter.sort()).toEqual([]);
+    expect(sorter.hasCycle()).toBe(false);
+  });
+
+  it('sorts single node', () => {
+    const sorter = new TopologicalSorter();
+    sorter.addNode(1);
+    expect(sorter.sort()).toEqual([1]);
+  });
+
+  it('sorts two nodes with one edge', () => {
+    const sorter = new TopologicalSorter();
+    sorter.addEdge(1, 2);
+    const result = sorter.sort();
+    expect(result).not.toBeNull();
+    expect(result!.indexOf(1)).toBeLessThan(result!.indexOf(2));
+  });
+
+  it('sorts linear chain', () => {
+    const sorter = new TopologicalSorter();
+    sorter.addEdge(1, 2);
+    sorter.addEdge(2, 3);
+    sorter.addEdge(3, 4);
+    const result = sorter.sort();
+    expect(result).toEqual([1, 2, 3, 4]);
+  });
+
+  it('detects simple cycle', () => {
+    const sorter = new TopologicalSorter();
+    sorter.addEdge(1, 2);
+    sorter.addEdge(2, 3);
+    sorter.addEdge(3, 1);
+    expect(sorter.sort()).toBeNull();
+    expect(sorter.hasCycle()).toBe(true);
+  });
+
+  it('detects self-loop', () => {
+    const sorter = new TopologicalSorter();
+    sorter.addEdge(1, 1);
+    expect(sorter.sort()).toBeNull();
+    expect(sorter.hasCycle()).toBe(true);
+  });
+
+  it('sorts DAG with multiple valid orderings', () => {
+    const sorter = new TopologicalSorter();
+    sorter.addEdge(1, 3);
+    sorter.addEdge(2, 3);
+    const result = sorter.sort();
+    expect(result).not.toBeNull();
+    expect(result!.indexOf(1)).toBeLessThan(result!.indexOf(3));
+    expect(result!.indexOf(2)).toBeLessThan(result!.indexOf(3));
+  });
+
+  it('handles disconnected components', () => {
+    const sorter = new TopologicalSorter();
+    sorter.addEdge(1, 2);
+    sorter.addEdge(3, 4);
+    const result = sorter.sort();
+    expect(result).not.toBeNull();
+    expect(result!.length).toBe(4);
+    expect(result!.indexOf(1)).toBeLessThan(result!.indexOf(2));
+    expect(result!.indexOf(3)).toBeLessThan(result!.indexOf(4));
+  });
+
+  it('handles isolated nodes', () => {
+    const sorter = new TopologicalSorter();
+    sorter.addEdge(1, 2);
+    sorter.addNode(3);
+    sorter.addNode(4);
+    const result = sorter.sort();
+    expect(result).not.toBeNull();
+    expect(result!.length).toBe(4);
+    expect(result!.indexOf(1)).toBeLessThan(result!.indexOf(2));
+  });
+
+  it('sorts complex DAG', () => {
+    const sorter = new TopologicalSorter();
+    // Build a more complex DAG
+    sorter.addEdge(1, 2);
+    sorter.addEdge(1, 3);
+    sorter.addEdge(2, 4);
+    sorter.addEdge(3, 4);
+    sorter.addEdge(4, 5);
+    const result = sorter.sort();
+    expect(result).not.toBeNull();
+    expect(result!.indexOf(1)).toBeLessThan(result!.indexOf(2));
+    expect(result!.indexOf(1)).toBeLessThan(result!.indexOf(3));
+    expect(result!.indexOf(2)).toBeLessThan(result!.indexOf(4));
+    expect(result!.indexOf(3)).toBeLessThan(result!.indexOf(4));
+    expect(result!.indexOf(4)).toBeLessThan(result!.indexOf(5));
+  });
+
+  it('clear resets graph', () => {
+    const sorter = new TopologicalSorter();
+    sorter.addEdge(1, 2);
+    sorter.clear();
+    expect(sorter.sort()).toEqual([]);
+    expect(sorter.hasCycle()).toBe(false);
+  });
+
+  it('cycle in part of graph detected', () => {
+    const sorter = new TopologicalSorter();
+    sorter.addEdge(1, 2);
+    sorter.addEdge(2, 3);
+    sorter.addEdge(3, 2); // Cycle between 2 and 3
+    sorter.addEdge(4, 5); // Separate component
+    expect(sorter.sort()).toBeNull();
+    expect(sorter.hasCycle()).toBe(true);
+  });
+
+  it('large DAG sorts correctly', () => {
+    const sorter = new TopologicalSorter();
+    // Create a DAG: 1 -> 2 -> 3 -> ... -> 100
+    for (let i = 1; i < 100; i++) {
+      sorter.addEdge(i, i + 1);
+    }
+    const result = sorter.sort();
+    expect(result).not.toBeNull();
+    expect(result!.length).toBe(100);
+    for (let i = 0; i < 99; i++) {
+      expect(result![i]).toBeLessThan(result![i + 1]);
+    }
+  });
+
+  it('sortWithGroups returns parallel levels', () => {
+    const sorter = new TopologicalSorter();
+    // Level 0: 1
+    // Level 1: 2, 3 (both depend on 1)
+    // Level 2: 4 (depends on 2 and 3)
+    sorter.addEdge(1, 2);
+    sorter.addEdge(1, 3);
+    sorter.addEdge(2, 4);
+    sorter.addEdge(3, 4);
+    const groups = sorter.sortWithGroups();
+    expect(groups).not.toBeNull();
+    expect(groups!.length).toBe(3);
+    expect(groups![0]).toEqual([1]);
+    expect(groups![1].sort((a, b) => a - b)).toEqual([2, 3]);
+    expect(groups![2]).toEqual([4]);
+  });
+
+  it('sortWithGroups detects cycle', () => {
+    const sorter = new TopologicalSorter();
+    sorter.addEdge(1, 2);
+    sorter.addEdge(2, 1);
+    expect(sorter.sortWithGroups()).toBeNull();
+  });
+
+  it('stress test with many nodes', () => {
+    const sorter = new TopologicalSorter();
+    const n = 500;
+    // Create a DAG with random edges (no cycles)
+    for (let i = 1; i <= n; i++) {
+      sorter.addNode(i);
+      // Add edges only to higher-numbered nodes to avoid cycles
+      for (let j = i + 1; j <= n && j < i + 5; j++) {
+        if (Math.random() > 0.5) {
+          sorter.addEdge(i, j);
+        }
+      }
+    }
+    const result = sorter.sort();
+    expect(result).not.toBeNull();
+    expect(result!.length).toBe(n);
+    // Verify all edges are respected
+    // (simplified check - just ensure no duplicates)
+    const unique = new Set(result!);
+    expect(unique.size).toBe(n);
+  });
+});
+]=],
+  },
 }
 
 return M
