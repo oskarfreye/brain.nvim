@@ -3903,6 +3903,293 @@ describe('TopologicalSorter', () => {
 });
 ]=],
   },
+  {
+    name = "Dijkstra's Shortest Path",
+    difficulty = "hard",
+    stub = [=[
+/**
+ * Dijkstra's Shortest Path
+ *
+ * Implement Dijkstra's algorithm for finding the shortest path in a weighted graph.
+ *
+ * Dijkstra's algorithm finds the shortest path from a source node to all other
+ * nodes in a graph with non-negative edge weights. It's fundamental for:
+ * - GPS navigation and routing
+ * - Network routing protocols
+ * - Social network analysis
+ * - Game pathfinding
+ *
+ * Implement the Graph class with:
+ * - constructor(numNodes: number) — Initialize graph with n nodes (0 to n-1)
+ * - addEdge(from: number, to: number, weight: number): void — Add directed edge
+ * - addUndirectedEdge(a: number, b: number, weight: number): void — Add bidirectional edge
+ * - dijkstra(source: number): number[] — Return array of shortest distances from source
+ *   to all nodes. Use Infinity for unreachable nodes.
+ * - shortestPath(source: number, target: number): number[] — Return the actual path
+ *   (array of node indices) from source to target. Empty array if no path exists.
+ * - getPathDistance(path: number[]): number — Calculate total distance of a given path
+ *
+ * Requirements:
+ * - Use a min-heap/priority queue for O((V + E) log V) complexity
+ * - Handle disconnected graphs (return Infinity for unreachable nodes)
+ * - Handle graphs with single nodes
+ * - Validate node indices are in valid range
+ *
+ * Bonus: Implement dijkstraWithEarlyStop(source: number, target: number): number
+ * that stops as soon as the target is reached (more efficient for single-target queries).
+ */
+
+export class Graph {
+  constructor(numNodes: number) {
+    // YOUR CODE HERE
+  }
+
+  addEdge(from: number, to: number, weight: number): void {
+    // YOUR CODE HERE
+  }
+
+  addUndirectedEdge(a: number, b: number, weight: number): void {
+    // YOUR CODE HERE
+  }
+
+  dijkstra(source: number): number[] {
+    // YOUR CODE HERE
+    return [];
+  }
+
+  shortestPath(source: number, target: number): number[] {
+    // YOUR CODE HERE
+    return [];
+  }
+
+  getPathDistance(path: number[]): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  dijkstraWithEarlyStop(source: number, target: number): number {
+    // YOUR CODE HERE
+    return -1;
+  }
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { Graph } from './challenge';
+
+describe('Graph', () => {
+  it('creates empty graph', () => {
+    const graph = new Graph(5);
+    expect(graph.dijkstra(0)).toEqual([0, Infinity, Infinity, Infinity, Infinity]);
+  });
+
+  it('single node graph', () => {
+    const graph = new Graph(1);
+    expect(graph.dijkstra(0)).toEqual([0]);
+    expect(graph.shortestPath(0, 0)).toEqual([0]);
+  });
+
+  it('simple linear graph', () => {
+    const graph = new Graph(4);
+    graph.addEdge(0, 1, 5);
+    graph.addEdge(1, 2, 3);
+    graph.addEdge(2, 3, 1);
+    
+    expect(graph.dijkstra(0)).toEqual([0, 5, 8, 9]);
+    expect(graph.shortestPath(0, 3)).toEqual([0, 1, 2, 3]);
+  });
+
+  it('graph with multiple paths', () => {
+    const graph = new Graph(4);
+    graph.addEdge(0, 1, 10);
+    graph.addEdge(0, 2, 5);
+    graph.addEdge(1, 2, 2);
+    graph.addEdge(1, 3, 1);
+    graph.addEdge(2, 1, 3);
+    graph.addEdge(2, 3, 9);
+    
+    // Shortest: 0->2->1->3 = 5+3+1 = 9
+    expect(graph.dijkstra(0)).toEqual([0, 8, 5, 9]);
+    expect(graph.shortestPath(0, 3)).toEqual([0, 2, 1, 3]);
+  });
+
+  it('disconnected graph', () => {
+    const graph = new Graph(4);
+    graph.addEdge(0, 1, 5);
+    graph.addEdge(2, 3, 10);
+    
+    expect(graph.dijkstra(0)).toEqual([0, 5, Infinity, Infinity]);
+    expect(graph.shortestPath(0, 3)).toEqual([]);
+  });
+
+  it('undirected edges', () => {
+    const graph = new Graph(3);
+    graph.addUndirectedEdge(0, 1, 4);
+    graph.addUndirectedEdge(1, 2, 3);
+    
+    expect(graph.dijkstra(0)).toEqual([0, 4, 7]);
+    expect(graph.dijkstra(2)).toEqual([7, 3, 0]);
+  });
+
+  it('shortestPath returns empty for unreachable', () => {
+    const graph = new Graph(3);
+    graph.addEdge(0, 1, 5);
+    expect(graph.shortestPath(0, 2)).toEqual([]);
+    expect(graph.shortestPath(2, 0)).toEqual([]);
+  });
+
+  it('shortestPath with same source and target', () => {
+    const graph = new Graph(3);
+    graph.addEdge(0, 1, 5);
+    expect(graph.shortestPath(1, 1)).toEqual([1]);
+  });
+
+  it('getPathDistance calculates correctly', () => {
+    const graph = new Graph(4);
+    graph.addEdge(0, 1, 5);
+    graph.addEdge(1, 2, 3);
+    graph.addEdge(2, 3, 1);
+    
+    expect(graph.getPathDistance([0, 1, 2, 3])).toBe(9);
+    expect(graph.getPathDistance([0, 1])).toBe(5);
+    expect(graph.getPathDistance([0])).toBe(0);
+  });
+
+  it('getPathDistance with invalid path', () => {
+    const graph = new Graph(3);
+    graph.addEdge(0, 1, 5);
+    expect(graph.getPathDistance([0, 2])).toBe(Infinity);
+  });
+
+  it('dijkstraWithEarlyStop returns correct distance', () => {
+    const graph = new Graph(4);
+    graph.addEdge(0, 1, 10);
+    graph.addEdge(0, 2, 5);
+    graph.addEdge(2, 1, 3);
+    graph.addEdge(1, 3, 1);
+    
+    expect(graph.dijkstraWithEarlyStop(0, 3)).toBe(9);
+    expect(graph.dijkstraWithEarlyStop(0, 2)).toBe(5);
+  });
+
+  it('dijkstraWithEarlyStop for unreachable target', () => {
+    const graph = new Graph(3);
+    graph.addEdge(0, 1, 5);
+    expect(graph.dijkstraWithEarlyStop(0, 2)).toBe(-1);
+  });
+
+  it('graph with zero weight edges', () => {
+    const graph = new Graph(3);
+    graph.addEdge(0, 1, 0);
+    graph.addEdge(1, 2, 0);
+    
+    expect(graph.dijkstra(0)).toEqual([0, 0, 0]);
+  });
+
+  it('graph with large weights', () => {
+    const graph = new Graph(3);
+    graph.addEdge(0, 1, 1000000);
+    graph.addEdge(1, 2, 999999);
+    
+    expect(graph.dijkstra(0)).toEqual([0, 1000000, 1999999]);
+  });
+
+  it('complete graph', () => {
+    const graph = new Graph(4);
+    // All pairs connected
+    for (let i = 0; i < 4; i++) {
+      for (let j = 0; j < 4; j++) {
+        if (i !== j) {
+          graph.addEdge(i, j, i + j + 1);
+        }
+      }
+    }
+    
+    const distances = graph.dijkstra(0);
+    expect(distances[0]).toBe(0);
+    expect(distances[1]).toBe(2); // direct 0->1 = 1
+    expect(distances[2]).toBe(3); // direct 0->2 = 3
+    expect(distances[3]).toBe(4); // direct 0->3 = 4
+  });
+
+  it('cycle in graph', () => {
+    const graph = new Graph(3);
+    graph.addEdge(0, 1, 1);
+    graph.addEdge(1, 2, 1);
+    graph.addEdge(2, 0, 1);
+    
+    expect(graph.dijkstra(0)).toEqual([0, 1, 2]);
+  });
+
+  it('self-loop does not affect shortest path', () => {
+    const graph = new Graph(3);
+    graph.addEdge(0, 0, 5); // self-loop
+    graph.addEdge(0, 1, 3);
+    graph.addEdge(1, 2, 2);
+    
+    expect(graph.dijkstra(0)).toEqual([0, 3, 5]);
+  });
+
+  it('multiple edges between same nodes (uses first added)', () => {
+    const graph = new Graph(2);
+    graph.addEdge(0, 1, 10);
+    graph.addEdge(0, 1, 1); // This creates parallel edge
+    
+    // Dijkstra should find the shortest
+    expect(graph.dijkstra(0)).toEqual([0, 1]);
+  });
+
+  it('stress test with larger graph', () => {
+    const graph = new Graph(100);
+    // Create a line graph
+    for (let i = 0; i < 99; i++) {
+      graph.addEdge(i, i + 1, 1);
+    }
+    
+    const distances = graph.dijkstra(0);
+    expect(distances[0]).toBe(0);
+    expect(distances[99]).toBe(99);
+    expect(distances[50]).toBe(50);
+  });
+
+  it('path reconstruction accuracy', () => {
+    const graph = new Graph(6);
+    graph.addEdge(0, 1, 7);
+    graph.addEdge(0, 2, 9);
+    graph.addEdge(0, 5, 14);
+    graph.addEdge(1, 2, 10);
+    graph.addEdge(1, 3, 15);
+    graph.addEdge(2, 3, 11);
+    graph.addEdge(2, 5, 2);
+    graph.addEdge(3, 4, 6);
+    graph.addEdge(4, 5, 9);
+    
+    const path = graph.shortestPath(0, 4);
+    expect(path[0]).toBe(0);
+    expect(path[path.length - 1]).toBe(4);
+    expect(graph.getPathDistance(path)).toBe(graph.dijkstra(0)[4]);
+  });
+});
+
+describe('edge cases', () => {
+  it('invalid source node', () => {
+    const graph = new Graph(3);
+    expect(graph.dijkstra(5)).toEqual([]);
+    expect(graph.dijkstra(-1)).toEqual([]);
+  });
+
+  it('invalid target in shortestPath', () => {
+    const graph = new Graph(3);
+    expect(graph.shortestPath(0, 10)).toEqual([]);
+  });
+
+  it('empty path distance', () => {
+    const graph = new Graph(3);
+    expect(graph.getPathDistance([])).toBe(0);
+  });
+});
+]=],
+  },
 }
 
 return M
