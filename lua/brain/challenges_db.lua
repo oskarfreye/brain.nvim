@@ -4190,6 +4190,338 @@ describe('edge cases', () => {
 });
 ]=],
   },
+  {
+    name = "Trie (Prefix Tree)",
+    difficulty = "medium",
+    stub = [=[
+/**
+ * Trie (Prefix Tree)
+ *
+ * Implement a Trie data structure for efficient string storage and retrieval.
+ *
+ * A Trie is a tree-like structure where each node represents a character,
+ * and paths from root to nodes form strings. Commonly used for:
+ * - Autocomplete systems
+ * - Spell checkers
+ * - IP routing tables
+ * - Dictionary implementations
+ *
+ * Implement the Trie class with:
+ * - constructor() — Initialize an empty trie
+ * - insert(word: string): void — Insert a word into the trie
+ * - search(word: string): boolean — Return true if word exists in trie
+ * - startsWith(prefix: string): boolean — Return true if any word starts with prefix
+ * - delete(word: string): boolean — Remove a word, return true if found
+ * - countWords(): number — Return total number of words stored
+ * - countPrefixes(prefix: string): number — Count words with given prefix
+ * - findWithPrefix(prefix: string, limit?: number): string[] — Find all words
+ *   with given prefix, optionally limited to N results
+ * - longestCommonPrefix(): string — Find longest common prefix of all words
+ * - autoComplete(prefix: string, limit?: number): string[] — Get autocomplete
+ *   suggestions (words with prefix, sorted alphabetically)
+ *
+ * Each node should track:
+ * - children: Map<char, TrieNode>
+ * - isEndOfWord: boolean
+ * - (optional) wordCount: number for subtree counting
+ */
+
+export class Trie {
+  constructor() {
+    // YOUR CODE HERE
+  }
+
+  insert(word: string): void {
+    // YOUR CODE HERE
+  }
+
+  search(word: string): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  startsWith(prefix: string): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  delete(word: string): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  countWords(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  countPrefixes(prefix: string): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  findWithPrefix(prefix: string, limit?: number): string[] {
+    // YOUR CODE HERE
+    return [];
+  }
+
+  longestCommonPrefix(): string {
+    // YOUR CODE HERE
+    return "";
+  }
+
+  autoComplete(prefix: string, limit?: number): string[] {
+    // YOUR CODE HERE
+    return [];
+  }
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { Trie } from './challenge';
+
+describe('Trie', () => {
+  it('creates empty trie', () => {
+    const trie = new Trie();
+    expect(trie.countWords()).toBe(0);
+    expect(trie.search('')).toBe(false);
+  });
+
+  it('inserts single word', () => {
+    const trie = new Trie();
+    trie.insert('hello');
+    expect(trie.search('hello')).toBe(true);
+    expect(trie.countWords()).toBe(1);
+  });
+
+  it('inserts multiple words', () => {
+    const trie = new Trie();
+    trie.insert('cat');
+    trie.insert('car');
+    trie.insert('dog');
+    expect(trie.search('cat')).toBe(true);
+    expect(trie.search('car')).toBe(true);
+    expect(trie.search('dog')).toBe(true);
+    expect(trie.countWords()).toBe(3);
+  });
+
+  it('search returns false for non-existent words', () => {
+    const trie = new Trie();
+    trie.insert('hello');
+    expect(trie.search('hell')).toBe(false);
+    expect(trie.search('helloo')).toBe(false);
+    expect(trie.search('world')).toBe(false);
+  });
+
+  it('startsWith finds prefixes', () => {
+    const trie = new Trie();
+    trie.insert('hello');
+    trie.insert('world');
+    expect(trie.startsWith('hel')).toBe(true);
+    expect(trie.startsWith('he')).toBe(true);
+    expect(trie.startsWith('h')).toBe(true);
+    expect(trie.startsWith('hello')).toBe(true);
+    expect(trie.startsWith('wor')).toBe(true);
+    expect(trie.startsWith('xyz')).toBe(false);
+  });
+
+  it('startsWith vs search distinction', () => {
+    const trie = new Trie();
+    trie.insert('hello');
+    expect(trie.startsWith('hell')).toBe(true);
+    expect(trie.search('hell')).toBe(false);
+    expect(trie.startsWith('hello')).toBe(true);
+    expect(trie.search('hello')).toBe(true);
+  });
+
+  it('handles common prefixes', () => {
+    const trie = new Trie();
+    trie.insert('app');
+    trie.insert('apple');
+    trie.insert('application');
+    expect(trie.search('app')).toBe(true);
+    expect(trie.search('apple')).toBe(true);
+    expect(trie.search('application')).toBe(true);
+    expect(trie.startsWith('appl')).toBe(true);
+  });
+
+  it('delete existing word', () => {
+    const trie = new Trie();
+    trie.insert('hello');
+    expect(trie.delete('hello')).toBe(true);
+    expect(trie.search('hello')).toBe(false);
+    expect(trie.countWords()).toBe(0);
+  });
+
+  it('delete non-existent word', () => {
+    const trie = new Trie();
+    trie.insert('hello');
+    expect(trie.delete('world')).toBe(false);
+  });
+
+  it('delete preserves shared prefixes', () => {
+    const trie = new Trie();
+    trie.insert('hello');
+    trie.insert('hell');
+    expect(trie.delete('hello')).toBe(true);
+    expect(trie.search('hello')).toBe(false);
+    expect(trie.search('hell')).toBe(true);
+  });
+
+  it('countPrefixes counts words with prefix', () => {
+    const trie = new Trie();
+    trie.insert('cat');
+    trie.insert('car');
+    trie.insert('card');
+    trie.insert('dog');
+    expect(trie.countPrefixes('ca')).toBe(3);
+    expect(trie.countPrefixes('car')).toBe(2);
+    expect(trie.countPrefixes('card')).toBe(1);
+    expect(trie.countPrefixes('do')).toBe(1);
+    expect(trie.countPrefixes('x')).toBe(0);
+  });
+
+  it('findWithPrefix returns matching words', () => {
+    const trie = new Trie();
+    trie.insert('cat');
+    trie.insert('car');
+    trie.insert('card');
+    trie.insert('dog');
+    const results = trie.findWithPrefix('ca');
+    expect(results).toHaveLength(3);
+    expect(results).toContain('cat');
+    expect(results).toContain('car');
+    expect(results).toContain('card');
+  });
+
+  it('findWithPrefix with limit', () => {
+    const trie = new Trie();
+    trie.insert('apple');
+    trie.insert('apply');
+    trie.insert('applied');
+    trie.insert('application');
+    const results = trie.findWithPrefix('app', 2);
+    expect(results.length).toBeLessThanOrEqual(2);
+  });
+
+  it('findWithPrefix returns empty for non-existent prefix', () => {
+    const trie = new Trie();
+    trie.insert('hello');
+    expect(trie.findWithPrefix('xyz')).toEqual([]);
+  });
+
+  it('longestCommonPrefix with single word', () => {
+    const trie = new Trie();
+    trie.insert('hello');
+    expect(trie.longestCommonPrefix()).toBe('hello');
+  });
+
+  it('longestCommonPrefix with common prefix', () => {
+    const trie = new Trie();
+    trie.insert('flower');
+    trie.insert('flow');
+    trie.insert('flight');
+    expect(trie.longestCommonPrefix()).toBe('fl');
+  });
+
+  it('longestCommonPrefix with no common prefix', () => {
+    const trie = new Trie();
+    trie.insert('dog');
+    trie.insert('racecar');
+    trie.insert('car');
+    expect(trie.longestCommonPrefix()).toBe('');
+  });
+
+  it('longestCommonPrefix on empty trie', () => {
+    const trie = new Trie();
+    expect(trie.longestCommonPrefix()).toBe('');
+  });
+
+  it('autoComplete returns suggestions', () => {
+    const trie = new Trie();
+    trie.insert('cat');
+    trie.insert('car');
+    trie.insert('card');
+    const suggestions = trie.autoComplete('ca');
+    expect(suggestions).toHaveLength(3);
+    expect(suggestions).toEqual(['car', 'card', 'cat']); // alphabetically sorted
+  });
+
+  it('autoComplete with limit', () => {
+    const trie = new Trie();
+    ['banana', 'band', 'bandana', 'bandanna', 'bank'].forEach(w => trie.insert(w));
+    const suggestions = trie.autoComplete('ban', 3);
+    expect(suggestions.length).toBeLessThanOrEqual(3);
+  });
+
+  it('handles empty string insert', () => {
+    const trie = new Trie();
+    trie.insert('');
+    expect(trie.search('')).toBe(true);
+    expect(trie.countWords()).toBe(1);
+  });
+
+  it('handles single character words', () => {
+    const trie = new Trie();
+    trie.insert('a');
+    trie.insert('b');
+    trie.insert('c');
+    expect(trie.search('a')).toBe(true);
+    expect(trie.search('b')).toBe(true);
+    expect(trie.startsWith('a')).toBe(true);
+  });
+
+  it('stress test with many words', () => {
+    const trie = new Trie();
+    const words = ['apple', 'application', 'apply', 'banana', 'band', 'bandana',
+      'cat', 'car', 'card', 'dog', 'door', 'double', 'download'];
+    words.forEach(w => trie.insert(w));
+    expect(trie.countWords()).toBe(words.length);
+    words.forEach(w => expect(trie.search(w)).toBe(true));
+  });
+
+  it('delete then re-insert', () => {
+    const trie = new Trie();
+    trie.insert('hello');
+    trie.delete('hello');
+    trie.insert('hello');
+    expect(trie.search('hello')).toBe(true);
+    expect(trie.countWords()).toBe(1);
+  });
+
+  it('case sensitivity', () => {
+    const trie = new Trie();
+    trie.insert('Hello');
+    expect(trie.search('Hello')).toBe(true);
+    expect(trie.search('hello')).toBe(false);
+    expect(trie.search('HELLO')).toBe(false);
+  });
+
+  it('special characters in words', () => {
+    const trie = new Trie();
+    trie.insert('hello-world');
+    trie.insert('test_case');
+    expect(trie.search('hello-world')).toBe(true);
+    expect(trie.search('test_case')).toBe(true);
+  });
+
+  it('very long words', () => {
+    const trie = new Trie();
+    const longWord = 'a'.repeat(1000);
+    trie.insert(longWord);
+    expect(trie.search(longWord)).toBe(true);
+    expect(trie.startsWith('a'.repeat(500))).toBe(true);
+  });
+
+  it('autocomplete returns sorted results', () => {
+    const trie = new Trie();
+    ['zebra', 'apple', 'ant', 'apricot', 'banana'].forEach(w => trie.insert(w));
+    const all = trie.autoComplete('a');
+    expect(all).toEqual(all.slice().sort());
+  });
+});
+]=],
+  },
 }
 
 return M
