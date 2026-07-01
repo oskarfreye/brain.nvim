@@ -4522,6 +4522,255 @@ describe('Trie', () => {
 });
 ]=],
   },
+  {
+    name = "Bloom Filter",
+    difficulty = "medium",
+    stub = [=[
+/**
+ * Bloom Filter
+ *
+ * Implement a space-efficient probabilistic data structure for membership testing.
+ *
+ * A Bloom filter can tell you definitively if an element is NOT in a set,
+ * or probably if an element IS in the set. False positives are possible,
+ * but false negatives are not.
+ *
+ * Use cases:
+ * - Web crawlers checking if a URL has been visited
+ * - Databases checking if a key exists before disk lookup
+ * - Spell checkers with large dictionaries
+ * - Network routers filtering malicious IPs
+ *
+ * Implement the BloomFilter class with:
+ * - constructor(expectedItems: number, falsePositiveRate?: number)
+ *   Initialize with expected number of items and optional false positive rate (default 0.01)
+ * - add(item: string): void — Add an item to the filter
+ * - has(item: string): boolean — Check if item might be in the set
+ * - size(): number — Return the number of items added (approximate)
+ * - estimatedFalsePositiveRate(): number — Return current estimated FPR based on fill
+ *
+ * The filter should automatically calculate:
+ * - Optimal bit array size: m = -(n * ln(p)) / (ln(2)^2)
+ * - Optimal number of hash functions: k = (m/n) * ln(2)
+ *
+ * Use multiple hash functions by combining two base hashes:
+ * h_i(x) = h1(x) + i * h2(x) for i = 0 to k-1
+ *
+ * Bonus: Implement a counting bloom filter that supports deletion:
+ * - remove(item: string): boolean — Remove an item (may cause false negatives)
+ */
+
+export class BloomFilter {
+  constructor(expectedItems: number, falsePositiveRate: number = 0.01) {
+    // YOUR CODE HERE
+  }
+
+  add(item: string): void {
+    // YOUR CODE HERE
+  }
+
+  has(item: string): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  size(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  estimatedFalsePositiveRate(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  remove(item: string): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { BloomFilter } from './challenge';
+
+describe('BloomFilter', () => {
+  it('creates filter with default FPR', () => {
+    const filter = new BloomFilter(100);
+    expect(filter.size()).toBe(0);
+  });
+
+  it('add and has work for single item', () => {
+    const filter = new BloomFilter(100);
+    filter.add('hello');
+    expect(filter.has('hello')).toBe(true);
+  });
+
+  it('has returns false for never-added item', () => {
+    const filter = new BloomFilter(100);
+    expect(filter.has('notadded')).toBe(false);
+  });
+
+  it('multiple items all return true', () => {
+    const filter = new BloomFilter(100);
+    const items = ['apple', 'banana', 'cherry', 'date', 'elderberry'];
+    items.forEach(item => filter.add(item));
+    items.forEach(item => expect(filter.has(item)).toBe(true));
+  });
+
+  it('size tracks number of additions', () => {
+    const filter = new BloomFilter(100);
+    expect(filter.size()).toBe(0);
+    filter.add('one');
+    expect(filter.size()).toBe(1);
+    filter.add('two');
+    expect(filter.size()).toBe(2);
+    filter.add('three');
+    expect(filter.size()).toBe(3);
+  });
+
+  it('no false negatives', () => {
+    const filter = new BloomFilter(1000);
+    const items = Array.from({ length: 100 }, (_, i) => `item${i}`);
+    items.forEach(item => filter.add(item));
+    // All added items must return true (no false negatives)
+    items.forEach(item => expect(filter.has(item)).toBe(true));
+  });
+
+  it('false positive rate is reasonable', () => {
+    const filter = new BloomFilter(100, 0.01);
+    const items = Array.from({ length: 100 }, (_, i) => `item${i}`);
+    items.forEach(item => filter.add(item));
+    
+    // Test 1000 non-added items
+    let falsePositives = 0;
+    for (let i = 0; i < 1000; i++) {
+      if (filter.has(`notreal${i}`)) {
+        falsePositives++;
+      }
+    }
+    
+    // FPR should be roughly around 1% (allow 0.5% to 3% for statistical variance)
+    const observedFPR = falsePositives / 1000;
+    expect(observedFPR).toBeLessThan(0.05); // Lenient upper bound
+  });
+
+  it('estimatedFalsePositiveRate increases with fill', () => {
+    const filter = new BloomFilter(100, 0.01);
+    const initialFPR = filter.estimatedFalsePositiveRate();
+    
+    for (let i = 0; i < 50; i++) {
+      filter.add(`item${i}`);
+    }
+    
+    const laterFPR = filter.estimatedFalsePositiveRate();
+    expect(laterFPR).toBeGreaterThan(initialFPR);
+  });
+
+  it('handles empty strings', () => {
+    const filter = new BloomFilter(100);
+    filter.add('');
+    expect(filter.has('')).toBe(true);
+    expect(filter.has('nonempty')).toBe(false);
+  });
+
+  it('handles unicode strings', () => {
+    const filter = new BloomFilter(100);
+    const unicode = ['你好', '世界', '🚀', 'émojis', '日本語'];
+    unicode.forEach(item => filter.add(item));
+    unicode.forEach(item => expect(filter.has(item)).toBe(true));
+    expect(filter.has('notunicode')).toBe(false);
+  });
+
+  it('handles very long strings', () => {
+    const filter = new BloomFilter(100);
+    const longString = 'a'.repeat(10000);
+    filter.add(longString);
+    expect(filter.has(longString)).toBe(true);
+  });
+
+  it('different filters are independent', () => {
+    const filter1 = new BloomFilter(100);
+    const filter2 = new BloomFilter(100);
+    
+    filter1.add('only-in-filter1');
+    filter2.add('only-in-filter2');
+    
+    expect(filter1.has('only-in-filter1')).toBe(true);
+    expect(filter1.has('only-in-filter2')).toBe(false);
+    expect(filter2.has('only-in-filter1')).toBe(false);
+    expect(filter2.has('only-in-filter2')).toBe(true);
+  });
+
+  it('custom FPR affects bit array size', () => {
+    const filter1 = new BloomFilter(100, 0.001); // Lower FPR = larger array
+    const filter2 = new BloomFilter(100, 0.1);   // Higher FPR = smaller array
+    
+    // Both should work correctly
+    filter1.add('test');
+    filter2.add('test');
+    expect(filter1.has('test')).toBe(true);
+    expect(filter2.has('test')).toBe(true);
+  });
+
+  it('remove works for counting bloom filter', () => {
+    const filter = new BloomFilter(100);
+    filter.add('to-remove');
+    expect(filter.has('to-remove')).toBe(true);
+    
+    const removed = filter.remove('to-remove');
+    // Remove may or may not be supported; if supported, should return true
+    if (removed) {
+      expect(filter.has('to-remove')).toBe(false);
+    }
+  });
+
+  it('remove returns false for non-existent item', () => {
+    const filter = new BloomFilter(100);
+    expect(filter.remove('never-added')).toBe(false);
+  });
+
+  it('stress test with many items', () => {
+    const filter = new BloomFilter(1000, 0.01);
+    const items = Array.from({ length: 1000 }, (_, i) => `stress-item-${i}`);
+    
+    items.forEach(item => filter.add(item));
+    
+    // All should be present (no false negatives)
+    items.forEach(item => expect(filter.has(item)).toBe(true));
+    
+    expect(filter.size()).toBe(1000);
+  });
+
+  it('hash distribution is reasonable', () => {
+    const filter = new BloomFilter(10000);
+    for (let i = 0; i < 1000; i++) {
+      filter.add(`item${i}`);
+    }
+    
+    // After adding 1000 items to a filter sized for 10000,
+    // FPR should still be very low
+    expect(filter.estimatedFalsePositiveRate()).toBeLessThan(0.001);
+  });
+
+  it('handles special characters', () => {
+    const filter = new BloomFilter(100);
+    const special = ['hello\nworld', 'tab\there', 'null\u0000byte', 'emoji🎉test'];
+    special.forEach(item => filter.add(item));
+    special.forEach(item => expect(filter.has(item)).toBe(true));
+  });
+
+  it('case sensitivity', () => {
+    const filter = new BloomFilter(100);
+    filter.add('Hello');
+    expect(filter.has('Hello')).toBe(true);
+    // Different hash for different case
+    expect(filter.has('hello')).toBe(false);
+    expect(filter.has('HELLO')).toBe(false);
+  });
+});
+]=],
+  },
 }
 
 return M
