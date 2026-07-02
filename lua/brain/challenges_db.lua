@@ -4771,6 +4771,207 @@ describe('BloomFilter', () => {
 });
 ]=],
   },
+  {
+    name = "Fenwick Tree",
+    difficulty = "medium",
+    stub = [=[
+/**
+ * Fenwick Tree (Binary Indexed Tree)
+ *
+ * Implement a Fenwick Tree for efficient prefix sum queries and point updates.
+ *
+ * A Fenwick Tree is a data structure that provides O(log n) prefix sum queries
+ * and O(log n) point updates on an array. It is more space-efficient than a
+ * Segment Tree and often faster in practice due to better cache locality.
+ *
+ * Common use cases:
+ * - Cumulative frequency tables
+ * - Range sum queries on mutable arrays
+ * - Counting inversions
+ * - 2D range sums (with 2D Fenwick Tree)
+ *
+ * Implement the FenwickTree class with:
+ * - constructor(size: number) — Initialize a tree for indices 0..size-1
+ * - update(index: number, delta: number): void — Add delta to element at index
+ * - query(index: number): number — Return prefix sum from index 0 to index (inclusive)
+ * - queryRange(l: number, r: number): number — Return sum from index l to r (inclusive)
+ * - set(index: number, value: number): void — Set element at index to value
+ *
+ * The internal array is 1-indexed (standard Fenwick implementation).
+ * External API should be 0-indexed for consistency.
+ *
+ * Constraints: 1 <= size <= 100000
+ *
+ * Bonus: Implement a 2D Fenwick Tree for matrix range sum queries.
+ */
+
+export class FenwickTree {
+  constructor(size: number) {
+    // YOUR CODE HERE
+  }
+
+  update(index: number, delta: number): void {
+    // YOUR CODE HERE
+  }
+
+  query(index: number): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  queryRange(l: number, r: number): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  set(index: number, value: number): void {
+    // YOUR CODE HERE
+  }
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { FenwickTree } from './challenge';
+
+describe('FenwickTree', () => {
+  it('creates empty tree', () => {
+    const ft = new FenwickTree(5);
+    expect(ft.query(0)).toBe(0);
+    expect(ft.query(4)).toBe(0);
+  });
+
+  it('update and query single element', () => {
+    const ft = new FenwickTree(5);
+    ft.update(2, 10);
+    expect(ft.query(2)).toBe(10);
+    expect(ft.query(1)).toBe(0);
+    expect(ft.query(4)).toBe(10);
+  });
+
+  it('multiple updates accumulate', () => {
+    const ft = new FenwickTree(10);
+    ft.update(0, 5);
+    ft.update(3, 7);
+    ft.update(7, 2);
+    expect(ft.query(0)).toBe(5);
+    expect(ft.query(3)).toBe(12);
+    expect(ft.query(6)).toBe(12);
+    expect(ft.query(7)).toBe(14);
+    expect(ft.query(9)).toBe(14);
+  });
+
+  it('queryRange returns correct sum', () => {
+    const ft = new FenwickTree(10);
+    for (let i = 0; i < 10; i++) {
+      ft.update(i, i + 1);
+    }
+    expect(ft.queryRange(0, 9)).toBe(55);
+    expect(ft.queryRange(2, 5)).toBe(3 + 4 + 5 + 6);
+    expect(ft.queryRange(0, 0)).toBe(1);
+    expect(ft.queryRange(9, 9)).toBe(10);
+  });
+
+  it('set replaces value', () => {
+    const ft = new FenwickTree(5);
+    ft.update(2, 10);
+    expect(ft.query(2)).toBe(10);
+    ft.set(2, 20);
+    expect(ft.query(2)).toBe(20);
+    expect(ft.queryRange(0, 4)).toBe(20);
+  });
+
+  it('negative values', () => {
+    const ft = new FenwickTree(5);
+    ft.update(0, 10);
+    ft.update(1, -3);
+    ft.update(2, 7);
+    expect(ft.query(2)).toBe(14);
+    expect(ft.query(1)).toBe(7);
+  });
+
+  it('update with negative delta', () => {
+    const ft = new FenwickTree(5);
+    ft.update(2, 10);
+    expect(ft.query(2)).toBe(10);
+    ft.update(2, -4);
+    expect(ft.query(2)).toBe(6);
+  });
+
+  it('large array', () => {
+    const ft = new FenwickTree(1000);
+    for (let i = 0; i < 1000; i++) {
+      ft.update(i, i + 1);
+    }
+    expect(ft.query(999)).toBe(1000 * 1001 / 2);
+    expect(ft.queryRange(0, 999)).toBe(1000 * 1001 / 2);
+  });
+
+  it('single element tree', () => {
+    const ft = new FenwickTree(1);
+    ft.update(0, 42);
+    expect(ft.query(0)).toBe(42);
+    expect(ft.queryRange(0, 0)).toBe(42);
+  });
+
+  it('set to zero', () => {
+    const ft = new FenwickTree(5);
+    ft.update(2, 10);
+    ft.set(2, 0);
+    expect(ft.queryRange(0, 4)).toBe(0);
+  });
+
+  it('interleaved operations', () => {
+    const ft = new FenwickTree(10);
+    ft.update(0, 1);
+    expect(ft.queryRange(0, 0)).toBe(1);
+    ft.update(5, 5);
+    expect(ft.queryRange(0, 5)).toBe(6);
+    ft.set(0, 10);
+    expect(ft.queryRange(0, 5)).toBe(15);
+    ft.update(3, -2);
+    expect(ft.queryRange(0, 5)).toBe(13);
+  });
+
+  it('stress test', () => {
+    const ft = new FenwickTree(10000);
+    for (let i = 0; i < 10000; i++) {
+      ft.update(i, 1);
+    }
+    expect(ft.query(9999)).toBe(10000);
+    expect(ft.queryRange(5000, 9999)).toBe(5000);
+
+    ft.set(0, 100);
+    expect(ft.query(9999)).toBe(10099);
+  });
+
+  it('edge: query before any update', () => {
+    const ft = new FenwickTree(100);
+    for (let i = 0; i < 100; i++) {
+      expect(ft.query(i)).toBe(0);
+    }
+  });
+
+  it('powers of 2 indices', () => {
+    const ft = new FenwickTree(16);
+    ft.update(0, 1);
+    ft.update(1, 2);
+    ft.update(3, 4);
+    ft.update(7, 8);
+    ft.update(15, 16);
+    expect(ft.query(15)).toBe(31);
+  });
+
+  it('repeated updates same index', () => {
+    const ft = new FenwickTree(5);
+    for (let i = 0; i < 100; i++) {
+      ft.update(2, 1);
+    }
+    expect(ft.query(2)).toBe(100);
+    expect(ft.query(4)).toBe(100);
+  });
+});
+]=],
+  },
 }
 
 return M
