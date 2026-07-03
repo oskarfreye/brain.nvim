@@ -5086,6 +5086,192 @@ describe('ExpressionEvaluator', () => {
 });
 ]=],
   },
+  {
+    name = "Segment Tree",
+    difficulty = "medium",
+    stub = [=[
+/**
+ * Segment Tree
+ *
+ * Implement a segment tree for efficient range queries on arrays.
+ *
+ * A segment tree is a binary tree where each node represents a range
+ * of indices in the original array. It enables O(log n) range queries
+ * and point updates, making it ideal for:
+ * - Range sum/min/max queries
+ * - Real-time analytics dashboards
+ * - Competitive programming
+ *
+ * Implement the SegmentTree class with:
+ * - constructor(arr: number[]) — Build the tree from an array
+ * - query(left: number, right: number): number — Range sum query
+ * - update(index: number, value: number): void — Update a single element
+ * - rangeMin(left: number, right: number): number — Range minimum query
+ * - rangeMax(left: number, right: number): number — Range maximum query
+ *
+ * Bonus: Support range updates with lazy propagation.
+ */
+
+export class SegmentTree {
+  constructor(arr: number[]) {
+    // YOUR CODE HERE
+  }
+
+  query(left: number, right: number): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  update(index: number, value: number): void {
+    // YOUR CODE HERE
+  }
+
+  rangeMin(left: number, right: number): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  rangeMax(left: number, right: number): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { SegmentTree } from './challenge';
+
+describe('SegmentTree', () => {
+  it('creates tree from single element', () => {
+    const tree = new SegmentTree([5]);
+    expect(tree.query(0, 0)).toBe(5);
+  });
+
+  it('creates tree from multiple elements', () => {
+    const tree = new SegmentTree([1, 2, 3, 4, 5]);
+    expect(tree.query(0, 4)).toBe(15);
+    expect(tree.query(1, 3)).toBe(9);
+  });
+
+  it('query single element', () => {
+    const tree = new SegmentTree([10, 20, 30]);
+    expect(tree.query(0, 0)).toBe(10);
+    expect(tree.query(1, 1)).toBe(20);
+    expect(tree.query(2, 2)).toBe(30);
+  });
+
+  it('query full range', () => {
+    const tree = new SegmentTree([1, 2, 3, 4, 5, 6, 7, 8]);
+    expect(tree.query(0, 7)).toBe(36);
+  });
+
+  it('query partial ranges', () => {
+    const tree = new SegmentTree([1, 2, 3, 4, 5, 6, 7, 8]);
+    expect(tree.query(2, 5)).toBe(18);
+    expect(tree.query(0, 2)).toBe(6);
+    expect(tree.query(5, 7)).toBe(21);
+  });
+
+  it('update single element', () => {
+    const tree = new SegmentTree([1, 2, 3, 4, 5]);
+    tree.update(2, 10);
+    expect(tree.query(0, 4)).toBe(22);
+    expect(tree.query(2, 2)).toBe(10);
+  });
+
+  it('update multiple elements', () => {
+    const tree = new SegmentTree([1, 1, 1, 1, 1]);
+    tree.update(0, 10);
+    tree.update(4, 10);
+    expect(tree.query(0, 4)).toBe(23);
+  });
+
+  it('update and query alternating', () => {
+    const tree = new SegmentTree([1, 2, 3, 4, 5]);
+    expect(tree.query(0, 4)).toBe(15);
+    tree.update(0, 100);
+    expect(tree.query(0, 4)).toBe(114);
+    tree.update(4, 100);
+    expect(tree.query(0, 4)).toBe(213);
+  });
+
+  it('rangeMin returns minimum', () => {
+    const tree = new SegmentTree([5, 2, 8, 1, 9, 3]);
+    expect(tree.rangeMin(0, 5)).toBe(1);
+    expect(tree.rangeMin(1, 3)).toBe(1);
+    expect(tree.rangeMin(0, 1)).toBe(2);
+  });
+
+  it('rangeMin after update', () => {
+    const tree = new SegmentTree([5, 2, 8, 1, 9]);
+    expect(tree.rangeMin(0, 4)).toBe(1);
+    tree.update(3, 100);
+    expect(tree.rangeMin(0, 4)).toBe(2);
+  });
+
+  it('rangeMax returns maximum', () => {
+    const tree = new SegmentTree([5, 2, 8, 1, 9, 3]);
+    expect(tree.rangeMax(0, 5)).toBe(9);
+    expect(tree.rangeMax(0, 2)).toBe(8);
+    expect(tree.rangeMax(3, 5)).toBe(9);
+  });
+
+  it('rangeMax after update', () => {
+    const tree = new SegmentTree([1, 2, 3, 4, 5]);
+    expect(tree.rangeMax(0, 4)).toBe(5);
+    tree.update(0, 100);
+    expect(tree.rangeMax(0, 4)).toBe(100);
+  });
+
+  it('handles negative values', () => {
+    const tree = new SegmentTree([-5, -10, -3, -7, -1]);
+    expect(tree.query(0, 4)).toBe(-26);
+    expect(tree.rangeMin(0, 4)).toBe(-10);
+    expect(tree.rangeMax(0, 4)).toBe(-1);
+  });
+
+  it('handles zeros', () => {
+    const tree = new SegmentTree([0, 0, 0, 0]);
+    expect(tree.query(0, 3)).toBe(0);
+    expect(tree.rangeMin(0, 3)).toBe(0);
+    expect(tree.rangeMax(0, 3)).toBe(0);
+  });
+
+  it('stress test with many updates', () => {
+    const arr = Array.from({ length: 100 }, (_, i) => i + 1);
+    const tree = new SegmentTree(arr);
+    
+    expect(tree.query(0, 99)).toBe(5050);
+    
+    for (let i = 0; i < 100; i += 2) {
+      tree.update(i, 0);
+    }
+    
+    expect(tree.query(0, 99)).toBe(2500);
+  });
+
+  it('large array performance', () => {
+    const arr = Array.from({ length: 10000 }, (_, i) => i + 1);
+    const tree = new SegmentTree(arr);
+    expect(tree.query(0, 9999)).toBe(50005000);
+    tree.update(5000, 100000);
+    expect(tree.query(0, 9999)).toBe(50050000);
+  });
+});
+
+describe('edge cases', () => {
+  it('empty array', () => {
+    const tree = new SegmentTree([]);
+    expect(tree.query(0, 0)).toBe(0);
+  });
+
+  it('out of bounds query returns 0', () => {
+    const tree = new SegmentTree([1, 2, 3]);
+    expect(tree.query(10, 20)).toBe(0);
+  });
+});
+]=],
+  },
 }
 
 return M
