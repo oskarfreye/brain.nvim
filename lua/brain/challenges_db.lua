@@ -4972,6 +4972,120 @@ describe('FenwickTree', () => {
 });
 ]=],
   },
+  {
+    name = "Expression Evaluator",
+    difficulty = "medium",
+    stub = [=[
+/**
+ * Expression Evaluator
+ *
+ * Implement an arithmetic expression evaluator that handles +, -, *, /,
+ * parentheses, and operator precedence.
+ *
+ * The evaluator should process infix notation with the standard precedence rules:
+ * - Parentheses have highest precedence
+ * - * and / have higher precedence than + and -
+ * - Operators of equal precedence are evaluated left-to-right
+ * - Division should perform integer division (truncate toward zero)
+ * - Whitespace should be ignored
+ *
+ * Examples:
+ *   evaluate("3 + 4 * 2") → 11
+ *   evaluate("(3 + 4) * 2") → 14
+ *   evaluate("10 / 3") → 3
+ *   evaluate("2 * (3 + 4) - 1") → 13
+ *   evaluate("-5 + 3") → -2
+ *
+ * Implement the ExpressionEvaluator class:
+ * - constructor()
+ * - evaluate(expression: string): number
+ *
+ * Constraints:
+ * - Operands are integers (may be negative)
+ * - Expression is always valid (no error handling required)
+ * - Numbers: -2^31 to 2^31 - 1
+ */
+
+export class ExpressionEvaluator {
+  evaluate(expression: string): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { ExpressionEvaluator } from './challenge';
+
+describe('ExpressionEvaluator', () => {
+  it('simple addition', () => {
+    const ev = new ExpressionEvaluator();
+    expect(ev.evaluate('3 + 4')).toBe(7);
+  });
+
+  it('simple multiplication', () => {
+    const ev = new ExpressionEvaluator();
+    expect(ev.evaluate('3 * 4')).toBe(12);
+  });
+
+  it('operator precedence: multiply before add', () => {
+    const ev = new ExpressionEvaluator();
+    expect(ev.evaluate('3 + 4 * 2')).toBe(11);
+  });
+
+  it('parentheses override precedence', () => {
+    const ev = new ExpressionEvaluator();
+    expect(ev.evaluate('(3 + 4) * 2')).toBe(14);
+  });
+
+  it('integer division truncates toward zero', () => {
+    const ev = new ExpressionEvaluator();
+    expect(ev.evaluate('10 / 3')).toBe(3);
+    expect(ev.evaluate('-10 / 3')).toBe(-3);
+  });
+
+  it('mixed operations', () => {
+    const ev = new ExpressionEvaluator();
+    expect(ev.evaluate('2 * 3 + 4 * 5')).toBe(26);
+  });
+
+  it('nested parentheses', () => {
+    const ev = new ExpressionEvaluator();
+    expect(ev.evaluate('(2 + (3 * 4)) - 1')).toBe(13);
+  });
+
+  it('single number', () => {
+    const ev = new ExpressionEvaluator();
+    expect(ev.evaluate('42')).toBe(42);
+  });
+
+  it('negative leading number', () => {
+    const ev = new ExpressionEvaluator();
+    expect(ev.evaluate('-5 + 3')).toBe(-2);
+  });
+
+  it('whitespace handling', () => {
+    const ev = new ExpressionEvaluator();
+    expect(ev.evaluate('  1  +  2  *  3  ')).toBe(7);
+  });
+
+  it('deeply nested expression', () => {
+    const ev = new ExpressionEvaluator();
+    expect(ev.evaluate('(((2 + 3) * 4) - 1) / 2')).toBe(9);
+  });
+
+  it('division by one', () => {
+    const ev = new ExpressionEvaluator();
+    expect(ev.evaluate('100 / 1')).toBe(100);
+  });
+
+  it('multiple divisions', () => {
+    const ev = new ExpressionEvaluator();
+    expect(ev.evaluate('100 / 2 / 5')).toBe(10);
+  });
+});
+]=],
+  },
 }
 
 return M
