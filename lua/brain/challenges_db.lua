@@ -5272,6 +5272,352 @@ describe('edge cases', () => {
 });
 ]=],
   },
+  {
+    name = "Doubly Linked List",
+    difficulty = "easy",
+    stub = [==[
+/**
+ * Doubly Linked List
+ *
+ * Implement a doubly linked list with forward and backward traversal.
+ *
+ * A doubly linked list is a linear data structure where each node contains:
+ * - A value
+ * - A pointer to the next node
+ * - A pointer to the previous node
+ *
+ * This enables O(1) insertion/deletion at both ends and O(n) traversal
+ * in either direction.
+ *
+ * Implement the DoublyLinkedList class with:
+ * - constructor() — Initialize an empty list
+ * - append(value: any): void — Add a value to the end (O(1))
+ * - prepend(value: any): void — Add a value to the beginning (O(1))
+ * - insertAt(index: number, value: any): boolean — Insert at index (O(n))
+ * - deleteAt(index: number): any | null — Remove and return value at index (O(n))
+ * - deleteValue(value: any): boolean — Remove first occurrence of value (O(n))
+ * - get(index: number): any | null — Get value at index (O(n))
+ * - set(index: number, value: any): boolean — Update value at index (O(n))
+ * - indexOf(value: any): number — Find first index of value, -1 if not found (O(n))
+ * - contains(value: any): boolean — Check if value exists (O(n))
+ * - size(): number — Return the number of elements (O(1))
+ * - isEmpty(): boolean — Check if list is empty (O(1))
+ * - clear(): void — Remove all elements (O(1))
+ * - toArray(): any[] — Convert to array (forward order) (O(n))
+ * - toArrayReverse(): any[] — Convert to array (reverse order) (O(n))
+ * - headValue(): any | null — Get head value without removing (O(1))
+ * - tailValue(): any | null — Get tail value without removing (O(1))
+ *
+ * Bonus: Implement iterator protocol for for...of loops
+ */
+
+export class DoublyLinkedList {
+  constructor() {
+    // YOUR CODE HERE
+  }
+
+  append(value: any): void {
+    // YOUR CODE HERE
+  }
+
+  prepend(value: any): void {
+    // YOUR CODE HERE
+  }
+
+  insertAt(index: number, value: any): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  deleteAt(index: number): any | null {
+    // YOUR CODE HERE
+    return null;
+  }
+
+  deleteValue(value: any): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  get(index: number): any | null {
+    // YOUR CODE HERE
+    return null;
+  }
+
+  set(index: number, value: any): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  indexOf(value: any): number {
+    // YOUR CODE HERE
+    return -1;
+  }
+
+  contains(value: any): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  size(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  isEmpty(): boolean {
+    // YOUR CODE HERE
+    return true;
+  }
+
+  clear(): void {
+    // YOUR CODE HERE
+  }
+
+  toArray(): any[] {
+    // YOUR CODE HERE
+    return [];
+  }
+
+  toArrayReverse(): any[] {
+    // YOUR CODE HERE
+    return [];
+  }
+
+  headValue(): any | null {
+    // YOUR CODE HERE
+    return null;
+  }
+
+  tailValue(): any | null {
+    // YOUR CODE HERE
+    return null;
+  }
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { DoublyLinkedList } from './challenge';
+
+describe('DoublyLinkedList', () => {
+  it('creates empty list', () => {
+    const list = new DoublyLinkedList();
+    expect(list.isEmpty()).toBe(true);
+    expect(list.size()).toBe(0);
+    expect(list.headValue()).toBeNull();
+    expect(list.tailValue()).toBeNull();
+  });
+
+  it('appends single value', () => {
+    const list = new DoublyLinkedList();
+    list.append(1);
+    expect(list.size()).toBe(1);
+    expect(list.headValue()).toBe(1);
+    expect(list.tailValue()).toBe(1);
+    expect(list.toArray()).toEqual([1]);
+  });
+
+  it('appends multiple values', () => {
+    const list = new DoublyLinkedList();
+    list.append(1);
+    list.append(2);
+    list.append(3);
+    expect(list.size()).toBe(3);
+    expect(list.headValue()).toBe(1);
+    expect(list.tailValue()).toBe(3);
+    expect(list.toArray()).toEqual([1, 2, 3]);
+  });
+
+  it('prepends values', () => {
+    const list = new DoublyLinkedList();
+    list.prepend(1);
+    list.prepend(2);
+    list.prepend(3);
+    expect(list.size()).toBe(3);
+    expect(list.headValue()).toBe(3);
+    expect(list.tailValue()).toBe(1);
+    expect(list.toArray()).toEqual([3, 2, 1]);
+  });
+
+  it('mix of append and prepend', () => {
+    const list = new DoublyLinkedList();
+    list.append(2);
+    list.prepend(1);
+    list.append(3);
+    list.prepend(0);
+    expect(list.toArray()).toEqual([0, 1, 2, 3]);
+    expect(list.size()).toBe(4);
+  });
+
+  it('get returns correct values', () => {
+    const list = new DoublyLinkedList();
+    ['a', 'b', 'c', 'd'].forEach(v => list.append(v));
+    expect(list.get(0)).toBe('a');
+    expect(list.get(1)).toBe('b');
+    expect(list.get(2)).toBe('c');
+    expect(list.get(3)).toBe('d');
+    expect(list.get(-1)).toBeNull();
+    expect(list.get(10)).toBeNull();
+  });
+
+  it('set updates values', () => {
+    const list = new DoublyLinkedList();
+    [1, 2, 3].forEach(v => list.append(v));
+    expect(list.set(1, 20)).toBe(true);
+    expect(list.get(1)).toBe(20);
+    expect(list.toArray()).toEqual([1, 20, 3]);
+    expect(list.set(-1, 0)).toBe(false);
+    expect(list.set(10, 0)).toBe(false);
+  });
+
+  it('insertAt inserts at position', () => {
+    const list = new DoublyLinkedList();
+    [1, 3].forEach(v => list.append(v));
+    expect(list.insertAt(1, 2)).toBe(true);
+    expect(list.toArray()).toEqual([1, 2, 3]);
+    expect(list.insertAt(0, 0)).toBe(true);
+    expect(list.toArray()).toEqual([0, 1, 2, 3]);
+    expect(list.insertAt(4, 4)).toBe(true);
+    expect(list.toArray()).toEqual([0, 1, 2, 3, 4]);
+  });
+
+  it('insertAt at invalid indices', () => {
+    const list = new DoublyLinkedList();
+    list.append(1);
+    expect(list.insertAt(-1, 0)).toBe(false);
+    expect(list.insertAt(5, 0)).toBe(false);
+  });
+
+  it('deleteAt removes and returns value', () => {
+    const list = new DoublyLinkedList();
+    ['a', 'b', 'c', 'd'].forEach(v => list.append(v));
+    expect(list.deleteAt(1)).toBe('b');
+    expect(list.toArray()).toEqual(['a', 'c', 'd']);
+    expect(list.deleteAt(0)).toBe('a');
+    expect(list.toArray()).toEqual(['c', 'd']);
+    expect(list.deleteAt(1)).toBe('d');
+    expect(list.toArray()).toEqual(['c']);
+  });
+
+  it('deleteAt from empty list', () => {
+    const list = new DoublyLinkedList();
+    expect(list.deleteAt(0)).toBeNull();
+  });
+
+  it('deleteAt invalid index', () => {
+    const list = new DoublyLinkedList();
+    list.append(1);
+    expect(list.deleteAt(-1)).toBeNull();
+    expect(list.deleteAt(10)).toBeNull();
+  });
+
+  it('deleteValue removes first occurrence', () => {
+    const list = new DoublyLinkedList();
+    [1, 2, 3, 2, 4].forEach(v => list.append(v));
+    expect(list.deleteValue(2)).toBe(true);
+    expect(list.toArray()).toEqual([1, 3, 2, 4]);
+    expect(list.deleteValue(2)).toBe(true);
+    expect(list.toArray()).toEqual([1, 3, 4]);
+    expect(list.deleteValue(5)).toBe(false);
+  });
+
+  it('indexOf finds correct index', () => {
+    const list = new DoublyLinkedList();
+    ['a', 'b', 'c', 'd'].forEach(v => list.append(v));
+    expect(list.indexOf('a')).toBe(0);
+    expect(list.indexOf('c')).toBe(2);
+    expect(list.indexOf('d')).toBe(3);
+    expect(list.indexOf('z')).toBe(-1);
+  });
+
+  it('contains checks existence', () => {
+    const list = new DoublyLinkedList();
+    [1, 2, 3].forEach(v => list.append(v));
+    expect(list.contains(2)).toBe(true);
+    expect(list.contains(5)).toBe(false);
+  });
+
+  it('toArrayReverse returns reverse order', () => {
+    const list = new DoublyLinkedList();
+    [1, 2, 3, 4].forEach(v => list.append(v));
+    expect(list.toArrayReverse()).toEqual([4, 3, 2, 1]);
+  });
+
+  it('toArrayReverse on empty list', () => {
+    const list = new DoublyLinkedList();
+    expect(list.toArrayReverse()).toEqual([]);
+  });
+
+  it('clear empties the list', () => {
+    const list = new DoublyLinkedList();
+    [1, 2, 3].forEach(v => list.append(v));
+    list.clear();
+    expect(list.isEmpty()).toBe(true);
+    expect(list.size()).toBe(0);
+    expect(list.toArray()).toEqual([]);
+    expect(list.headValue()).toBeNull();
+    expect(list.tailValue()).toBeNull();
+  });
+
+  it('handles duplicate values', () => {
+    const list = new DoublyLinkedList();
+    [5, 3, 5, 1, 3].forEach(v => list.append(v));
+    expect(list.toArray()).toEqual([5, 3, 5, 1, 3]);
+    expect(list.indexOf(5)).toBe(0);
+    expect(list.contains(5)).toBe(true);
+  });
+
+  it('handles various types', () => {
+    const list = new DoublyLinkedList();
+    list.append(42);
+    list.append('hello');
+    list.append(true);
+    list.append(null);
+    list.append({ key: 'value' });
+    list.append([1, 2, 3]);
+    expect(list.size()).toBe(6);
+    expect(list.get(0)).toBe(42);
+    expect(list.get(1)).toBe('hello');
+    expect(list.get(2)).toBe(true);
+    expect(list.get(3)).toBeNull();
+  });
+
+  it('stress test with many operations', () => {
+    const list = new DoublyLinkedList();
+    for (let i = 0; i < 100; i++) {
+      list.append(i);
+    }
+    expect(list.size()).toBe(100);
+    expect(list.headValue()).toBe(0);
+    expect(list.tailValue()).toBe(99);
+    
+    for (let i = 0; i < 50; i++) {
+      list.deleteAt(0);
+    }
+    expect(list.size()).toBe(50);
+    expect(list.headValue()).toBe(50);
+  });
+
+  it('insert and delete at boundaries', () => {
+    const list = new DoublyLinkedList();
+    list.append(2);
+    list.insertAt(0, 1);
+    list.insertAt(2, 3);
+    expect(list.toArray()).toEqual([1, 2, 3]);
+    
+    list.deleteAt(0);
+    list.deleteAt(1);
+    expect(list.toArray()).toEqual([2]);
+  });
+
+  it('single element operations', () => {
+    const list = new DoublyLinkedList();
+    list.append(42);
+    expect(list.deleteAt(0)).toBe(42);
+    expect(list.isEmpty()).toBe(true);
+  });
+});
+]==],
+  },
 }
 
 return M
