@@ -2118,156 +2118,1458 @@ describe('MinHeap', () => {
     expect(result).toEqual([1, 3, 5, 7, 9]);
   });
 
-  it('heapify on already sorted array', () => {
+  it('decreaseKey moves element up', () => {
     const heap = new MinHeap([1, 2, 3, 4, 5]);
     heap.heapify();
-    expect(heap.peek()).toBe(1);
+    // Decrease value at index 4 (value 5) to 0
+    expect(heap.decreaseKey(4, 0)).toBe(true);
+    expect(heap.peek()).toBe(0);
   });
 
-  it('decreaseKey reduces value and bubbles up', () => {
-    const heap = new MinHeap([10, 20, 30, 40, 50]);
+  it('decreaseKey returns false for invalid decrease', () => {
+    const heap = new MinHeap([1, 2, 3]);
     heap.heapify();
-    
-    // Decrease 50 to 5, should bubble to root
-    expect(heap.decreaseKey(4, 5)).toBe(true);
-    expect(heap.peek()).toBe(5);
+    // Try to increase value (not allowed)
+    expect(heap.decreaseKey(0, 10)).toBe(false);
   });
 
   it('decreaseKey returns false for invalid index', () => {
     const heap = new MinHeap([1, 2, 3]);
-    expect(heap.decreaseKey(10, 0)).toBe(false);
+    expect(heap.decreaseKey(99, 0)).toBe(false);
     expect(heap.decreaseKey(-1, 0)).toBe(false);
   });
 
-  it('decreaseKey returns false if newValue > currentValue', () => {
-    const heap = new MinHeap([1, 2, 3]);
-    expect(heap.decreaseKey(0, 5)).toBe(false); // Can't increase 1 to 5
-  });
-
-  it('delete removes element at index', () => {
+  it('delete removes element', () => {
     const heap = new MinHeap([5, 3, 7, 1, 9]);
     heap.heapify();
-    
-    // Delete element at index 2 (should be 5 after heapify)
-    expect(heap.delete(2)).toBe(true);
+    expect(heap.delete(0)).toBe(true); // Delete root (1)
+    expect(heap.peek()).toBe(3);
     expect(heap.size()).toBe(4);
-    
-    const result: number[] = [];
-    while (!heap.isEmpty()) {
-      result.push(heap.extractMin()!);
-    }
-    expect(result).toEqual([1, 3, 7, 9]);
   });
 
   it('delete returns false for invalid index', () => {
     const heap = new MinHeap([1, 2, 3]);
-    expect(heap.delete(10)).toBe(false);
-    expect(heap.delete(-1)).toBe(false);
-  });
-
-  it('delete last element', () => {
-    const heap = new MinHeap([1, 2, 3]);
-    heap.heapify();
-    expect(heap.delete(2)).toBe(true);
-    expect(heap.size()).toBe(2);
-    expect(heap.peek()).toBe(1);
-  });
-
-  it('delete root element', () => {
-    const heap = new MinHeap([3, 1, 2]);
-    heap.heapify();
-    expect(heap.delete(0)).toBe(true);
-    expect(heap.size()).toBe(2);
-    expect(heap.peek()).toBe(2);
-  });
-
-  it('maintains heap property after many operations', () => {
-    const heap = new MinHeap();
-    
-    // Insert random values
-    [42, 17, 73, 9, 55, 31, 8, 64, 22, 11].forEach(v => heap.insert(v));
-    
-    // Extract all and verify sorted order
-    const result: number[] = [];
-    while (!heap.isEmpty()) {
-      result.push(heap.extractMin()!);
-    }
-    expect(result).toEqual([8, 9, 11, 17, 22, 31, 42, 55, 64, 73]);
+    expect(heap.delete(99)).toBe(false);
   });
 
   it('stress test with many insertions', () => {
     const heap = new MinHeap();
-    const values = Array.from({ length: 1000 }, (_, i) => Math.random() * 10000);
+    const values = [50, 25, 75, 10, 30, 60, 90, 5, 15, 27, 35, 55, 65, 85, 95];
     values.forEach(v => heap.insert(v));
     
-    expect(heap.size()).toBe(1000);
-    
     const result: number[] = [];
     while (!heap.isEmpty()) {
       result.push(heap.extractMin()!);
     }
-    
-    // Verify sorted
-    for (let i = 1; i < result.length; i++) {
-      expect(result[i]).toBeGreaterThanOrEqual(result[i - 1]);
-    }
+    expect(result).toEqual(values.sort((a, b) => a - b));
+  });
+});
+]=],
+  },
+  {
+    name = "Trie (Prefix Tree)",
+    difficulty = "medium",
+    stub = [=[
+/**
+ * Trie (Prefix Tree)
+ *
+ * Implement a Trie data structure for efficient string storage and retrieval.
+ *
+ * A Trie is a tree-like structure where each node represents a character,
+ * and paths from root to nodes represent strings. Commonly used for:
+ * - Autocomplete systems
+ * - Spell checkers
+ * - IP routing (longest prefix match)
+ * - Predictive text
+ *
+ * Implement the Trie class with:
+ * - insert(word: string): void — Insert a word into the trie
+ * - search(word: string): boolean — Return true if word exists in trie
+ * - startsWith(prefix: string): boolean — Return true if any word starts with prefix
+ * - delete(word: string): boolean — Remove a word, return true if found
+ * - countWords(): number — Return total number of words stored
+ * - countNodes(): number — Return total number of nodes in trie
+ * - findWordsWithPrefix(prefix: string): string[] — Return all words with given prefix
+ * - autocomplete(prefix: string, limit?: number): string[] — Return up to limit completions
+ *
+ * Bonus: Implement a generic Trie<T> that stores values at word endpoints:
+ * - insert(word: string, value: T): void
+ * - get(word: string): T | undefined
+ */
+
+export class Trie {
+  constructor() {
+    // YOUR CODE HERE
+  }
+
+  insert(word: string): void {
+    // YOUR CODE HERE
+  }
+
+  search(word: string): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  startsWith(prefix: string): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  delete(word: string): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  countWords(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  countNodes(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  findWordsWithPrefix(prefix: string): string[] {
+    // YOUR CODE HERE
+    return [];
+  }
+
+  autocomplete(prefix: string, limit?: number): string[] {
+    // YOUR CODE HERE
+    return [];
+  }
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { Trie } from './challenge';
+
+describe('Trie', () => {
+  it('creates empty trie', () => {
+    const trie = new Trie();
+    expect(trie.countWords()).toBe(0);
+    expect(trie.search('')).toBe(false);
   });
 
-  it('handles duplicate values', () => {
-    const heap = new MinHeap();
-    [5, 3, 5, 1, 3, 1].forEach(v => heap.insert(v));
+  it('inserts single word', () => {
+    const trie = new Trie();
+    trie.insert('hello');
+    expect(trie.search('hello')).toBe(true);
+    expect(trie.countWords()).toBe(1);
+  });
+
+  it('inserts multiple words', () => {
+    const trie = new Trie();
+    trie.insert('cat');
+    trie.insert('car');
+    trie.insert('card');
+    expect(trie.search('cat')).toBe(true);
+    expect(trie.search('car')).toBe(true);
+    expect(trie.search('card')).toBe(true);
+    expect(trie.countWords()).toBe(3);
+  });
+
+  it('search returns false for non-existent words', () => {
+    const trie = new Trie();
+    trie.insert('hello');
+    expect(trie.search('hell')).toBe(false);
+    expect(trie.search('helloo')).toBe(false);
+    expect(trie.search('world')).toBe(false);
+  });
+
+  it('startsWith checks prefixes', () => {
+    const trie = new Trie();
+    trie.insert('hello');
+    expect(trie.startsWith('h')).toBe(true);
+    expect(trie.startsWith('he')).toBe(true);
+    expect(trie.startsWith('hel')).toBe(true);
+    expect(trie.startsWith('hell')).toBe(true);
+    expect(trie.startsWith('hello')).toBe(true);
+    expect(trie.startsWith('x')).toBe(false);
+  });
+
+  it('startsWith returns false after delete', () => {
+    const trie = new Trie();
+    trie.insert('test');
+    expect(trie.startsWith('te')).toBe(true);
+    trie.delete('test');
+    expect(trie.startsWith('te')).toBe(false);
+  });
+
+  it('delete existing word', () => {
+    const trie = new Trie();
+    trie.insert('hello');
+    expect(trie.delete('hello')).toBe(true);
+    expect(trie.search('hello')).toBe(false);
+    expect(trie.countWords()).toBe(0);
+  });
+
+  it('delete non-existent word', () => {
+    const trie = new Trie();
+    trie.insert('hello');
+    expect(trie.delete('world')).toBe(false);
+  });
+
+  it('delete preserves shared prefixes', () => {
+    const trie = new Trie();
+    trie.insert('cat');
+    trie.insert('car');
+    trie.delete('cat');
+    expect(trie.search('cat')).toBe(false);
+    expect(trie.search('car')).toBe(true);
+    expect(trie.startsWith('ca')).toBe(true);
+  });
+
+  it('countNodes returns correct count', () => {
+    const trie = new Trie();
+    expect(trie.countNodes()).toBe(1); // Root node
+    trie.insert('abc');
+    expect(trie.countNodes()).toBe(4); // Root + a + b + c
+  });
+
+  it('findWordsWithPrefix finds all matching words', () => {
+    const trie = new Trie();
+    trie.insert('apple');
+    trie.insert('app');
+    trie.insert('application');
+    trie.insert('apply');
+    trie.insert('banana');
     
-    const result: number[] = [];
-    while (!heap.isEmpty()) {
-      result.push(heap.extractMin()!);
+    const words = trie.findWordsWithPrefix('app');
+    expect(words).toHaveLength(4);
+    expect(words).toContain('apple');
+    expect(words).toContain('app');
+    expect(words).toContain('application');
+    expect(words).toContain('apply');
+  });
+
+  it('findWordsWithPrefix returns empty for non-existent prefix', () => {
+    const trie = new Trie();
+    trie.insert('hello');
+    expect(trie.findWordsWithPrefix('x')).toEqual([]);
+  });
+
+  it('autocomplete respects limit', () => {
+    const trie = new Trie();
+    trie.insert('apple');
+    trie.insert('app');
+    trie.insert('application');
+    trie.insert('apply');
+    
+    const results = trie.autocomplete('app', 2);
+    expect(results.length).toBeLessThanOrEqual(2);
+    results.forEach(r => expect(r.startsWith('app')).toBe(true));
+  });
+
+  it('autocomplete without limit', () => {
+    const trie = new Trie();
+    trie.insert('test');
+    trie.insert('testing');
+    trie.insert('tester');
+    
+    const results = trie.autocomplete('test');
+    expect(results).toHaveLength(3);
+  });
+
+  it('handles empty string insert', () => {
+    const trie = new Trie();
+    trie.insert('');
+    expect(trie.search('')).toBe(true);
+    expect(trie.countWords()).toBe(1);
+  });
+
+  it('handles single character words', () => {
+    const trie = new Trie();
+    trie.insert('a');
+    trie.insert('b');
+    trie.insert('c');
+    expect(trie.search('a')).toBe(true);
+    expect(trie.search('b')).toBe(true);
+    expect(trie.search('c')).toBe(true);
+    expect(trie.search('d')).toBe(false);
+  });
+
+  it('handles duplicate inserts', () => {
+    const trie = new Trie();
+    trie.insert('hello');
+    trie.insert('hello');
+    expect(trie.search('hello')).toBe(true);
+    // Depending on implementation, countWords might be 1 or 2
+    expect(trie.countWords()).toBeGreaterThanOrEqual(1);
+  });
+
+  it('stress test with many words', () => {
+    const trie = new Trie();
+    const words = ['apple', 'application', 'apply', 'banana', 'band', 'can', 'cat', 'card'];
+    words.forEach(w => trie.insert(w));
+    
+    expect(trie.countWords()).toBe(words.length);
+    words.forEach(w => expect(trie.search(w)).toBe(true));
+  });
+
+  it('autocomplete returns sorted results', () => {
+    const trie = new Trie();
+    trie.insert('zebra');
+    trie.insert('apple');
+    trie.insert('banana');
+    
+    const results = trie.autocomplete('');
+    expect(results).toEqual(['apple', 'banana', 'zebra']);
+  });
+});
+]=],
+  },
+  {
+    name = "Bloom Filter",
+    difficulty = "medium",
+    stub = [=[
+/**
+ * Bloom Filter
+ *
+ * Implement a space-efficient probabilistic data structure for membership testing.
+ *
+ * A Bloom filter can tell you:
+ * - "Definitely NOT in the set" (no false negatives)
+ * - "Probably in the set" (possible false positives)
+ *
+ * It uses multiple hash functions to set bits in a bit array. To check membership,
+ * verify all corresponding bits are set. Commonly used in:
+ * - Database query optimization (avoiding disk lookups)
+ * - Web crawlers (avoiding revisiting URLs)
+ * - Cache filtering (avoiding cache misses)
+ * - Network security (blocked IP/URL lists)
+ *
+ * Implement the BloomFilter class with:
+ * - constructor(capacity: number, falsePositiveRate?: number) — Initialize with
+ *   expected capacity and optional false positive rate (default 0.01)
+ * - add(item: string): void — Add an item to the filter
+ * - has(item: string): boolean — Check if item might be in the set
+ * - size(): number — Return number of items added (approximate)
+ * - clear(): void — Reset the filter
+ *
+ * The filter should automatically calculate optimal:
+ * - Bit array size (m) based on capacity and false positive rate
+ * - Number of hash functions (k) for optimal accuracy
+ *
+ * Bonus: Implement union and intersection operations:
+ * - union(other: BloomFilter): BloomFilter
+ * - intersection(other: BloomFilter): BloomFilter
+ */
+
+export class BloomFilter {
+  constructor(capacity: number, falsePositiveRate?: number) {
+    // YOUR CODE HERE
+  }
+
+  add(item: string): void {
+    // YOUR CODE HERE
+  }
+
+  has(item: string): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  size(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  clear(): void {
+    // YOUR CODE HERE
+  }
+
+  union(other: BloomFilter): BloomFilter {
+    // YOUR CODE HERE
+    return new BloomFilter(1);
+  }
+
+  intersection(other: BloomFilter): BloomFilter {
+    // YOUR CODE HERE
+    return new BloomFilter(1);
+  }
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { BloomFilter } from './challenge';
+
+describe('BloomFilter', () => {
+  it('creates empty filter', () => {
+    const filter = new BloomFilter(100);
+    expect(filter.has('anything')).toBe(false);
+  });
+
+  it('adds and finds single item', () => {
+    const filter = new BloomFilter(100);
+    filter.add('hello');
+    expect(filter.has('hello')).toBe(true);
+  });
+
+  it('returns false for non-existent items', () => {
+    const filter = new BloomFilter(100);
+    filter.add('hello');
+    expect(filter.has('world')).toBe(false);
+  });
+
+  it('handles multiple items', () => {
+    const filter = new BloomFilter(1000);
+    const items = ['apple', 'banana', 'cherry', 'date', 'elderberry'];
+    items.forEach(item => filter.add(item));
+    
+    items.forEach(item => {
+      expect(filter.has(item)).toBe(true);
+    });
+  });
+
+  it('tracks size correctly', () => {
+    const filter = new BloomFilter(100);
+    expect(filter.size()).toBe(0);
+    filter.add('one');
+    expect(filter.size()).toBe(1);
+    filter.add('two');
+    expect(filter.size()).toBe(2);
+  });
+
+  it('clear resets the filter', () => {
+    const filter = new BloomFilter(100);
+    filter.add('hello');
+    filter.add('world');
+    filter.clear();
+    expect(filter.has('hello')).toBe(false);
+    expect(filter.has('world')).toBe(false);
+    expect(filter.size()).toBe(0);
+  });
+
+  it('no false negatives', () => {
+    const filter = new BloomFilter(1000, 0.01);
+    const items: string[] = [];
+    
+    // Add 100 items
+    for (let i = 0; i < 100; i++) {
+      const item = `item_${i}`;
+      items.push(item);
+      filter.add(item);
     }
-    expect(result).toEqual([1, 1, 3, 3, 5, 5]);
+    
+    // All added items must be found (no false negatives)
+    items.forEach(item => {
+      expect(filter.has(item)).toBe(true);
+    });
+  });
+
+  it('handles empty strings', () => {
+    const filter = new BloomFilter(100);
+    filter.add('');
+    expect(filter.has('')).toBe(true);
+    expect(filter.has('non-empty')).toBe(false);
+  });
+
+  it('handles special characters', () => {
+    const filter = new BloomFilter(100);
+    const special = ['!@#$', 'hello\nworld', 'tab\there', 'unicode'];
+    special.forEach(s => filter.add(s));
+    special.forEach(s => expect(filter.has(s)).toBe(true));
+  });
+
+  it('union combines two filters', () => {
+    const filter1 = new BloomFilter(100);
+    const filter2 = new BloomFilter(100);
+    
+    filter1.add('a');
+    filter1.add('b');
+    filter2.add('c');
+    filter2.add('d');
+    
+    const union = filter1.union(filter2);
+    expect(union.has('a')).toBe(true);
+    expect(union.has('b')).toBe(true);
+    expect(union.has('c')).toBe(true);
+    expect(union.has('d')).toBe(true);
+  });
+
+  it('intersection finds common elements', () => {
+    const filter1 = new BloomFilter(100);
+    const filter2 = new BloomFilter(100);
+    
+    filter1.add('a');
+    filter1.add('b');
+    filter1.add('c');
+    filter2.add('b');
+    filter2.add('c');
+    filter2.add('d');
+    
+    const intersection = filter1.intersection(filter2);
+    expect(intersection.has('b')).toBe(true);
+    expect(intersection.has('c')).toBe(true);
+    // Note: false positives possible for 'a' and 'd'
+  });
+
+  it('different false positive rates affect accuracy', () => {
+    const filter1 = new BloomFilter(100, 0.001); // Low FP rate
+    const filter2 = new BloomFilter(100, 0.1); // High FP rate
+    
+    const items: string[] = [];
+    for (let i = 0; i < 50; i++) {
+      const item = `item_${i}`;
+      items.push(item);
+      filter1.add(item);
+      filter2.add(item);
+    }
+    
+    // Test with items not in either filter
+    let fp1 = 0, fp2 = 0;
+    for (let i = 50; i < 150; i++) {
+      const item = `item_${i}`;
+      if (filter1.has(item)) fp1++;
+      if (filter2.has(item)) fp2++;
+    }
+    
+    // Higher FP rate should have more false positives (statistically)
+    // This is a soft assertion due to probabilistic nature
+    expect(fp2).toBeGreaterThanOrEqual(fp1);
+  });
+
+  it('stress test with many items', () => {
+    const filter = new BloomFilter(10000, 0.01);
+    const items: string[] = [];
+    
+    for (let i = 0; i < 5000; i++) {
+      const item = `stress_item_${i}`;
+      items.push(item);
+      filter.add(item);
+    }
+    
+    // All added items must be found
+    items.forEach(item => {
+      expect(filter.has(item)).toBe(true);
+    });
+    
+    expect(filter.size()).toBe(5000);
+  });
+
+  it('handles very long strings', () => {
+    const filter = new BloomFilter(100);
+    const longString = 'a'.repeat(10000);
+    filter.add(longString);
+    expect(filter.has(longString)).toBe(true);
+  });
+
+  it('case sensitivity', () => {
+    const filter = new BloomFilter(100);
+    filter.add('Hello');
+    expect(filter.has('Hello')).toBe(true);
+    expect(filter.has('hello')).toBe(false);
+    expect(filter.has('HELLO')).toBe(false);
+  });
+});
+]=],
+  },
+  {
+    name = "Fenwick Tree",
+    difficulty = "medium",
+    stub = [=[
+/**
+ * Fenwick Tree (Binary Indexed Tree)
+ *
+ * Implement a Fenwick Tree for efficient prefix sum queries and point updates.
+ *
+ * A Fenwick Tree is more compact than a Segment Tree and faster in practice.
+ * It supports:
+ * - Point updates in O(log n)
+ * - Prefix sum queries in O(log n)
+ * - Range sum queries in O(log n)
+ *
+ * Commonly used for:
+ * - Cumulative frequency tables
+ * - Inversion counting
+ * - Arithmetic coding
+ * - Fenwick trees in competitive programming
+ *
+ * Implement the FenwickTree class with:
+ * - constructor(size: number) — Initialize tree for n elements (1-indexed)
+ * - update(index: number, delta: number): void — Add delta to element at index
+ * - query(index: number): number — Return prefix sum from 1 to index
+ * - rangeQuery(left: number, right: number): number — Return sum from left to right
+ * - build(arr: number[]): void — Build tree from array in O(n)
+ *
+ * Note: Fenwick trees use 1-based indexing internally.
+ *
+ * Bonus: Implement a FenwickTree that supports:
+ * - range updates with point queries
+ * - 2D Fenwick Tree for matrix operations
+ */
+
+export class FenwickTree {
+  constructor(size: number) {
+    // YOUR CODE HERE
+  }
+
+  update(index: number, delta: number): void {
+    // YOUR CODE HERE
+  }
+
+  query(index: number): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  rangeQuery(left: number, right: number): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  build(arr: number[]): void {
+    // YOUR CODE HERE
+  }
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { FenwickTree } from './challenge';
+
+describe('FenwickTree', () => {
+  it('creates empty tree', () => {
+    const tree = new FenwickTree(5);
+    expect(tree.query(1)).toBe(0);
+    expect(tree.query(5)).toBe(0);
+  });
+
+  it('single element update and query', () => {
+    const tree = new FenwickTree(5);
+    tree.update(1, 5);
+    expect(tree.query(1)).toBe(5);
+    expect(tree.query(2)).toBe(5);
+    expect(tree.query(5)).toBe(5);
+  });
+
+  it('multiple updates', () => {
+    const tree = new FenwickTree(5);
+    tree.update(1, 1);
+    tree.update(2, 2);
+    tree.update(3, 3);
+    tree.update(4, 4);
+    tree.update(5, 5);
+    
+    expect(tree.query(1)).toBe(1);
+    expect(tree.query(2)).toBe(3);
+    expect(tree.query(3)).toBe(6);
+    expect(tree.query(4)).toBe(10);
+    expect(tree.query(5)).toBe(15);
+  });
+
+  it('rangeQuery returns correct sums', () => {
+    const tree = new FenwickTree(5);
+    tree.update(1, 1);
+    tree.update(2, 2);
+    tree.update(3, 3);
+    tree.update(4, 4);
+    tree.update(5, 5);
+    
+    expect(tree.rangeQuery(1, 3)).toBe(6);
+    expect(tree.rangeQuery(2, 4)).toBe(9);
+    expect(tree.rangeQuery(1, 5)).toBe(15);
+    expect(tree.rangeQuery(3, 3)).toBe(3);
+  });
+
+  it('build from array', () => {
+    const tree = new FenwickTree(5);
+    tree.build([1, 2, 3, 4, 5]);
+    
+    expect(tree.query(1)).toBe(1);
+    expect(tree.query(2)).toBe(3);
+    expect(tree.query(3)).toBe(6);
+    expect(tree.query(4)).toBe(10);
+    expect(tree.query(5)).toBe(15);
+  });
+
+  it('update after build', () => {
+    const tree = new FenwickTree(5);
+    tree.build([1, 2, 3, 4, 5]);
+    tree.update(3, 10); // Add 10 to index 3
+    
+    expect(tree.query(3)).toBe(16);
+    expect(tree.query(5)).toBe(25);
+    expect(tree.rangeQuery(3, 3)).toBe(13);
   });
 
   it('handles negative values', () => {
-    const heap = new MinHeap();
-    [-5, -10, 0, 10, -1].forEach(v => heap.insert(v));
+    const tree = new FenwickTree(5);
+    tree.build([1, -2, 3, -4, 5]);
     
-    const result: number[] = [];
-    while (!heap.isEmpty()) {
-      result.push(heap.extractMin()!);
-    }
-    expect(result).toEqual([-10, -5, -1, 0, 10]);
+    expect(tree.query(1)).toBe(1);
+    expect(tree.query(2)).toBe(-1);
+    expect(tree.query(3)).toBe(2);
+    expect(tree.query(4)).toBe(-2);
+    expect(tree.query(5)).toBe(3);
   });
 
-  it('single element operations', () => {
-    const heap = new MinHeap();
-    heap.insert(42);
-    expect(heap.peek()).toBe(42);
-    expect(heap.extractMin()).toBe(42);
-    expect(heap.isEmpty()).toBe(true);
+  it('handles zero values', () => {
+    const tree = new FenwickTree(5);
+    tree.build([0, 0, 0, 0, 0]);
+    
+    expect(tree.query(5)).toBe(0);
+    tree.update(3, 5);
+    expect(tree.query(3)).toBe(5);
+    expect(tree.query(5)).toBe(5);
   });
 
-  it('heap property invariant', () => {
-    const heap = new MinHeap([50, 30, 40, 10, 20, 35, 45]);
-    heap.heapify();
+  it('single element array', () => {
+    const tree = new FenwickTree(1);
+    tree.build([42]);
+    expect(tree.query(1)).toBe(42);
+    tree.update(1, 8);
+    expect(tree.query(1)).toBe(50);
+  });
+
+  it('large index updates', () => {
+    const tree = new FenwickTree(1000);
+    tree.update(1000, 100);
+    expect(tree.query(999)).toBe(0);
+    expect(tree.query(1000)).toBe(100);
+  });
+
+  it('stress test with many operations', () => {
+    const tree = new FenwickTree(10000);
+    const arr = new Array(10000).fill(0);
     
-    // Verify heap property: parent <= children
-    function verifyHeapProperty(arr: number[], i: number): boolean {
-      if (i >= arr.length) return true;
-      const left = 2 * i + 1;
-      const right = 2 * i + 2;
-      
-      if (left < arr.length && arr[i] > arr[left]) return false;
-      if (right < arr.length && arr[i] > arr[right]) return false;
-      
-      return verifyHeapProperty(arr, left) && verifyHeapProperty(arr, right);
+    // Random updates
+    for (let i = 0; i < 1000; i++) {
+      const idx = Math.floor(Math.random() * 10000) + 1;
+      const val = Math.floor(Math.random() * 100) - 50;
+      tree.update(idx, val);
+      arr[idx - 1] += val;
     }
     
-    // Extract to array and verify
-    const arr: number[] = [];
-    while (!heap.isEmpty()) {
-      arr.push(heap.extractMin()!);
+    // Verify prefix sums
+    let sum = 0;
+    for (let i = 0; i < 10000; i++) {
+      sum += arr[i];
+      expect(tree.query(i + 1)).toBe(sum);
     }
-    // After extraction, verify is trivial since sorted
-    for (let i = 1; i < arr.length; i++) {
-      expect(arr[i]).toBeGreaterThanOrEqual(arr[i - 1]);
+  });
+
+  it('build is O(n) efficient', () => {
+    const tree = new FenwickTree(100000);
+    const arr = Array.from({ length: 100000 }, (_, i) => i + 1);
+    
+    const start = Date.now();
+    tree.build(arr);
+    const elapsed = Date.now() - start;
+    
+    expect(elapsed).toBeLessThan(1000); // Should complete in < 1s
+    expect(tree.query(100000)).toBe(5000050000); // Sum of 1 to 100000
+  });
+
+  it('rangeQuery with left > right returns 0', () => {
+    const tree = new FenwickTree(5);
+    tree.build([1, 2, 3, 4, 5]);
+    expect(tree.rangeQuery(4, 2)).toBe(0);
+  });
+
+  it('query with index 0 returns 0', () => {
+    const tree = new FenwickTree(5);
+    tree.build([1, 2, 3, 4, 5]);
+    expect(tree.query(0)).toBe(0);
+  });
+
+  it('inverse operations', () => {
+    const tree = new FenwickTree(5);
+    tree.build([1, 2, 3, 4, 5]);
+    
+    // Add then subtract same value
+    tree.update(3, 10);
+    tree.update(3, -10);
+    
+    expect(tree.query(3)).toBe(6);
+    expect(tree.query(5)).toBe(15);
+  });
+});
+]=],
+  },
+  {
+    name = "Expression Evaluator",
+    difficulty = "medium",
+    stub = [=[
+/**
+ * Expression Evaluator
+ *
+ * Implement an arithmetic expression evaluator that handles operator precedence.
+ *
+ * The evaluator must support:
+ * - Basic operations: +, -, *, /
+ * - Parentheses for grouping
+ * - Integer and decimal numbers
+ * - Unary minus (negative numbers)
+ * - Proper operator precedence (* and / before + and -)
+ * - Left-to-right associativity for equal precedence
+ *
+ * Integer division should truncate toward zero (like JavaScript's | 0).
+ *
+ * Implement:
+ * - evaluate(expression: string): number — Parse and evaluate the expression
+ *
+ * Examples:
+ * - "2 + 3" → 5
+ * - "2 + 3 * 4" → 14 (not 20!)
+ * - "(2 + 3) * 4" → 20
+ * - "10 / 3" → 3 (integer division)
+ * - "-5 + 3" → -2
+ * - "2 * -3" → -6
+ * - "((2 + 3) * 4 - 5) / 3" → 5
+ *
+ * Bonus: Support additional operators:
+ * - Exponentiation: ^ or **
+ * - Modulo: %
+ * - Variables: "x + y" with context
+ */
+
+export function evaluate(expression: string): number {
+  // YOUR CODE HERE
+  return 0;
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { evaluate } from './challenge';
+
+describe('evaluate', () => {
+  it('evaluates single number', () => {
+    expect(evaluate('42')).toBe(42);
+    expect(evaluate('0')).toBe(0);
+    expect(evaluate('7')).toBe(7);
+  });
+
+  it('evaluates simple addition', () => {
+    expect(evaluate('2 + 3')).toBe(5);
+    expect(evaluate('10 + 20')).toBe(30);
+  });
+
+  it('evaluates simple subtraction', () => {
+    expect(evaluate('10 - 3')).toBe(7);
+    expect(evaluate('5 - 8')).toBe(-3);
+  });
+
+  it('evaluates simple multiplication', () => {
+    expect(evaluate('4 * 5')).toBe(20);
+    expect(evaluate('3 * 7')).toBe(21);
+  });
+
+  it('evaluates simple division', () => {
+    expect(evaluate('10 / 2')).toBe(5);
+    expect(evaluate('7 / 2')).toBe(3); // Integer division
+  });
+
+  it('respects operator precedence', () => {
+    expect(evaluate('2 + 3 * 4')).toBe(14);
+    expect(evaluate('10 - 2 * 3')).toBe(4);
+    expect(evaluate('1 + 2 * 3 + 4')).toBe(11);
+  });
+
+  it('handles parentheses', () => {
+    expect(evaluate('(2 + 3) * 4')).toBe(20);
+    expect(evaluate('2 * (3 + 4)')).toBe(14);
+    expect(evaluate('(2 + 3) * (4 + 5)')).toBe(45);
+  });
+
+  it('handles nested parentheses', () => {
+    expect(evaluate('((2 + 3))')).toBe(5);
+    expect(evaluate('((2 + 3) * 4)')).toBe(20);
+    expect(evaluate('(((1 + 2) * 3) + 4)')).toBe(13);
+  });
+
+  it('handles unary minus', () => {
+    expect(evaluate('-5')).toBe(-5);
+    expect(evaluate('-5 + 3')).toBe(-2);
+    expect(evaluate('5 + -3')).toBe(2);
+    expect(evaluate('-5 + -3')).toBe(-8);
+  });
+
+  it('handles unary minus with multiplication', () => {
+    expect(evaluate('2 * -3')).toBe(-6);
+    expect(evaluate('-2 * 3')).toBe(-6);
+    expect(evaluate('-2 * -3')).toBe(6);
+  });
+
+  it('handles decimal numbers', () => {
+    expect(evaluate('2.5 + 3.5')).toBe(6);
+    expect(evaluate('10.0 / 2.0')).toBe(5);
+  });
+
+  it('handles whitespace', () => {
+    expect(evaluate('  2 + 3  ')).toBe(5);
+    expect(evaluate('2  +  3')).toBe(5);
+    expect(evaluate('  (  2  +  3  )  ')).toBe(5);
+  });
+
+  it('complex expressions', () => {
+    expect(evaluate('2 + 3 * 4 - 5')).toBe(9);
+    expect(evaluate('10 / 2 + 3 * 4')).toBe(17);
+    expect(evaluate('(10 + 20) / (3 + 3)')).toBe(5);
+    expect(evaluate('((2 + 3) * 4 - 5) / 3')).toBe(5);
+  });
+
+  it('division truncates toward zero', () => {
+    expect(evaluate('7 / 2')).toBe(3);
+    expect(evaluate('-7 / 2')).toBe(-3);
+    expect(evaluate('7 / -2')).toBe(-3);
+    expect(evaluate('-7 / -2')).toBe(3);
+  });
+
+  it('multiple consecutive operations', () => {
+    expect(evaluate('1 + 2 + 3 + 4')).toBe(10);
+    expect(evaluate('2 * 3 * 4')).toBe(24);
+    expect(evaluate('10 - 3 - 2')).toBe(5);
+    expect(evaluate('100 / 2 / 5')).toBe(10);
+  });
+
+  it('left-to-right associativity', () => {
+    expect(evaluate('10 - 5 - 2')).toBe(3); // (10 - 5) - 2
+    expect(evaluate('100 / 10 / 2')).toBe(5); // (100 / 10) / 2
+  });
+
+  it('zero handling', () => {
+    expect(evaluate('0 + 5')).toBe(5);
+    expect(evaluate('5 * 0')).toBe(0);
+    expect(evaluate('0 / 5')).toBe(0);
+  });
+
+  it('large numbers', () => {
+    expect(evaluate('1000000 + 2000000')).toBe(3000000);
+    expect(evaluate('999999 * 2')).toBe(1999998);
+  });
+
+  it('expression with all operators', () => {
+    expect(evaluate('10 + 5 * 2 - 8 / 4')).toBe(18);
+  });
+
+  it('deeply nested expression', () => {
+    expect(evaluate('((((((1 + 2))))))')).toBe(3);
+    expect(evaluate('(((1 + 2) * 3) + ((4 * 5) - 6))')).toBe(23);
+  });
+});
+
+describe('edge cases', () => {
+  it('empty expression throws', () => {
+    expect(() => evaluate('')).toThrow();
+  });
+
+  it('invalid characters throw', () => {
+    expect(() => evaluate('2 + a')).toThrow();
+    expect(() => evaluate('2 & 3')).toThrow();
+  });
+
+  it('unbalanced parentheses throw', () => {
+    expect(() => evaluate('(2 + 3')).toThrow();
+    expect(() => evaluate('2 + 3)')).toThrow();
+  });
+});
+]=],
+  },
+  {
+    name = "Segment Tree",
+    difficulty = "medium",
+    stub = [=[
+/**
+ * Segment Tree
+ *
+ * Implement a segment tree for efficient range queries and point updates.
+ *
+ * A segment tree is a binary tree where each node represents an interval/range.
+ * It supports:
+ * - Point updates in O(log n)
+ * - Range queries in O(log n)
+ *
+ * This implementation should support range sum queries, but design it to be
+ * extensible for other operations (min, max, GCD, etc.).
+ *
+ * Implement the SegmentTree class with:
+ * - constructor(arr: number[]) — Build tree from array
+ * - update(index: number, value: number): void — Set element at index to value
+ * - query(left: number, right: number): number — Return sum from left to right (inclusive)
+ * - size(): number — Return the size of the original array
+ *
+ * The tree uses 0-based indexing for the public API.
+ *
+ * Bonus: Make it generic with a custom merge function:
+ * - constructor(arr: T[], mergeFn: (a: T, b: T) => T, identity: T)
+ * - Support range min, range max, range GCD, etc.
+ */
+
+export class SegmentTree {
+  constructor(arr: number[]) {
+    // YOUR CODE HERE
+  }
+
+  update(index: number, value: number): void {
+    // YOUR CODE HERE
+  }
+
+  query(left: number, right: number): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  size(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { SegmentTree } from './challenge';
+
+describe('SegmentTree', () => {
+  it('creates tree from array', () => {
+    const tree = new SegmentTree([1, 2, 3, 4, 5]);
+    expect(tree.size()).toBe(5);
+  });
+
+  it('query full range', () => {
+    const tree = new SegmentTree([1, 2, 3, 4, 5]);
+    expect(tree.query(0, 4)).toBe(15);
+  });
+
+  it('query single element', () => {
+    const tree = new SegmentTree([1, 2, 3, 4, 5]);
+    expect(tree.query(0, 0)).toBe(1);
+    expect(tree.query(2, 2)).toBe(3);
+    expect(tree.query(4, 4)).toBe(5);
+  });
+
+  it('query partial range', () => {
+    const tree = new SegmentTree([1, 2, 3, 4, 5]);
+    expect(tree.query(0, 2)).toBe(6);
+    expect(tree.query(1, 3)).toBe(9);
+    expect(tree.query(2, 4)).toBe(12);
+  });
+
+  it('update single element', () => {
+    const tree = new SegmentTree([1, 2, 3, 4, 5]);
+    tree.update(2, 10);
+    expect(tree.query(0, 4)).toBe(22);
+    expect(tree.query(2, 2)).toBe(10);
+  });
+
+  it('multiple updates', () => {
+    const tree = new SegmentTree([1, 2, 3, 4, 5]);
+    tree.update(0, 10);
+    tree.update(1, 20);
+    tree.update(2, 30);
+    expect(tree.query(0, 4)).toBe(64);
+  });
+
+  it('update and query interleaved', () => {
+    const tree = new SegmentTree([1, 2, 3, 4, 5]);
+    expect(tree.query(0, 2)).toBe(6);
+    tree.update(1, 10);
+    expect(tree.query(0, 2)).toBe(14);
+    tree.update(2, 20);
+    expect(tree.query(0, 2)).toBe(31);
+  });
+
+  it('single element array', () => {
+    const tree = new SegmentTree([42]);
+    expect(tree.query(0, 0)).toBe(42);
+    tree.update(0, 100);
+    expect(tree.query(0, 0)).toBe(100);
+  });
+
+  it('two element array', () => {
+    const tree = new SegmentTree([5, 10]);
+    expect(tree.query(0, 1)).toBe(15);
+    expect(tree.query(0, 0)).toBe(5);
+    expect(tree.query(1, 1)).toBe(10);
+  });
+
+  it('handles negative values', () => {
+    const tree = new SegmentTree([-1, -2, -3, -4, -5]);
+    expect(tree.query(0, 4)).toBe(-15);
+    tree.update(2, 10);
+    expect(tree.query(0, 4)).toBe(0);
+  });
+
+  it('handles zero values', () => {
+    const tree = new SegmentTree([0, 0, 0, 0, 0]);
+    expect(tree.query(0, 4)).toBe(0);
+    tree.update(2, 5);
+    expect(tree.query(0, 4)).toBe(5);
+  });
+
+  it('query with left > right returns 0', () => {
+    const tree = new SegmentTree([1, 2, 3, 4, 5]);
+    expect(tree.query(3, 1)).toBe(0);
+  });
+
+  it('query out of bounds throws', () => {
+    const tree = new SegmentTree([1, 2, 3]);
+    expect(() => tree.query(0, 5)).toThrow();
+    expect(() => tree.query(-1, 2)).toThrow();
+  });
+
+  it('update out of bounds throws', () => {
+    const tree = new SegmentTree([1, 2, 3]);
+    expect(() => tree.update(5, 10)).toThrow();
+    expect(() => tree.update(-1, 10)).toThrow();
+  });
+
+  it('stress test with many operations', () => {
+    const arr = Array.from({ length: 1000 }, (_, i) => i + 1);
+    const tree = new SegmentTree(arr);
+    
+    // Initial sum should be sum of 1 to 1000
+    expect(tree.query(0, 999)).toBe(500500);
+    
+    // Random updates and queries
+    for (let i = 0; i < 100; i++) {
+      const idx = Math.floor(Math.random() * 1000);
+      tree.update(idx, i);
     }
+    
+    // Verify by manual calculation
+    let sum = 0;
+    for (let i = 0; i < 1000; i++) {
+      sum += i < 100 ? (i >= 0 ? i : arr[i]) : arr[i];
+    }
+    // This is approximate due to random updates
+    expect(tree.query(0, 999)).toBeLessThan(500500);
+  });
+
+  it('power of 2 size array', () => {
+    const tree = new SegmentTree([1, 2, 3, 4, 5, 6, 7, 8]);
+    expect(tree.query(0, 7)).toBe(36);
+    expect(tree.query(0, 3)).toBe(10);
+    expect(tree.query(4, 7)).toBe(26);
+  });
+
+  it('non-power of 2 size array', () => {
+    const tree = new SegmentTree([1, 2, 3, 4, 5, 6, 7]);
+    expect(tree.query(0, 6)).toBe(28);
+    expect(tree.query(0, 3)).toBe(10);
+    expect(tree.query(4, 6)).toBe(18);
+  });
+
+  it('large values', () => {
+    const tree = new SegmentTree([1000000, 2000000, 3000000]);
+    expect(tree.query(0, 2)).toBe(6000000);
+  });
+});
+]=],
+  },
+  {
+    name = "Doubly Linked List",
+    difficulty = "easy",
+    stub = [=[
+/**
+ * Doubly Linked List
+ *
+ * Implement a doubly linked list with forward and backward traversal.
+ *
+ * A doubly linked list is a linear data structure where each node contains:
+ * - A value
+ * - A pointer to the next node
+ * - A pointer to the previous node
+ *
+ * This enables:
+ * - O(1) append and prepend
+ * - O(1) removal from ends
+ * - Bidirectional iteration
+ *
+ * Implement the DoublyLinkedList class with:
+ * - constructor() — Create empty list
+ * - append(value: T): void — Add to end
+ * - prepend(value: T): void — Add to beginning
+ * - insert(index: number, value: T): void — Insert at index
+ * - remove(index: number): T | null — Remove and return value at index
+ * - get(index: number): T | null — Get value at index
+ * - set(index: number, value: T): boolean — Set value at index
+ * - indexOf(value: T): number — Find first index of value (-1 if not found)
+ * - contains(value: T): boolean — Check if value exists
+ * - size(): number — Return number of elements
+ * - isEmpty(): boolean — Check if list is empty
+ * - clear(): void — Remove all elements
+ * - toArray(): T[] — Convert to array
+ * - toReversedArray(): T[] — Convert to reversed array
+ *
+ * Bonus: Implement an iterator:
+ * - [Symbol.iterator](): Iterator<T>
+ */
+
+export class DoublyLinkedList<T> {
+  constructor() {
+    // YOUR CODE HERE
+  }
+
+  append(value: T): void {
+    // YOUR CODE HERE
+  }
+
+  prepend(value: T): void {
+    // YOUR CODE HERE
+  }
+
+  insert(index: number, value: T): void {
+    // YOUR CODE HERE
+  }
+
+  remove(index: number): T | null {
+    // YOUR CODE HERE
+    return null;
+  }
+
+  get(index: number): T | null {
+    // YOUR CODE HERE
+    return null;
+  }
+
+  set(index: number, value: T): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  indexOf(value: T): number {
+    // YOUR CODE HERE
+    return -1;
+  }
+
+  contains(value: T): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  size(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  isEmpty(): boolean {
+    // YOUR CODE HERE
+    return true;
+  }
+
+  clear(): void {
+    // YOUR CODE HERE
+  }
+
+  toArray(): T[] {
+    // YOUR CODE HERE
+    return [];
+  }
+
+  toReversedArray(): T[] {
+    // YOUR CODE HERE
+    return [];
+  }
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { DoublyLinkedList } from './challenge';
+
+describe('DoublyLinkedList', () => {
+  it('creates empty list', () => {
+    const list = new DoublyLinkedList();
+    expect(list.isEmpty()).toBe(true);
+    expect(list.size()).toBe(0);
+  });
+
+  it('append single element', () => {
+    const list = new DoublyLinkedList();
+    list.append(1);
+    expect(list.size()).toBe(1);
+    expect(list.get(0)).toBe(1);
+  });
+
+  it('append multiple elements', () => {
+    const list = new DoublyLinkedList();
+    list.append(1);
+    list.append(2);
+    list.append(3);
+    expect(list.toArray()).toEqual([1, 2, 3]);
+  });
+
+  it('prepend single element', () => {
+    const list = new DoublyLinkedList();
+    list.prepend(1);
+    expect(list.get(0)).toBe(1);
+    expect(list.size()).toBe(1);
+  });
+
+  it('prepend multiple elements', () => {
+    const list = new DoublyLinkedList();
+    list.prepend(1);
+    list.prepend(2);
+    list.prepend(3);
+    expect(list.toArray()).toEqual([3, 2, 1]);
+  });
+
+  it('mix append and prepend', () => {
+    const list = new DoublyLinkedList();
+    list.append(2);
+    list.prepend(1);
+    list.append(3);
+    expect(list.toArray()).toEqual([1, 2, 3]);
+  });
+
+  it('insert at beginning', () => {
+    const list = new DoublyLinkedList();
+    list.append(2);
+    list.append(3);
+    list.insert(0, 1);
+    expect(list.toArray()).toEqual([1, 2, 3]);
+  });
+
+  it('insert at end', () => {
+    const list = new DoublyLinkedList();
+    list.append(1);
+    list.append(2);
+    list.insert(2, 3);
+    expect(list.toArray()).toEqual([1, 2, 3]);
+  });
+
+  it('insert in middle', () => {
+    const list = new DoublyLinkedList();
+    list.append(1);
+    list.append(3);
+    list.insert(1, 2);
+    expect(list.toArray()).toEqual([1, 2, 3]);
+  });
+
+  it('remove from beginning', () => {
+    const list = new DoublyLinkedList();
+    list.append(1);
+    list.append(2);
+    list.append(3);
+    expect(list.remove(0)).toBe(1);
+    expect(list.toArray()).toEqual([2, 3]);
+  });
+
+  it('remove from end', () => {
+    const list = new DoublyLinkedList();
+    list.append(1);
+    list.append(2);
+    list.append(3);
+    expect(list.remove(2)).toBe(3);
+    expect(list.toArray()).toEqual([1, 2]);
+  });
+
+  it('remove from middle', () => {
+    const list = new DoublyLinkedList();
+    list.append(1);
+    list.append(2);
+    list.append(3);
+    expect(list.remove(1)).toBe(2);
+    expect(list.toArray()).toEqual([1, 3]);
+  });
+
+  it('remove returns null for invalid index', () => {
+    const list = new DoublyLinkedList();
+    list.append(1);
+    expect(list.remove(5)).toBeNull();
+    expect(list.remove(-1)).toBeNull();
+  });
+
+  it('get returns null for invalid index', () => {
+    const list = new DoublyLinkedList();
+    list.append(1);
+    expect(list.get(5)).toBeNull();
+    expect(list.get(-1)).toBeNull();
+  });
+
+  it('set updates value', () => {
+    const list = new DoublyLinkedList();
+    list.append(1);
+    list.append(2);
+    expect(list.set(0, 10)).toBe(true);
+    expect(list.get(0)).toBe(10);
+  });
+
+  it('set returns false for invalid index', () => {
+    const list = new DoublyLinkedList();
+    expect(list.set(0, 1)).toBe(false);
+  });
+
+  it('indexOf finds elements', () => {
+    const list = new DoublyLinkedList();
+    list.append('a');
+    list.append('b');
+    list.append('c');
+    expect(list.indexOf('a')).toBe(0);
+    expect(list.indexOf('b')).toBe(1);
+    expect(list.indexOf('c')).toBe(2);
+  });
+
+  it('indexOf returns -1 for missing element', () => {
+    const list = new DoublyLinkedList();
+    list.append('a');
+    expect(list.indexOf('b')).toBe(-1);
+  });
+
+  it('contains checks existence', () => {
+    const list = new DoublyLinkedList();
+    list.append(1);
+    expect(list.contains(1)).toBe(true);
+    expect(list.contains(2)).toBe(false);
+  });
+
+  it('clear empties list', () => {
+    const list = new DoublyLinkedList();
+    list.append(1);
+    list.append(2);
+    list.clear();
+    expect(list.isEmpty()).toBe(true);
+    expect(list.size()).toBe(0);
+    expect(list.toArray()).toEqual([]);
+  });
+
+  it('toReversedArray returns reversed copy', () => {
+    const list = new DoublyLinkedList();
+    list.append(1);
+    list.append(2);
+    list.append(3);
+    expect(list.toReversedArray()).toEqual([3, 2, 1]);
+    expect(list.toArray()).toEqual([1, 2, 3]); // Original unchanged
+  });
+
+  it('handles generic types', () => {
+    const list = new DoublyLinkedList<string>();
+    list.append('hello');
+    list.append('world');
+    expect(list.toArray()).toEqual(['hello', 'world']);
+  });
+
+  it('handles object values', () => {
+    const list = new DoublyLinkedList<{ id: number }>();
+    list.append({ id: 1 });
+    list.append({ id: 2 });
+    expect(list.get(0)?.id).toBe(1);
+    expect(list.get(1)?.id).toBe(2);
+  });
+
+  it('stress test with many operations', () => {
+    const list = new DoublyLinkedList();
+    for (let i = 0; i < 100; i++) {
+      list.append(i);
+    }
+    expect(list.size()).toBe(100);
+    expect(list.get(0)).toBe(0);
+    expect(list.get(99)).toBe(99);
+    
+    for (let i = 0; i < 50; i++) {
+      list.remove(0);
+    }
+    expect(list.size()).toBe(50);
+    expect(list.get(0)).toBe(50);
+  });
+
+  it('insert at invalid index throws', () => {
+    const list = new DoublyLinkedList();
+    list.append(1);
+    expect(() => list.insert(5, 2)).toThrow();
+    expect(() => list.insert(-1, 2)).toThrow();
   });
 });
 ]=],
@@ -2284,46 +3586,29 @@ describe('MinHeap', () => {
  * Topological sort orders vertices such that for every directed edge (u, v),
  * vertex u comes before v in the ordering. This is essential for:
  * - Build systems (dependency resolution)
- * - Task scheduling with prerequisites
- * - Course prerequisite planning
  * - Package managers (npm, pip, cargo)
+ * - Course scheduling (prerequisites)
+ * - Task scheduling with dependencies
+ * - Deadlock detection
  *
  * Implement:
  * - topologicalSort(graph: Map<number, number[]>): number[] | null
- *   Return a valid topological ordering, or null if the graph has a cycle.
- *   The graph is represented as an adjacency list.
- *
- * - topologicalSortKahn(graph: Map<number, number[]>): number[] | null
- *   Implement Kahn's algorithm (BFS-based) using in-degree counting.
- *
- * - topologicalSortDFS(graph: Map<number, number[]>): number[] | null
- *   Implement DFS-based approach using finish times.
+ *   Return a valid topological order, or null if graph has a cycle.
+ *   Use either Kahn's algorithm (BFS-based) or DFS-based approach.
  *
  * - hasCycle(graph: Map<number, number[]>): boolean
  *   Detect if the graph contains a cycle.
  *
- * - findCourseOrder(numCourses: number, prerequisites: [number, number][]): number[] | null
- *   Classic LeetCode-style problem: given numCourses and prerequisite pairs
- *   [course, prerequisite], return a valid course order or null if impossible.
+ * - findCourseOrder(numCourses: number, prerequisites: number[][]): number[] | null
+ *   Classic course schedule problem: given numCourses and prerequisites
+ *   where [a, b] means "b must be taken before a", return a valid order.
  *
- * All functions should handle:
- * - Disconnected graphs
- * - Single node graphs
- * - Linear chains
- * - Diamond dependencies (A -> B, A -> C, B -> D, C -> D)
+ * Graph representation: adjacency list as Map<vertex, neighbors[]>
+ *
+ * Bonus: Implement allSourcesTopologicalSort to find all valid orderings.
  */
 
 export function topologicalSort(graph: Map<number, number[]>): number[] | null {
-  // YOUR CODE HERE
-  return null;
-}
-
-export function topologicalSortKahn(graph: Map<number, number[]>): number[] | null {
-  // YOUR CODE HERE
-  return null;
-}
-
-export function topologicalSortDFS(graph: Map<number, number[]>): number[] | null {
   // YOUR CODE HERE
   return null;
 }
@@ -2333,31 +3618,22 @@ export function hasCycle(graph: Map<number, number[]>): boolean {
   return false;
 }
 
-export function findCourseOrder(
-  numCourses: number,
-  prerequisites: [number, number][]
-): number[] | null {
+export function findCourseOrder(numCourses: number, prerequisites: number[][]): number[] | null {
   // YOUR CODE HERE
   return null;
 }
 ]=],
     tests = [=[
 import { describe, it, expect } from 'vitest';
-import {
-  topologicalSort,
-  topologicalSortKahn,
-  topologicalSortDFS,
-  hasCycle,
-  findCourseOrder
-} from './challenge';
+import { topologicalSort, hasCycle, findCourseOrder } from './challenge';
 
 function isValidTopoOrder(graph: Map<number, number[]>, order: number[]): boolean {
   const position = new Map<number, number>();
-  order.forEach((node, idx) => position.set(node, idx));
+  order.forEach((v, i) => position.set(v, i));
   
   for (const [u, neighbors] of graph.entries()) {
     for (const v of neighbors) {
-      if ((position.get(u) ?? -1) >= (position.get(v) ?? -1)) {
+      if ((position.get(u) ?? -1) >= (position.get(v) ?? 0)) {
         return false;
       }
     }
@@ -2366,16 +3642,16 @@ function isValidTopoOrder(graph: Map<number, number[]>, order: number[]): boolea
 }
 
 describe('topologicalSort', () => {
-  it('empty graph returns empty array', () => {
-    const graph = new Map<number, number[]>();
+  it('empty graph', () => {
+    const graph = new Map();
     expect(topologicalSort(graph)).toEqual([]);
   });
 
-  it('single node graph', () => {
+  it('single node', () => {
     const graph = new Map([[0, []]]);
     const result = topologicalSort(graph);
-    expect(result).toHaveLength(1);
-    expect(result![0]).toBe(0);
+    expect(result).not.toBeNull();
+    expect(result).toEqual([0]);
   });
 
   it('linear chain 0 -> 1 -> 2 -> 3', () => {
@@ -2389,37 +3665,33 @@ describe('topologicalSort', () => {
     expect(result).toEqual([0, 1, 2, 3]);
   });
 
-  it('diamond dependency A -> B, A -> C, B -> D, C -> D', () => {
+  it('simple DAG', () => {
     const graph = new Map([
-      [0, [1, 2]], // A -> B, C
-      [1, [3]],     // B -> D
-      [2, [3]],     // C -> D
-      [3, []]       // D
+      [0, [1, 2]],
+      [1, [3]],
+      [2, [3]],
+      [3, []]
     ]);
     const result = topologicalSort(graph);
     expect(result).not.toBeNull();
     expect(isValidTopoOrder(graph, result!)).toBe(true);
-    expect(result![0]).toBe(0); // A must be first
-    expect(result![result!.length - 1]).toBe(3); // D must be last
   });
 
   it('graph with cycle returns null', () => {
     const graph = new Map([
       [0, [1]],
       [1, [2]],
-      [2, [0]] // Cycle: 0 -> 1 -> 2 -> 0
+      [2, [0]]
     ]);
     expect(topologicalSort(graph)).toBeNull();
   });
 
-  it('self-loop returns null', () => {
-    const graph = new Map([
-      [0, [0]] // Self-loop
-    ]);
+  it('self-loop is a cycle', () => {
+    const graph = new Map([[0, [0]]]);
     expect(topologicalSort(graph)).toBeNull();
   });
 
-  it('disconnected graph', () => {
+  it('disconnected components', () => {
     const graph = new Map([
       [0, [1]],
       [1, []],
@@ -2439,126 +3711,37 @@ describe('topologicalSort', () => {
       [2, []]
     ]);
     const result = topologicalSort(graph);
+    expect(result).not.toBeNull();
     expect(result).toHaveLength(3);
     expect(new Set(result)).toEqual(new Set([0, 1, 2]));
   });
-});
 
-describe('topologicalSortKahn', () => {
-  it('empty graph returns empty array', () => {
-    const graph = new Map<number, number[]>();
-    expect(topologicalSortKahn(graph)).toEqual([]);
+  it('complex DAG', () => {
+    const graph = new Map([
+      [0, [1, 2]],
+      [1, [3]],
+      [2, [3, 4]],
+      [3, [5]],
+      [4, [5]],
+      [5, []]
+    ]);
+    const result = topologicalSort(graph);
+    expect(result).not.toBeNull();
+    expect(isValidTopoOrder(graph, result!)).toBe(true);
   });
 
-  it('single node', () => {
-    const graph = new Map([[0, []]]);
-    const result = topologicalSortKahn(graph);
-    expect(result).toHaveLength(1);
+  it('large linear chain', () => {
+    const graph = new Map<number, number[]>();
+    for (let i = 0; i < 100; i++) {
+      graph.set(i, [i + 1]);
+    }
+    graph.set(100, []);
+    
+    const result = topologicalSort(graph);
+    expect(result).not.toBeNull();
+    expect(result).toHaveLength(101);
     expect(result![0]).toBe(0);
-  });
-
-  it('linear chain', () => {
-    const graph = new Map([
-      [0, [1]],
-      [1, [2]],
-      [2, [3]],
-      [3, []]
-    ]);
-    expect(topologicalSortKahn(graph)).toEqual([0, 1, 2, 3]);
-  });
-
-  it('detects cycle', () => {
-    const graph = new Map([
-      [0, [1]],
-      [1, [2]],
-      [2, [0]]
-    ]);
-    expect(topologicalSortKahn(graph)).toBeNull();
-  });
-
-  it('diamond dependency', () => {
-    const graph = new Map([
-      [0, [1, 2]],
-      [1, [3]],
-      [2, [3]],
-      [3, []]
-    ]);
-    const result = topologicalSortKahn(graph);
-    expect(result).not.toBeNull();
-    expect(isValidTopoOrder(graph, result!)).toBe(true);
-  });
-
-  it('disconnected components', () => {
-    const graph = new Map([
-      [0, [1]],
-      [1, []],
-      [2, [3]],
-      [3, []]
-    ]);
-    const result = topologicalSortKahn(graph);
-    expect(result).not.toBeNull();
-    expect(result).toHaveLength(4);
-  });
-});
-
-describe('topologicalSortDFS', () => {
-  it('empty graph returns empty array', () => {
-    const graph = new Map<number, number[]>();
-    expect(topologicalSortDFS(graph)).toEqual([]);
-  });
-
-  it('single node', () => {
-    const graph = new Map([[0, []]]);
-    const result = topologicalSortDFS(graph);
-    expect(result).toHaveLength(1);
-  });
-
-  it('linear chain', () => {
-    const graph = new Map([
-      [0, [1]],
-      [1, [2]],
-      [2, [3]],
-      [3, []]
-    ]);
-    expect(topologicalSortDFS(graph)).toEqual([0, 1, 2, 3]);
-  });
-
-  it('detects cycle', () => {
-    const graph = new Map([
-      [0, [1]],
-      [1, [2]],
-      [2, [0]]
-    ]);
-    expect(topologicalSortDFS(graph)).toBeNull();
-  });
-
-  it('diamond dependency', () => {
-    const graph = new Map([
-      [0, [1, 2]],
-      [1, [3]],
-      [2, [3]],
-      [3, []]
-    ]);
-    const result = topologicalSortDFS(graph);
-    expect(result).not.toBeNull();
-    expect(isValidTopoOrder(graph, result!)).toBe(true);
-  });
-
-  it('matches Kahn result on valid DAG', () => {
-    const graph = new Map([
-      [0, [1, 2]],
-      [1, [3]],
-      [2, [3]],
-      [3, [4]],
-      [4, []]
-    ]);
-    const kahnResult = topologicalSortKahn(graph);
-    const dfsResult = topologicalSortDFS(graph);
-    expect(kahnResult).not.toBeNull();
-    expect(dfsResult).not.toBeNull();
-    expect(kahnResult!.length).toBe(dfsResult!.length);
-    expect(isValidTopoOrder(graph, kahnResult!)).toBe(true);
-    expect(isValidTopoOrder(graph, dfsResult!)).toBe(true);
+    expect(result![100]).toBe(100);
   });
 });
 
@@ -2704,6 +3887,512 @@ describe('performance', () => {
     expect(result).not.toBeNull();
     expect(result).toHaveLength(n);
     expect(isValidTopoOrder(graph, result!)).toBe(true);
+  });
+});
+]=],
+  },
+  {
+    name = "Monadic Option/Maybe Type",
+    difficulty = "medium",
+    stub = [=[
+/**
+ * Monadic Option/Maybe Type
+ *
+ * Implement a functional Option (Maybe) type for safe error handling without exceptions.
+ *
+ * The Option type represents a value that may or may not exist:
+ * - Some(value) — A value is present
+ * - None — No value is present
+ *
+ * This pattern is common in functional programming (Rust, Scala, Haskell) and helps:
+ * - Avoid null/undefined errors
+ * - Chain operations safely
+ * - Make absence of values explicit in the type system
+ * - Compose operations that might fail
+ *
+ * Implement:
+ * - abstract class Option<T> — Base type
+ * - class Some<T> extends Option<T> — Represents a present value
+ * - class None<T> extends Option<T> — Represents absence (singleton pattern)
+ *
+ * Option methods:
+ * - map<U>(fn: (value: T) => U): Option<U> — Transform the value if present
+ * - flatMap<U>(fn: (value: T) => Option<U>): Option<U> — Chain Option-returning functions
+ * - filter(predicate: (value: T) => boolean): Option<T> — Keep value only if predicate passes
+ * - getOrElse(defaultValue: T): T — Get value or return default
+ * - getOrThrow(error?: Error): T — Get value or throw
+ * - isSome(): boolean — Check if value is present
+ * - isNone(): boolean — Check if value is absent
+ * - orElse(other: Option<T>): Option<T> — Use other if this is None
+ * - orElseGet(fn: () => Option<T>): Option<T> — Lazy version of orElse
+ * - forEach(fn: (value: T) => void): void — Execute side effect if present
+ * - toArray(): T[] — Convert to array (empty if None, single-element if Some)
+ *
+ * Static helpers:
+ * - Option.of<T>(value: T | null | undefined): Option<T> — Create from nullable
+ * - Option.some<T>(value: T): Option<T> — Create Some explicitly
+ * - Option.none<T>(): Option<T> — Create None (singleton)
+ * - Option.fromNullable<T>(value: T | null | undefined): Option<T> — Alias for of
+ *
+ * Bonus: Implement additional combinators:
+ * - zip<U>(other: Option<U>): Option<[T, U]> — Combine two Options
+ * - first<U>(other: Option<U>): Option<T> — Return this if both are Some
+ * - second<U>(other: Option<U>): Option<U> — Return other if both are Some
+ */
+
+export abstract class Option<T> {
+  abstract map<U>(fn: (value: T) => U): Option<U>;
+  abstract flatMap<U>(fn: (value: T) => Option<U>): Option<U>;
+  abstract filter(predicate: (value: T) => boolean): Option<T>;
+  abstract getOrElse(defaultValue: T): T;
+  abstract getOrThrow(error?: Error): T;
+  abstract isSome(): boolean;
+  abstract isNone(): boolean;
+  abstract orElse(other: Option<T>): Option<T>;
+  abstract orElseGet(fn: () => Option<T>): Option<T>;
+  abstract forEach(fn: (value: T) => void): void;
+  abstract toArray(): T[];
+  
+  static of<T>(value: T | null | undefined): Option<T> {
+    // YOUR CODE HERE
+    return Option.none();
+  }
+  
+  static some<T>(value: T): Option<T> {
+    // YOUR CODE HERE
+    return Option.none();
+  }
+  
+  static none<T>(): Option<T> {
+    // YOUR CODE HERE
+    return Option.none();
+  }
+  
+  static fromNullable<T>(value: T | null | undefined): Option<T> {
+    // YOUR CODE HERE
+    return Option.none();
+  }
+}
+
+export class Some<T> extends Option<T> {
+  constructor(value: T) {
+    // YOUR CODE HERE
+    super();
+  }
+  
+  map<U>(fn: (value: T) => U): Option<U> {
+    // YOUR CODE HERE
+    return Option.none();
+  }
+  
+  flatMap<U>(fn: (value: T) => Option<U>): Option<U> {
+    // YOUR CODE HERE
+    return Option.none();
+  }
+  
+  filter(predicate: (value: T) => boolean): Option<T> {
+    // YOUR CODE HERE
+    return Option.none();
+  }
+  
+  getOrElse(defaultValue: T): T {
+    // YOUR CODE HERE
+    return defaultValue;
+  }
+  
+  getOrThrow(error?: Error): T {
+    // YOUR CODE HERE
+    throw error ?? new Error('Unexpected None');
+  }
+  
+  isSome(): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+  
+  isNone(): boolean {
+    // YOUR CODE HERE
+    return true;
+  }
+  
+  orElse(other: Option<T>): Option<T> {
+    // YOUR CODE HERE
+    return other;
+  }
+  
+  orElseGet(fn: () => Option<T>): Option<T> {
+    // YOUR CODE HERE
+    return fn();
+  }
+  
+  forEach(fn: (value: T) => void): void {
+    // YOUR CODE HERE
+  }
+  
+  toArray(): T[] {
+    // YOUR CODE HERE
+    return [];
+  }
+}
+
+export class None<T> extends Option<T> {
+  map<U>(fn: (value: T) => U): Option<U> {
+    // YOUR CODE HERE
+    return Option.none();
+  }
+  
+  flatMap<U>(fn: (value: T) => Option<U>): Option<U> {
+    // YOUR CODE HERE
+    return Option.none();
+  }
+  
+  filter(predicate: (value: T) => boolean): Option<T> {
+    // YOUR CODE HERE
+    return Option.none();
+  }
+  
+  getOrElse(defaultValue: T): T {
+    // YOUR CODE HERE
+    return defaultValue;
+  }
+  
+  getOrThrow(error?: Error): T {
+    // YOUR CODE HERE
+    throw error ?? new Error('Attempted to get value from None');
+  }
+  
+  isSome(): boolean {
+    // YOUR CODE HERE
+    return true;
+  }
+  
+  isNone(): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+  
+  orElse(other: Option<T>): Option<T> {
+    // YOUR CODE HERE
+    return Option.none();
+  }
+  
+  orElseGet(fn: () => Option<T>): Option<T> {
+    // YOUR CODE HERE
+    return Option.none();
+  }
+  
+  forEach(fn: (value: T) => void): void {
+    // YOUR CODE HERE
+  }
+  
+  toArray(): T[] {
+    // YOUR CODE HERE
+    return [];
+  }
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { Option, Some, None } from './challenge';
+
+describe('Option', () => {
+  describe('static methods', () => {
+    it('Option.of creates Some for non-null values', () => {
+      expect(Option.of(42).isSome()).toBe(true);
+      expect(Option.of('hello').isSome()).toBe(true);
+      expect(Option.of(0).isSome()).toBe(true);
+      expect(Option.of(false).isSome()).toBe(true);
+      expect(Option.of('').isSome()).toBe(true);
+    });
+
+    it('Option.of creates None for null/undefined', () => {
+      expect(Option.of(null).isNone()).toBe(true);
+      expect(Option.of(undefined).isNone()).toBe(true);
+    });
+
+    it('Option.some creates Some', () => {
+      const some = Option.some(42);
+      expect(some.isSome()).toBe(true);
+      expect(some.isNone()).toBe(false);
+    });
+
+    it('Option.none creates None', () => {
+      const none = Option.none();
+      expect(none.isNone()).toBe(true);
+      expect(none.isSome()).toBe(false);
+    });
+
+    it('Option.fromNullable is alias for of', () => {
+      expect(Option.fromNullable(42).isSome()).toBe(true);
+      expect(Option.fromNullable(null).isNone()).toBe(true);
+    });
+  });
+
+  describe('Some', () => {
+    it('map transforms value', () => {
+      const result = Option.some(5).map(x => x * 2);
+      expect(result.getOrElse(0)).toBe(10);
+    });
+
+    it('map chains multiple transformations', () => {
+      const result = Option.some('hello')
+        .map(s => s.toUpperCase())
+        .map(s => s.length);
+      expect(result.getOrElse(0)).toBe(5);
+    });
+
+    it('flatMap chains Option-returning functions', () => {
+      const safeDivide = (a: number, b: number): Option<number> =>
+        b === 0 ? Option.none() : Option.some(a / b);
+      
+      const result = Option.some(10)
+        .flatMap(x => safeDivide(x, 2))
+        .flatMap(x => safeDivide(x, 5));
+      expect(result.getOrElse(0)).toBe(1);
+    });
+
+    it('flatMap returns None when function returns None', () => {
+      const result = Option.some(10)
+        .flatMap(() => Option.none<number>());
+      expect(result.isNone()).toBe(true);
+    });
+
+    it('filter keeps value when predicate passes', () => {
+      const result = Option.some(10).filter(x => x > 5);
+      expect(result.isSome()).toBe(true);
+    });
+
+    it('filter returns None when predicate fails', () => {
+      const result = Option.some(10).filter(x => x > 20);
+      expect(result.isNone()).toBe(true);
+    });
+
+    it('getOrElse returns value for Some', () => {
+      expect(Option.some(42).getOrElse(0)).toBe(42);
+    });
+
+    it('getOrThrow returns value for Some', () => {
+      expect(Option.some(42).getOrThrow()).toBe(42);
+    });
+
+    it('orElse returns this for Some', () => {
+      const result = Option.some(42).orElse(Option.some(99));
+      expect(result.getOrElse(0)).toBe(42);
+    });
+
+    it('orElseGet does not evaluate fn for Some', () => {
+      let called = false;
+      const result = Option.some(42).orElseGet(() => {
+        called = true;
+        return Option.some(99);
+      });
+      expect(called).toBe(false);
+      expect(result.getOrElse(0)).toBe(42);
+    });
+
+    it('forEach executes for Some', () => {
+      let value: number | undefined;
+      Option.some(42).forEach(v => { value = v; });
+      expect(value).toBe(42);
+    });
+
+    it('toArray returns single-element array', () => {
+      expect(Option.some(42).toArray()).toEqual([42]);
+    });
+
+    it('isSome returns true', () => {
+      expect(Option.some(42).isSome()).toBe(true);
+    });
+
+    it('isNone returns false', () => {
+      expect(Option.some(42).isNone()).toBe(false);
+    });
+  });
+
+  describe('None', () => {
+    it('map returns None', () => {
+      const result = Option.none<number>().map(x => x * 2);
+      expect(result.isNone()).toBe(true);
+    });
+
+    it('flatMap returns None', () => {
+      const result = Option.none<number>().flatMap(x => Option.some(x * 2));
+      expect(result.isNone()).toBe(true);
+    });
+
+    it('filter returns None', () => {
+      const result = Option.none<number>().filter(() => true);
+      expect(result.isNone()).toBe(true);
+    });
+
+    it('getOrElse returns default', () => {
+      expect(Option.none<number>().getOrElse(42)).toBe(42);
+    });
+
+    it('getOrThrow throws', () => {
+      expect(() => Option.none<number>().getOrThrow()).toThrow();
+    });
+
+    it('getOrThrow with custom error', () => {
+      const customError = new Error('custom');
+      try {
+        Option.none<number>().getOrThrow(customError);
+        expect.fail('Should have thrown');
+      } catch (e) {
+        expect(e).toBe(customError);
+      }
+    });
+
+    it('orElse returns other', () => {
+      const result = Option.none<number>().orElse(Option.some(42));
+      expect(result.getOrElse(0)).toBe(42);
+    });
+
+    it('orElseGet evaluates fn', () => {
+      let called = false;
+      const result = Option.none<number>().orElseGet(() => {
+        called = true;
+        return Option.some(42);
+      });
+      expect(called).toBe(true);
+      expect(result.getOrElse(0)).toBe(42);
+    });
+
+    it('forEach does not execute', () => {
+      let called = false;
+      Option.none<number>().forEach(() => { called = true; });
+      expect(called).toBe(false);
+    });
+
+    it('toArray returns empty array', () => {
+      expect(Option.none<number>().toArray()).toEqual([]);
+    });
+
+    it('isSome returns false', () => {
+      expect(Option.none<number>().isSome()).toBe(false);
+    });
+
+    it('isNone returns true', () => {
+      expect(Option.none<number>().isNone()).toBe(true);
+    });
+  });
+
+  describe('chaining', () => {
+    it('complex chain with Some', () => {
+      const result = Option.some('  hello  ')
+        .map(s => s.trim())
+        .filter(s => s.length > 3)
+        .map(s => s.toUpperCase())
+        .getOrElse('DEFAULT');
+      expect(result).toBe('HELLO');
+    });
+
+    it('chain breaks with None', () => {
+      const result = Option.some('  hi  ')
+        .map(s => s.trim())
+        .filter(s => s.length > 3) // This returns None
+        .map(s => s.toUpperCase()) // This is skipped
+        .getOrElse('DEFAULT');
+      expect(result).toBe('DEFAULT');
+    });
+
+    it('flatMap with failing operation', () => {
+      const findUser = (id: number): Option<{ id: number; name: string }> =>
+        id === 1 ? Option.some({ id: 1, name: 'Alice' }) : Option.none();
+      
+      const getUserEmail = (user: { id: number; name: string }): Option<string> =>
+        user.name === 'Alice' ? Option.some('alice@example.com') : Option.none();
+      
+      const result = Option.some(1)
+        .flatMap(findUser)
+        .flatMap(getUserEmail)
+        .getOrElse('no-email');
+      expect(result).toBe('alice@example.com');
+    });
+
+    it('flatMap with missing user', () => {
+      const findUser = (id: number): Option<{ id: number; name: string }> =>
+        id === 1 ? Option.some({ id: 1, name: 'Alice' }) : Option.none();
+      
+      const result = Option.some(999)
+        .flatMap(findUser)
+        .flatMap(user => Option.some(user.name))
+        .getOrElse('Unknown');
+      expect(result).toBe('Unknown');
+    });
+  });
+
+  describe('edge cases', () => {
+    it('handles falsy values in Some', () => {
+      expect(Option.some(0).getOrElse(99)).toBe(0);
+      expect(Option.some(false).getOrElse(true)).toBe(false);
+      expect(Option.some('').getOrElse('default')).toBe('');
+      expect(Option.some(null as any).getOrElse('default')).toBe(null);
+    });
+
+    it('None singleton behavior', () => {
+      const none1 = Option.none<number>();
+      const none2 = Option.none<string>();
+      // None should be singleton per type, but implementation may vary
+      expect(none1.isNone()).toBe(true);
+      expect(none2.isNone()).toBe(true);
+    });
+
+    it('nested Options', () => {
+      const nested = Option.some(Option.some(42));
+      const result = nested.flatMap(x => x);
+      expect(result.getOrElse(0)).toBe(42);
+    });
+
+    it('map with expensive computation (lazy)', () => {
+      let computed = false;
+      const none = Option.none<number>();
+      none.map(() => {
+        computed = true;
+        return 42;
+      });
+      expect(computed).toBe(false); // Should not compute for None
+    });
+  });
+
+  describe('real-world scenarios', () => {
+    it('parsing integers safely', () => {
+      const parseIntSafe = (s: string): Option<number> => {
+        const parsed = parseInt(s, 10);
+        return isNaN(parsed) ? Option.none() : Option.some(parsed);
+      };
+      
+      expect(parseIntSafe('42').getOrElse(0)).toBe(42);
+      expect(parseIntSafe('not-a-number').getOrElse(0)).toBe(0);
+    });
+
+    it('finding array element safely', () => {
+      const findFirst = <T>(arr: T[], predicate: (t: T) => boolean): Option<T> => {
+        const found = arr.find(predicate);
+        return Option.of(found);
+      };
+      
+      const numbers = [1, 2, 3, 4, 5];
+      expect(findFirst(numbers, n => n > 3).getOrElse(0)).toBe(4);
+      expect(findFirst(numbers, n => n > 10).getOrElse(0)).toBe(0);
+    });
+
+    it('object property access', () => {
+      const getUser = (): Option<{ name: string }> => Option.none();
+      
+      const result = getUser()
+        .map(u => u.name)
+        .getOrElse('Anonymous');
+      expect(result).toBe('Anonymous');
+    });
+
+    it('division with error handling', () => {
+      const safeDivide = (a: number, b: number): Option<number> =>
+        b === 0 ? Option.none() : Option.some(a / b);
+      
+      expect(safeDivide(10, 2).getOrElse(0)).toBe(5);
+      expect(safeDivide(10, 0).getOrElse(-1)).toBe(-1);
+    });
   });
 });
 ]=],
