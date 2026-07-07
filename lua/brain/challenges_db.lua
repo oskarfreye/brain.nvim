@@ -4397,6 +4397,417 @@ describe('Option', () => {
 });
 ]=],
   },
+  {
+    name = "Middleware Chain",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * Middleware Chain
+ *
+ * Implement a middleware composition system like Express.js, Koa, or Redux.
+ *
+ * Middleware functions are composable handlers that execute in sequence,
+ * each receiving a context object and a `next` function to pass control
+ * to the downstream middleware. This pattern enables:
+ * - Request/response processing pipelines
+ * - Authentication and authorization layers
+ * - Logging, error handling, CORS
+ * - Plugin and extension systems
+ *
+ * Implement the MiddlewareChain class with:
+ * - constructor() — Initialize an empty middleware chain
+ * - use(middleware: MiddlewareFn): MiddlewareChain — Add middleware to the chain.
+ *   Returns this for chaining. Middleware receives (ctx, next) where:
+ *   - ctx is a context object that middleware can read/modify
+ *   - next() is a function that calls the next middleware in the chain
+ * - run(ctx: object): Promise<void> — Execute all middleware in order.
+ *   Each middleware must call next() to continue, unless it's terminal.
+ * - onError(handler: (ctx: object, error: Error) => void | Promise<void>): MiddlewareChain
+ *   Register an error handler. If any middleware throws, the error handler runs.
+ * - clear(): void — Remove all middleware and error handlers.
+ * - length(): number — Return the number of middleware in the chain.
+ *
+ * The chain should support async middleware and proper error propagation.
+ * If a middleware doesn't call next(), the chain stops there.
+ *
+ * Bonus: Implement branched middleware with `when(condition, middleware)`
+ * that only runs if the condition function returns true.
+ */
+
+export interface Context {
+  [key: string]: any;
+}
+
+export type NextFn = () => Promise<void>;
+
+export type MiddlewareFn = (ctx: Context, next: NextFn) => void | Promise<void>;
+
+export type ErrorHandler = (ctx: Context, error: Error) => void | Promise<void>;
+
+export class MiddlewareChain {
+  constructor() {
+    // YOUR CODE HERE
+  }
+
+  use(middleware: MiddlewareFn): MiddlewareChain {
+    // YOUR CODE HERE
+    return this;
+  }
+
+  async run(ctx: Context): Promise<void> {
+    // YOUR CODE HERE
+  }
+
+  onError(handler: ErrorHandler): MiddlewareChain {
+    // YOUR CODE HERE
+    return this;
+  }
+
+  clear(): void {
+    // YOUR CODE HERE
+  }
+
+  length(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  when(condition: (ctx: Context) => boolean, middleware: MiddlewareFn): MiddlewareChain {
+    // YOUR CODE HERE
+    return this;
+  }
+}
+]==],
+    tests = [==[
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { MiddlewareChain, Context } from './challenge';
+
+describe('MiddlewareChain', () => {
+  let chain: MiddlewareChain;
+
+  beforeEach(() => {
+    chain = new MiddlewareChain();
+  });
+
+  it('runs middleware in order', async () => {
+    const execution: number[] = [];
+    chain.use(async (ctx, next) => {
+      execution.push(1);
+      await next();
+      execution.push(10);
+    });
+    chain.use(async (ctx, next) => {
+      execution.push(2);
+      await next();
+      execution.push(9);
+    });
+    chain.use(async (ctx, next) => {
+      execution.push(3);
+      await next();
+      execution.push(8);
+    });
+
+    await chain.run({});
+    expect(execution).toEqual([1, 2, 3, 8, 9, 10]);
+  });
+
+  it('passes context through middleware', async () => {
+    chain.use(async (ctx, next) => {
+      ctx.value1 = 'first';
+      await next();
+    });
+    chain.use(async (ctx, next) => {
+      ctx.value2 = 'second';
+      await next();
+    });
+    chain.use(async (ctx, next) => {
+      ctx.value3 = 'third';
+      await next();
+    });
+
+    const ctx: Context = {};
+    await chain.run(ctx);
+    expect(ctx).toEqual({ value1: 'first', value2: 'second', value3: 'third' });
+  });
+
+  it('supports middleware that does not call next', async () => {
+    const execution: number[] = [];
+    chain.use(async (ctx, next) => {
+      execution.push(1);
+      await next();
+      execution.push(10);
+    });
+    chain.use(async (ctx, next) => {
+      execution.push(2);
+      // Does not call next - chain stops here
+      execution.push(9);
+    });
+    chain.use(async (ctx, next) => {
+      execution.push(3);
+      await next();
+    });
+
+    await chain.run({});
+    expect(execution).toEqual([1, 2, 9, 10]);
+  });
+
+  it('returns this from use for chaining', () => {
+    const result = chain.use(async (ctx, next) => {});
+    expect(result).toBe(chain);
+  });
+
+  it('handles async middleware', async () => {
+    const execution: string[] = [];
+    chain.use(async (ctx, next) => {
+      execution.push('start');
+      await new Promise(resolve => setTimeout(resolve, 10));
+      await next();
+      execution.push('end');
+    });
+    chain.use(async (ctx, next) => {
+      execution.push('middle');
+      await next();
+    });
+
+    await chain.run({});
+    expect(execution).toEqual(['start', 'middle', 'end']);
+  });
+
+  it('catches errors with onError handler', async () => {
+    const error = new Error('test error');
+    let caughtError: Error | null = null;
+    let errorCtx: Context | null = null;
+
+    chain.use(async (ctx, next) => {
+      ctx.before = true;
+      await next();
+    });
+    chain.use(async () => {
+      throw error;
+    });
+    chain.use(async (ctx) => {
+      ctx.after = true; // Should not run
+    });
+    chain.onError((ctx, err) => {
+      caughtError = err;
+      errorCtx = ctx;
+    });
+
+    const ctx: Context = {};
+    await chain.run(ctx);
+    expect(caughtError).toBe(error);
+    expect(errorCtx?.before).toBe(true);
+    expect(ctx.after).toBeUndefined();
+  });
+
+  it('onError returns this for chaining', () => {
+    const result = chain.onError(() => {});
+    expect(result).toBe(chain);
+  });
+
+  it('multiple error handlers all run', async () => {
+    const errors: Error[] = [];
+    chain.use(async () => {
+      throw new Error('test');
+    });
+    chain.onError(() => { errors.push(new Error('handler1')); });
+    chain.onError(() => { errors.push(new Error('handler2')); });
+
+    await chain.run({});
+    expect(errors).toHaveLength(2);
+  });
+
+  it('clear removes all middleware', async () => {
+    const execution: number[] = [];
+    chain.use(async (ctx, next) => { execution.push(1); await next(); });
+    chain.use(async (ctx, next) => { execution.push(2); await next(); });
+    chain.clear();
+    chain.use(async (ctx, next) => { execution.push(3); await next(); });
+
+    await chain.run({});
+    expect(execution).toEqual([3]);
+  });
+
+  it('length returns middleware count', () => {
+    expect(chain.length()).toBe(0);
+    chain.use(async (ctx, next) => {});
+    expect(chain.length()).toBe(1);
+    chain.use(async (ctx, next) => {});
+    expect(chain.length()).toBe(2);
+    chain.clear();
+    expect(chain.length()).toBe(0);
+  });
+
+  it('when conditionally runs middleware', async () => {
+    const execution: string[] = [];
+    chain.when(ctx => ctx.run === true, async (ctx, next) => {
+      execution.push('conditional');
+      await next();
+    });
+    chain.use(async (ctx, next) => {
+      execution.push('always');
+      await next();
+    });
+
+    await chain.run({ run: true });
+    expect(execution).toEqual(['conditional', 'always']);
+
+    execution.length = 0;
+    await chain.run({ run: false });
+    expect(execution).toEqual(['always']);
+  });
+
+  it('when with false condition skips middleware', async () => {
+    chain.use(async (ctx, next) => {
+      ctx.skipped = true;
+      await next();
+    });
+    chain.when(() => false, async (ctx) => {
+      ctx.shouldNotRun = true;
+    });
+    chain.use(async (ctx, next) => {
+      ctx.after = true;
+      await next();
+    });
+
+    const ctx: Context = {};
+    await chain.run(ctx);
+    expect(ctx.skipped).toBe(true);
+    expect(ctx.after).toBe(true);
+    expect(ctx.shouldNotRun).toBeUndefined();
+  });
+
+  it('empty chain runs without error', async () => {
+    await expect(chain.run({})).resolves.toBeUndefined();
+  });
+
+  it('error in middleware after next() is caught', async () => {
+    let caughtError: Error | null = null;
+    chain.use(async (ctx, next) => {
+      await next();
+      throw new Error('after next');
+    });
+    chain.use(async (ctx, next) => {
+      await next();
+    });
+    chain.onError((ctx, err) => {
+      caughtError = err;
+    });
+
+    await chain.run({});
+    expect(caughtError?.message).toBe('after next');
+  });
+
+  it('can modify context in multiple middleware', async () => {
+    chain.use(async (ctx, next) => {
+      ctx.count = (ctx.count || 0) + 1;
+      await next();
+    });
+    chain.use(async (ctx, next) => {
+      ctx.count = (ctx.count || 0) + 1;
+      await next();
+    });
+    chain.use(async (ctx, next) => {
+      ctx.count = (ctx.count || 0) + 1;
+      await next();
+    });
+
+    const ctx: Context = { count: 0 };
+    await chain.run(ctx);
+    expect(ctx.count).toBe(3);
+  });
+
+  it('supports synchronous middleware', async () => {
+    const execution: number[] = [];
+    chain.use((ctx, next) => {
+      execution.push(1);
+      next();
+      execution.push(10);
+    });
+    chain.use((ctx, next) => {
+      execution.push(2);
+      next();
+      execution.push(9);
+    });
+
+    await chain.run({});
+    expect(execution).toEqual([1, 2, 9, 10]);
+  });
+
+  it('error handler can fix and continue', async () => {
+    let recovered = false;
+    chain.use(async (ctx, next) => {
+      try {
+        await next();
+      } catch (err) {
+        ctx.recovered = true;
+        recovered = true;
+      }
+    });
+    chain.use(async () => {
+      throw new Error('fail');
+    });
+
+    const ctx: Context = {};
+    await chain.run(ctx);
+    expect(recovered).toBe(true);
+    expect(ctx.recovered).toBe(true);
+  });
+
+  it('complex middleware composition', async () => {
+    const log: string[] = [];
+    
+    chain.use(async (ctx, next) => {
+      log.push('auth-start');
+      ctx.authenticated = true;
+      await next();
+      log.push('auth-end');
+    });
+    
+    chain.when(ctx => ctx.authenticated, async (ctx, next) => {
+      log.push('check-permissions');
+      ctx.hasPermission = true;
+      await next();
+    });
+    
+    chain.use(async (ctx, next) => {
+      log.push('logger-start');
+      await next();
+      log.push('logger-end');
+    });
+    
+    chain.onError((ctx, err) => {
+      log.push(`error: ${err.message}`);
+    });
+
+    await chain.run({});
+    expect(log).toEqual([
+      'auth-start',
+      'check-permissions',
+      'logger-start',
+      'logger-end',
+      'auth-end'
+    ]);
+  });
+
+  it('stress test with many middleware', async () => {
+    const execution: number[] = [];
+    for (let i = 0; i < 50; i++) {
+      chain.use(async (ctx, next) => {
+        execution.push(i);
+        await next();
+        execution.push(100 + i);
+      });
+    }
+
+    await chain.run({});
+    expect(execution.length).toBe(100);
+    expect(execution.slice(0, 50)).toEqual(Array.from({ length: 50 }, (_, i) => i));
+    expect(execution.slice(50)).toEqual(Array.from({ length: 50 }, (_, i) => 100 + (49 - i)));
+  });
+});
+]==],
+  },
 }
 
 return M
