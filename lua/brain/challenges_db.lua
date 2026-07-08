@@ -4808,6 +4808,277 @@ describe('MiddlewareChain', () => {
 });
 ]==],
   },
+{
+    name = "Curry and Pipe",
+    difficulty = "medium",
+    stub = [=[
+/**
+ * Curry and Pipe
+ *
+ * Implement functional programming utilities for function composition
+ * and partial application.
+ *
+ * Curry: Transform a function with multiple arguments into a sequence
+ * of functions that each take a single argument.
+ * - curry(fn): Returns a curried version that can be called incrementally
+ * - Supports partial application: curry(fn)(a)(b)(c) or curry(fn)(a, b)(c)
+ *
+ * Pipe: Compose functions left-to-right where output of one becomes input of next.
+ * - pipe(f, g, h)(x) === h(g(f(x)))
+ * - Supports any number of functions
+ * - Type-safe composition
+ *
+ * Implement:
+ * - curry<T extends (...args: any[]) => any>(fn: T): Curried<T>
+ *   Return a curried function that accepts arguments incrementally.
+ *   When all arguments are provided, execute the original function.
+ *
+ * - pipe<A, B>(f: (a: A) => B): (a: A) => B
+ *   pipe<A, B, C>(f: (a: A) => B, g: (b: B) => C): (a: A) => C
+ *   pipe<A, B, C, D>(f: (a: A) => B, g: (b: B) => C, h: (c: C) => D): (a: A) => D
+ *   Compose functions left-to-right.
+ *
+ * - compose<A, B>(g: (b: B) => A, f: (a: A) => B): (a: A) => A
+ *   Compose functions right-to-left (mathematical composition order).
+ *
+ * Bonus: Implement curryN for explicit arity control and pipeAsync for async functions.
+ */
+
+export function curry<T extends (...args: any[]) => any>(fn: T): any {
+  // YOUR CODE HERE
+  return fn;
+}
+
+export function pipe<A, B>(f: (a: A) => B): (a: A) => B;
+export function pipe<A, B, C>(f: (a: A) => B, g: (b: B) => C): (a: A) => C;
+export function pipe<A, B, C, D>(f: (a: A) => B, g: (b: B) => C, h: (c: C) => D): (a: A) => D;
+export function pipe(...fns: Function[]): Function {
+  // YOUR CODE HERE
+  return (x: any) => x;
+}
+
+export function compose<A, B>(g: (b: B) => A, f: (a: A) => B): (a: A) => A {
+  // YOUR CODE HERE
+  return (x: A) => x;
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { curry, pipe, compose } from './challenge';
+
+describe('curry', () => {
+  it('curries a function with 2 arguments', () => {
+    const add = (a: number, b: number) => a + b;
+    const curriedAdd = curry(add);
+    expect(curriedAdd(2)(3)).toBe(5);
+  });
+
+  it('curries a function with 3 arguments', () => {
+    const add3 = (a: number, b: number, c: number) => a + b + c;
+    const curried = curry(add3);
+    expect(curried(1)(2)(3)).toBe(6);
+  });
+
+  it('supports partial application', () => {
+    const add = (a: number, b: number) => a + b;
+    const curriedAdd = curry(add);
+    const add5 = curriedAdd(5);
+    expect(add5(3)).toBe(8);
+    expect(add5(10)).toBe(15);
+  });
+
+  it('supports partial application with multiple args at once', () => {
+    const add3 = (a: number, b: number, c: number) => a + b + c;
+    const curried = curry(add3);
+    expect(curried(1, 2)(3)).toBe(6);
+    expect(curried(1)(2, 3)).toBe(6);
+    expect(curried(1, 2, 3)).toBe(6);
+  });
+
+  it('works with string concatenation', () => {
+    const concat = (a: string, b: string, c: string) => a + b + c;
+    const curried = curry(concat);
+    expect(curried('Hello')(' ')('World')).toBe('Hello World');
+  });
+
+  it('curries a function with 4 arguments', () => {
+    const fn = (a: number, b: number, c: number, d: number) => a * b + c - d;
+    const curried = curry(fn);
+    expect(curried(2)(3)(4)(5)).toBe(5); // 2*3+4-5=5
+  });
+
+  it('returns same result as original function', () => {
+    const multiply = (a: number, b: number, c: number) => a * b * c;
+    const curried = curry(multiply);
+    expect(curried(2)(3)(4)).toBe(multiply(2, 3, 4));
+  });
+
+  it('curried function can be reused', () => {
+    const add = (a: number, b: number) => a + b;
+    const curriedAdd = curry(add);
+    const add10 = curriedAdd(10);
+    expect(add10(5)).toBe(15);
+    expect(add10(20)).toBe(30);
+  });
+
+  it('handles functions with different argument patterns', () => {
+    const fn = (a: string, b: number) => a.repeat(b);
+    const curried = curry(fn);
+    expect(curried('x')(3)).toBe('xxx');
+  });
+
+  it('curry with 5 arguments', () => {
+    const fn = (a: number, b: number, c: number, d: number, e: number) => 
+      a + b + c + d + e;
+    const curried = curry(fn);
+    expect(curried(1)(2)(3)(4)(5)).toBe(15);
+  });
+});
+
+describe('pipe', () => {
+  it('pipes a single function', () => {
+    const double = (x: number) => x * 2;
+    const fn = pipe(double);
+    expect(fn(5)).toBe(10);
+  });
+
+  it('pipes two functions', () => {
+    const double = (x: number) => x * 2;
+    const addOne = (x: number) => x + 1;
+    const fn = pipe(double, addOne);
+    expect(fn(5)).toBe(11); // (5*2)+1=11
+  });
+
+  it('pipes three functions', () => {
+    const double = (x: number) => x * 2;
+    const addOne = (x: number) => x + 1;
+    const square = (x: number) => x * x;
+    const fn = pipe(double, addOne, square);
+    expect(fn(5)).toBe(121); // ((5*2)+1)^2=121
+  });
+
+  it('pipes with string transformations', () => {
+    const toUpper = (s: string) => s.toUpperCase();
+    const addExclaim = (s: string) => s + '!';
+    const fn = pipe(toUpper, addExclaim);
+    expect(fn('hello')).toBe('HELLO!');
+  });
+
+  it('pipes four functions', () => {
+    const add = (x: number) => x + 1;
+    const double = (x: number) => x * 2;
+    const subtract = (x: number) => x - 3;
+    const square = (x: number) => x * x;
+    const fn = pipe(add, double, subtract, square);
+    expect(fn(5)).toBe(81); // (((5+1)*2)-3)^2=81
+  });
+
+  it('pipe identity with no functions', () => {
+    const fn = pipe();
+    expect(fn(42)).toBe(42);
+    expect(fn('test')).toBe('test');
+  });
+
+  it('pipe preserves types through chain', () => {
+    const parse = (s: string) => parseInt(s, 10);
+    const double = (n: number) => n * 2;
+    const toString = (n: number) => n.toString();
+    const fn = pipe(parse, double, toString);
+    expect(fn('21')).toBe('42');
+  });
+
+  it('pipe with object transformations', () => {
+    const addName = (obj: { age: number }) => ({ ...obj, name: 'Alice' });
+    const addAge = (obj: {}) => ({ ...obj, age: 30 });
+    const fn = pipe(addAge, addName);
+    expect(fn({})).toEqual({ name: 'Alice', age: 30 });
+  });
+});
+
+describe('compose', () => {
+  it('composes two functions (right-to-left)', () => {
+    const double = (x: number) => x * 2;
+    const addOne = (x: number) => x + 1;
+    const fn = compose(addOne, double);
+    expect(fn(5)).toBe(11); // addOne(double(5))=addOne(10)=11
+  });
+
+  it('compose is pipe in reverse order', () => {
+    const f = (x: number) => x + 1;
+    const g = (x: number) => x * 2;
+    const h = (x: number) => x - 3;
+    const piped = pipe(f, g, h);
+    const composed = compose(h, compose(g, f));
+    expect(piped(5)).toBe(9); // ((5+1)*2)-3=9
+    expect(composed(5)).toBe(9);
+  });
+
+  it('compose with string functions', () => {
+    const toUpper = (s: string) => s.toUpperCase();
+    const reverse = (s: string) => s.split('').reverse().join('');
+    const fn = compose(reverse, toUpper);
+    expect(fn('hello')).toBe('OLLEH'); // reverse(toUpper('hello'))
+  });
+});
+
+describe('combined curry and pipe', () => {
+  it('curried functions in pipe', () => {
+    const add = (a: number, b: number) => a + b;
+    const multiply = (a: number, b: number) => a * b;
+    const curriedAdd = curry(add);
+    const curriedMultiply = curry(multiply);
+    const add5 = curriedAdd(5);
+    const multiplyBy2 = curriedMultiply(2);
+    const fn = pipe(add5, multiplyBy2);
+    expect(fn(3)).toBe(16); // (3+5)*2=16
+  });
+
+  it('complex pipeline with curried functions', () => {
+    const add = (a: number, b: number) => a + b;
+    const multiply = (a: number, b: number) => a * b;
+    const subtract = (a: number, b: number) => a - b;
+    
+    const curriedAdd = curry(add);
+    const curriedMultiply = curry(multiply);
+    const curriedSubtract = curry(subtract);
+    
+    const fn = pipe(
+      curriedAdd(10),
+      curriedMultiply(2),
+      curriedSubtract(5)
+    );
+    expect(fn(5)).toBe(25); // ((5+10)*2)-5=25
+  });
+});
+
+describe('edge cases', () => {
+  it('curry with zero arguments function', () => {
+    const fn = () => 42;
+    const curried = curry(fn);
+    expect(curried()).toBe(42);
+  });
+
+  it('pipe with identity-like functions', () => {
+    const id = (x: number) => x;
+    const fn = pipe(id, id, id);
+    expect(fn(42)).toBe(42);
+  });
+
+  it('curry preserves function name', () => {
+    function namedFn(a: number, b: number) { return a + b; }
+    const curried = curry(namedFn);
+    // The curried function should still work correctly
+    expect(curried(1)(2)).toBe(3);
+  });
+
+  it('pipe handles null/undefined in chain', () => {
+    const toNull = () => null;
+    const fn = pipe(toNull);
+    expect(fn()).toBeNull();
+  });
+});
+]=],
+  },
 }
 
 return M
