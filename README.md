@@ -1,20 +1,20 @@
 # 🧠 brain.nvim
 
-Daily cognitive coding challenges inside Neovim. Fight AI-induced brain atrophy — solve data structure and algorithm problems without Copilot, without autocomplete, just you and the code.
+Daily LeetCode coding challenges inside Neovim. Fight AI-induced brain atrophy — solve data structure and algorithm problems without Copilot, without autocomplete, just you and the code.
 
 ![Neovim](https://img.shields.io/badge/Neovim-0.9%2B-green?logo=neovim)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 ## Why?
 
-The more you delegate to AI, the more your problem-solving muscles atrophy. brain.nvim gives you one challenge per day — a split view with a TypeScript stub on the left, a chat panel on the right, and auto-running tests on save. No AI assistance unless you explicitly ask for a hint (which costs you points).
+The more you delegate to AI, the more your problem-solving muscles atrophy. brain.nvim gives you one real LeetCode daily challenge per day — a split view with a TypeScript stub on the left, a chat panel on the right, and auto-running tests on save. No AI assistance unless you explicitly ask for a hint (which costs you points).
 
 ## Features
 
-- **8 built-in challenges** — LRU Cache, Trie, Debounce, Deep Clone, Event Emitter, Promise.all, Binary Search, Flatten Array
-- **Deterministic rotation** — one challenge per day, cycles through all before repeating
+- **LeetCode daily provider** — pulls the public daily coding challenge from LeetCode's GraphQL endpoint
+- **Built-in offline fallback** — local TypeScript challenges still work when LeetCode or the network is unavailable
 - **Split-view UI** — code on the left, chat/feedback on the right
-- **Auto-test on save** — vitest runs every time you save your challenge file
+- **Auto-test on save** — vitest runs generated public-example tests every time you save your challenge file
 - **Scoring** — ✅ 3pts (clean solve), 🟡 2pts (with hints), 🔴 1pt (partial), ⏭️ 0pts (skip)
 - **Training log** — Markdown table tracking your scores over time
 - **Copilot/completion auto-disabled** in challenge buffers
@@ -38,6 +38,16 @@ The more you delegate to AI, the more your problem-solving muscles atrophy. brai
 
     -- Test runner (must support --reporter=json)
     test_cmd = { 'npx', 'vitest', 'run', '--reporter=json' },
+
+    -- Challenge provider: "leetcode" or "builtin"
+    challenge_provider = 'leetcode',
+
+    -- LeetCode daily challenge settings
+    leetcode = {
+      endpoint = 'https://leetcode.com/graphql',
+      timeout = 8,
+      fallback_to_builtin = true,
+    },
 
     -- Disable Copilot/completion in challenge buffers
     disable_copilot = true,
@@ -67,6 +77,12 @@ npm install
 ```
 
 (brain.nvim creates a `package.json` automatically if one doesn't exist.)
+
+### LeetCode provider
+
+By default `:BrainStart` fetches LeetCode's active daily coding challenge, writes a TypeScript scaffold, and creates local Vitest tests from the public examples in the problem statement. LeetCode does not expose its hidden judge tests through this public GraphQL response, so the local tests are a fast sanity check, not a replacement for submitting on LeetCode.
+
+Set `challenge_provider = 'builtin'` to use only the local challenge database.
 
 ## Commands
 
@@ -128,7 +144,7 @@ opts = {
 }
 ```
 
-## Adding Custom Challenges
+## Built-in Fallback Challenges
 
 Edit `lua/brain/challenges_db.lua` or submit a PR! Each challenge needs:
 - `name` — display name
@@ -138,7 +154,7 @@ Edit `lua/brain/challenges_db.lua` or submit a PR! Each challenge needs:
 
 ## Philosophy
 
-> The goal isn't to grind LeetCode. It's to keep your brain sharp while AI handles the routine stuff. One problem a day, no shortcuts, real thinking.
+> The goal is to keep your brain sharp while AI handles the routine stuff. One real problem a day, no shortcuts, real thinking.
 
 ## License
 

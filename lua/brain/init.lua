@@ -10,6 +10,16 @@ M.config = {
   -- Test runner command (must support --reporter=json)
   test_cmd = { 'npx', 'vitest', 'run', '--reporter=json' },
 
+  -- Challenge provider: "leetcode" (daily public LeetCode problem) or "builtin"
+  challenge_provider = 'leetcode',
+
+  -- LeetCode daily challenge settings
+  leetcode = {
+    endpoint = 'https://leetcode.com/graphql',
+    timeout = 8,
+    fallback_to_builtin = true,
+  },
+
   -- Hint provider: "openclaw" (local gateway) or "none"
   hint_provider = 'none',
 

@@ -5079,6 +5079,342 @@ describe('edge cases', () => {
 });
 ]=],
   },
+  {
+    name = "Sliding Window Maximum",
+    difficulty = "medium",
+    stub = [=[
+/**
+ * Sliding Window Maximum
+ *
+ * Implement an efficient sliding window maximum algorithm.
+ *
+ * Given an array of integers and a window size k, return an array containing
+ * the maximum value in each sliding window of size k as it moves from left
+ * to right across the array.
+ *
+ * Example:
+ *   nums = [1, 3, -1, -3, 5, 3, 6, 7], k = 3
+ *   windows: [1, 3, -1], [3, -1, -3], [-1, -3, 5], [-3, 5, 3], [5, 3, 6], [3, 6, 7]
+ *   maxes:   [3],         [3],         [5],         [5],         [6],         [7]
+ *   result: [3, 3, 5, 5, 6, 7]
+ *
+ * Implement:
+ * - maxSlidingWindow(nums: number[], k: number): number[]
+ *   Return array of maximums for each window position.
+ *
+ * - maxSlidingWindowOptimized(nums: number[], k: number): number[]
+ *   Use a monotonic deque for O(n) time complexity instead of O(n*k).
+ *   The deque stores indices, maintaining decreasing order of values.
+ *
+ * - minSlidingWindow(nums: number[], k: number): number[]
+ *   Same problem but find minimums instead of maximums.
+ *
+ * Constraints:
+ * - 1 <= k <= nums.length
+ * - nums can contain negative numbers
+ * - Empty array returns empty array
+ *
+ * The optimized solution should use a deque (double-ended queue) where:
+ * - Remove indices outside the current window from the front
+ * - Remove indices of elements smaller than current from the back
+ * - The front always has the index of the maximum element
+ */
+
+export function maxSlidingWindow(nums: number[], k: number): number[] {
+  // YOUR CODE HERE
+  return [];
 }
+
+export function maxSlidingWindowOptimized(nums: number[], k: number): number[] {
+  // YOUR CODE HERE
+  return [];
+}
+
+export function minSlidingWindow(nums: number[], k: number): number[] {
+  // YOUR CODE HERE
+  return [];
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { maxSlidingWindow, maxSlidingWindowOptimized, minSlidingWindow } from './challenge';
+
+describe('maxSlidingWindow', () => {
+  it('basic example', () => {
+    const nums = [1, 3, -1, -3, 5, 3, 6, 7];
+    const k = 3;
+    expect(maxSlidingWindow(nums, k)).toEqual([3, 3, 5, 5, 6, 7]);
+  });
+
+  it('window size equals array length', () => {
+    const nums = [1, 2, 3, 4, 5];
+    const k = 5;
+    expect(maxSlidingWindow(nums, k)).toEqual([5]);
+  });
+
+  it('window size of 1', () => {
+    const nums = [1, 2, 3, 4, 5];
+    const k = 1;
+    expect(maxSlidingWindow(nums, k)).toEqual([1, 2, 3, 4, 5]);
+  });
+
+  it('all same values', () => {
+    const nums = [5, 5, 5, 5, 5];
+    const k = 3;
+    expect(maxSlidingWindow(nums, k)).toEqual([5, 5, 5]);
+  });
+
+  it('decreasing array', () => {
+    const nums = [5, 4, 3, 2, 1];
+    const k = 3;
+    expect(maxSlidingWindow(nums, k)).toEqual([5, 4, 3]);
+  });
+
+  it('increasing array', () => {
+    const nums = [1, 2, 3, 4, 5];
+    const k = 3;
+    expect(maxSlidingWindow(nums, k)).toEqual([3, 4, 5]);
+  });
+
+  it('with negative numbers', () => {
+    const nums = [-1, -2, -3, -4, -5];
+    const k = 2;
+    expect(maxSlidingWindow(nums, k)).toEqual([-1, -2, -3, -4]);
+  });
+
+  it('mixed positive and negative', () => {
+    const nums = [10, -5, 3, -2, 8, -1, 6];
+    const k = 4;
+    expect(maxSlidingWindow(nums, k)).toEqual([10, 8, 8]);
+  });
+
+  it('single element array', () => {
+    const nums = [42];
+    const k = 1;
+    expect(maxSlidingWindow(nums, k)).toEqual([42]);
+  });
+
+  it('empty array', () => {
+    expect(maxSlidingWindow([], 1)).toEqual([]);
+  });
+
+  it('two elements', () => {
+    const nums = [1, 2];
+    expect(maxSlidingWindow(nums, 1)).toEqual([1, 2]);
+    expect(maxSlidingWindow(nums, 2)).toEqual([2]);
+  });
+
+  it('large window at end', () => {
+    const nums = [1, 2, 3, 100, 50];
+    const k = 4;
+    expect(maxSlidingWindow(nums, k)).toEqual([100, 100]);
+  });
+});
+
+describe('maxSlidingWindowOptimized', () => {
+  it('basic example', () => {
+    const nums = [1, 3, -1, -3, 5, 3, 6, 7];
+    const k = 3;
+    expect(maxSlidingWindowOptimized(nums, k)).toEqual([3, 3, 5, 5, 6, 7]);
+  });
+
+  it('window size equals array length', () => {
+    const nums = [1, 2, 3, 4, 5];
+    const k = 5;
+    expect(maxSlidingWindowOptimized(nums, k)).toEqual([5]);
+  });
+
+  it('window size of 1', () => {
+    const nums = [1, 2, 3, 4, 5];
+    const k = 1;
+    expect(maxSlidingWindowOptimized(nums, k)).toEqual([1, 2, 3, 4, 5]);
+  });
+
+  it('all same values', () => {
+    const nums = [5, 5, 5, 5, 5];
+    const k = 3;
+    expect(maxSlidingWindowOptimized(nums, k)).toEqual([5, 5, 5]);
+  });
+
+  it('decreasing array', () => {
+    const nums = [5, 4, 3, 2, 1];
+    const k = 3;
+    expect(maxSlidingWindowOptimized(nums, k)).toEqual([5, 4, 3]);
+  });
+
+  it('increasing array', () => {
+    const nums = [1, 2, 3, 4, 5];
+    const k = 3;
+    expect(maxSlidingWindowOptimized(nums, k)).toEqual([3, 4, 5]);
+  });
+
+  it('with negative numbers', () => {
+    const nums = [-1, -2, -3, -4, -5];
+    const k = 2;
+    expect(maxSlidingWindowOptimized(nums, k)).toEqual([-1, -2, -3, -4]);
+  });
+
+  it('mixed positive and negative', () => {
+    const nums = [10, -5, 3, -2, 8, -1, 6];
+    const k = 4;
+    expect(maxSlidingWindowOptimized(nums, k)).toEqual([10, 8, 8]);
+  });
+
+  it('single element array', () => {
+    const nums = [42];
+    const k = 1;
+    expect(maxSlidingWindowOptimized(nums, k)).toEqual([42]);
+  });
+
+  it('empty array', () => {
+    expect(maxSlidingWindowOptimized([], 1)).toEqual([]);
+  });
+
+  it('matches naive implementation', () => {
+    const testCases = [
+      [[1, 3, -1, -3, 5, 3, 6, 7], 3],
+      [[1, 2, 3, 4, 5], 2],
+      [[5, 4, 3, 2, 1], 4],
+      [[-10, -20, -30, -40], 2],
+      [[100, 1, 2, 3, 4, 5, 6, 7, 8], 5],
+    ];
+    
+    for (const [nums, k] of testCases) {
+      expect(maxSlidingWindowOptimized(nums as number[], k as number))
+        .toEqual(maxSlidingWindow(nums as number[], k as number));
+    }
+  });
+
+  it('stress test with large array', () => {
+    const nums = Array.from({ length: 1000 }, (_, i) => i % 100);
+    const k = 50;
+    const result = maxSlidingWindowOptimized(nums, k);
+    expect(result.length).toBe(1000 - k + 1);
+    // Each window max should be 99 (since we cycle 0-99)
+    for (const max of result) {
+      expect(max).toBeLessThanOrEqual(99);
+      expect(max).toBeGreaterThanOrEqual(0);
+    }
+  });
+});
+
+describe('minSlidingWindow', () => {
+  it('basic example', () => {
+    const nums = [1, 3, -1, -3, 5, 3, 6, 7];
+    const k = 3;
+    expect(minSlidingWindow(nums, k)).toEqual([-1, -3, -3, -3, 3, 3]);
+  });
+
+  it('window size equals array length', () => {
+    const nums = [5, 2, 8, 1, 9];
+    const k = 5;
+    expect(minSlidingWindow(nums, k)).toEqual([1]);
+  });
+
+  it('window size of 1', () => {
+    const nums = [1, 2, 3, 4, 5];
+    const k = 1;
+    expect(minSlidingWindow(nums, k)).toEqual([1, 2, 3, 4, 5]);
+  });
+
+  it('all same values', () => {
+    const nums = [5, 5, 5, 5, 5];
+    const k = 3;
+    expect(minSlidingWindow(nums, k)).toEqual([5, 5, 5]);
+  });
+
+  it('decreasing array', () => {
+    const nums = [5, 4, 3, 2, 1];
+    const k = 3;
+    expect(minSlidingWindow(nums, k)).toEqual([3, 2, 1]);
+  });
+
+  it('increasing array', () => {
+    const nums = [1, 2, 3, 4, 5];
+    const k = 3;
+    expect(minSlidingWindow(nums, k)).toEqual([1, 2, 3]);
+  });
+
+  it('with negative numbers', () => {
+    const nums = [-1, -2, -3, -4, -5];
+    const k = 2;
+    expect(minSlidingWindow(nums, k)).toEqual([-2, -3, -4, -5]);
+  });
+
+  it('single element array', () => {
+    const nums = [42];
+    const k = 1;
+    expect(minSlidingWindow(nums, k)).toEqual([42]);
+  });
+
+  it('empty array', () => {
+    expect(minSlidingWindow([], 1)).toEqual([]);
+  });
+
+  it('stress test', () => {
+    const nums = Array.from({ length: 500 }, (_, i) => 500 - i);
+    const k = 100;
+    const result = minSlidingWindow(nums, k);
+    expect(result.length).toBe(500 - k + 1);
+    // First window min should be 401 (500-99)
+    expect(result[0]).toBe(401);
+    // Last window min should be 1
+    expect(result[result.length - 1]).toBe(1);
+  });
+});
+
+describe('edge cases', () => {
+  it('k equals 1 for all functions', () => {
+    const nums = [5, 2, 8, 1, 9];
+    expect(maxSlidingWindow(nums, 1)).toEqual(nums);
+    expect(maxSlidingWindowOptimized(nums, 1)).toEqual(nums);
+    expect(minSlidingWindow(nums, 1)).toEqual(nums);
+  });
+
+  it('k equals array length', () => {
+    const nums = [3, 1, 4, 1, 5, 9, 2, 6];
+    const k = nums.length;
+    expect(maxSlidingWindow(nums, k)).toEqual([Math.max(...nums)]);
+    expect(maxSlidingWindowOptimized(nums, k)).toEqual([Math.max(...nums)]);
+    expect(minSlidingWindow(nums, k)).toEqual([Math.min(...nums)]);
+  });
+
+  it('very large numbers', () => {
+    const nums = [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, 0];
+    const k = 2;
+    expect(maxSlidingWindow(nums, k)).toEqual([Number.MAX_SAFE_INTEGER, 0]);
+    expect(minSlidingWindow(nums, k)).toEqual([Number.MIN_SAFE_INTEGER, Number.MIN_SAFE_INTEGER]);
+  });
+
+  it('floating point numbers', () => {
+    const nums = [1.5, 3.7, -2.1, 0.5];
+    const k = 2;
+    expect(maxSlidingWindow(nums, k)).toEqual([3.7, 3.7, 0.5]);
+    expect(minSlidingWindow(nums, k)).toEqual([1.5, -2.1, -2.1]);
+  });
+});
+]=],
+  },
+}
+
+--- Deterministic challenge selection based on date.
+--- Cycles sequentially through challenges using day-of-year.
+function M.get_challenge_for_date(date_str)
+  local y, m, d = date_str:match('(%d+)-(%d+)-(%d+)')
+  if y and m and d then
+    local t = os.time({ year = tonumber(y), month = tonumber(m), day = tonumber(d) })
+    local jan1 = os.time({ year = tonumber(y), month = 1, day = 1 })
+    local day_of_year = math.floor((t - jan1) / 86400)
+    local idx = (day_of_year % #M.challenges) + 1
+    return M.challenges[idx]
+  end
+
+  local seed = 0
+  for i = 1, #date_str do
+    seed = seed * 31 + string.byte(date_str, i)
+  end
+  local idx = (seed % #M.challenges) + 1
+  return M.challenges[idx]
+end
 
 return M

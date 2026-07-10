@@ -15,35 +15,100 @@ local function today()
   return os.date('%Y-%m-%d')
 end
 
+local function read_metadata(dir)
+  local path = dir .. '/metadata.json'
+  if vim.fn.filereadable(path) == 0 then return nil end
+
+  local f = io.open(path, 'r')
+  if not f then return nil end
+
+  local content = f:read('*a')
+  f:close()
+
+  local ok, decoded = pcall(vim.fn.json_decode, content)
+  if ok then return decoded end
+  return nil
+end
+
+local function write_metadata(dir, challenge)
+  local path = dir .. '/metadata.json'
+  local f = io.open(path, 'w')
+  if not f then return end
+
+  f:write(vim.fn.json_encode({
+    name = challenge.name,
+    difficulty = challenge.difficulty,
+    source = challenge.source or 'builtin',
+    source_url = challenge.source_url,
+    source_date = challenge.source_date,
+    title_slug = challenge.title_slug,
+    test_note = challenge.test_note,
+  }))
+  f:close()
+end
+
+local function load_challenge(date)
+  local config = require('brain').config
+  local db = require('brain.challenges_db')
+
+  if config.challenge_provider == 'leetcode' then
+    local ok, leetcode = pcall(require, 'brain.leetcode')
+    if ok then
+      local challenge, err = leetcode.get_daily_challenge()
+      if challenge then return challenge end
+
+      if not config.leetcode or config.leetcode.fallback_to_builtin ~= false then
+        vim.notify('brain.nvim: LeetCode daily unavailable (' .. (err or 'unknown error') .. '); using built-in challenge.', vim.log.levels.WARN)
+      else
+        vim.notify('brain.nvim: LeetCode daily unavailable: ' .. (err or 'unknown error'), vim.log.levels.ERROR)
+        return nil
+      end
+    elseif not config.leetcode or config.leetcode.fallback_to_builtin ~= false then
+      vim.notify('brain.nvim: could not load LeetCode provider; using built-in challenge.', vim.log.levels.WARN)
+    else
+      vim.notify('brain.nvim: could not load LeetCode provider.', vim.log.levels.ERROR)
+      return nil
+    end
+  end
+
+  return db.get_challenge_for_date(date)
+end
+
 function M.start()
   local config = require('brain').config
   local ui = require('brain.ui')
-  local db = require('brain.challenges_db')
 
   local date = today()
   local dir = config.challenges_dir .. '/' .. date
   local code_file = dir .. '/challenge.ts'
   local test_file = dir .. '/challenge.test.ts'
+  local metadata = read_metadata(dir) or {}
 
   if vim.fn.filereadable(code_file) == 1 then
     M.current.date = date
     M.current.dir = dir
     M.current.code_file = code_file
     M.current.test_file = test_file
-    M.current.name = 'Challenge'
+    M.current.name = metadata.name or 'Challenge'
     ui.open_layout(code_file)
-    ui.append_chat({
+    local lines = {
       '🧠 **Brain Training** — ' .. date,
       '',
       'Resuming existing challenge.',
-      'Commands: :BrainTest :BrainHint :BrainSubmit :BrainSkip',
-      '',
-    })
+    }
+    if metadata.name then table.insert(lines, '**Challenge:** ' .. metadata.name) end
+    if metadata.source_url then table.insert(lines, '**Source:** ' .. metadata.source_url) end
+    if metadata.test_note then table.insert(lines, metadata.test_note) end
+    table.insert(lines, 'Commands: :BrainTest :BrainHint :BrainSubmit :BrainSkip')
+    table.insert(lines, '')
+    ui.append_chat(lines)
     M._setup_autosave()
     return
   end
 
-  local challenge = db.get_challenge_for_date(date)
+  local challenge = load_challenge(date)
+  if not challenge then return end
+
   M.current = {
     date = date,
     name = challenge.name,
@@ -56,6 +121,7 @@ function M.start()
   }
 
   vim.fn.mkdir(dir, 'p')
+  write_metadata(dir, challenge)
 
   local f = io.open(code_file, 'w')
   if f then f:write(challenge.stub); f:close() end
@@ -64,15 +130,20 @@ function M.start()
   if f then f:write(challenge.tests); f:close() end
 
   ui.open_layout(code_file)
-  ui.append_chat({
+  local lines = {
     '🧠 **Brain Training** — ' .. date,
     '',
     '**Challenge:** ' .. challenge.name .. ' (' .. challenge.difficulty .. ')',
     '',
-    'Your challenge file is open on the left.',
-    'Look for `// YOUR CODE HERE` markers.',
-    '',
-    'Commands:',
+  }
+  if challenge.source_url then table.insert(lines, '**Source:** ' .. challenge.source_url) end
+  if challenge.test_note then table.insert(lines, challenge.test_note) end
+  table.insert(lines, '')
+  table.insert(lines, 'Your challenge file is open on the left.')
+  table.insert(lines, 'Look for `// YOUR CODE HERE` markers.')
+  table.insert(lines, '')
+  table.insert(lines, 'Commands:')
+  vim.list_extend(lines, {
     '  :BrainTest   — Run tests (also runs on save)',
     '  :BrainHint   — Get a hint (-1 point)',
     '  :BrainSubmit — Submit solution',
@@ -81,6 +152,7 @@ function M.start()
     '---',
     '',
   })
+  ui.append_chat(lines)
 
   M._setup_autosave()
 end
