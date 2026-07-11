@@ -5395,6 +5395,333 @@ describe('edge cases', () => {
 });
 ]=],
   },
+  {
+    name = "Hash Map from Scratch",
+    difficulty = "easy",
+    stub = [=[
+/**
+ * Hash Map from Scratch
+ *
+ * Implement a hash map (dictionary) data structure from scratch.
+ *
+ * A hash map stores key-value pairs and provides average O(1) lookup,
+ * insertion, and deletion. This is one of the most fundamental data
+ * structures in computer science, used in:
+ * - Database indexing
+ * - Caching systems
+ * - Symbol tables in compilers
+ * - Counting frequencies
+ * - Deduplication
+ *
+ * Implement the HashMap class with:
+ * - constructor(capacity?: number) — Initialize with optional initial capacity
+ * - put(key: string, value: any): void — Insert or update a key-value pair
+ * - get(key: string): any | undefined — Return value for key, or undefined
+ * - delete(key: string): boolean — Remove key, return true if existed
+ * - has(key: string): boolean — Check if key exists
+ * - size(): number — Return number of entries
+ * - keys(): string[] — Return all keys
+ * - values(): any[] — Return all values
+ * - entries(): [string, any][] — Return all [key, value] pairs
+ * - clear(): void — Remove all entries
+ *
+ * Handle collisions using chaining (linked list or array at each bucket).
+ * Implement automatic resizing when load factor exceeds 0.75.
+ * Use a simple hash function (e.g., DJB2 or FNV-1a).
+ *
+ * Bonus: Implement getOrSet(key: string, defaultValue: any): any that
+ * returns existing value or sets and returns default if missing.
+ */
+
+export class HashMap {
+  constructor(capacity?: number) {
+    // YOUR CODE HERE
+  }
+
+  put(key: string, value: any): void {
+    // YOUR CODE HERE
+  }
+
+  get(key: string): any | undefined {
+    // YOUR CODE HERE
+    return undefined;
+  }
+
+  delete(key: string): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  has(key: string): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  size(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  keys(): string[] {
+    // YOUR CODE HERE
+    return [];
+  }
+
+  values(): any[] {
+    // YOUR CODE HERE
+    return [];
+  }
+
+  entries(): [string, any][] {
+    // YOUR CODE HERE
+    return [];
+  }
+
+  clear(): void {
+    // YOUR CODE HERE
+  }
+
+  getOrSet(key: string, defaultValue: any): any {
+    // YOUR CODE HERE
+    return defaultValue;
+  }
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { HashMap } from './challenge';
+
+describe('HashMap', () => {
+  it('creates empty map', () => {
+    const map = new HashMap();
+    expect(map.size()).toBe(0);
+    expect(map.keys()).toEqual([]);
+    expect(map.values()).toEqual([]);
+    expect(map.entries()).toEqual([]);
+  });
+
+  it('put and get single value', () => {
+    const map = new HashMap();
+    map.put('key', 'value');
+    expect(map.get('key')).toBe('value');
+    expect(map.size()).toBe(1);
+  });
+
+  it('put and get multiple values', () => {
+    const map = new HashMap();
+    map.put('a', 1);
+    map.put('b', 2);
+    map.put('c', 3);
+    expect(map.get('a')).toBe(1);
+    expect(map.get('b')).toBe(2);
+    expect(map.get('c')).toBe(3);
+    expect(map.size()).toBe(3);
+  });
+
+  it('update existing key', () => {
+    const map = new HashMap();
+    map.put('key', 'first');
+    map.put('key', 'second');
+    expect(map.get('key')).toBe('second');
+    expect(map.size()).toBe(1);
+  });
+
+  it('get returns undefined for missing key', () => {
+    const map = new HashMap();
+    expect(map.get('missing')).toBeUndefined();
+  });
+
+  it('has returns correct boolean', () => {
+    const map = new HashMap();
+    map.put('key', 'value');
+    expect(map.has('key')).toBe(true);
+    expect(map.has('missing')).toBe(false);
+  });
+
+  it('delete existing key', () => {
+    const map = new HashMap();
+    map.put('key', 'value');
+    expect(map.delete('key')).toBe(true);
+    expect(map.has('key')).toBe(false);
+    expect(map.size()).toBe(0);
+  });
+
+  it('delete non-existing key', () => {
+    const map = new HashMap();
+    expect(map.delete('missing')).toBe(false);
+  });
+
+  it('keys returns all keys', () => {
+    const map = new HashMap();
+    map.put('a', 1);
+    map.put('b', 2);
+    map.put('c', 3);
+    const keys = map.keys().sort();
+    expect(keys).toEqual(['a', 'b', 'c']);
+  });
+
+  it('values returns all values', () => {
+    const map = new HashMap();
+    map.put('a', 1);
+    map.put('b', 2);
+    map.put('c', 3);
+    const values = map.values().sort((a, b) => a - b);
+    expect(values).toEqual([1, 2, 3]);
+  });
+
+  it('entries returns all pairs', () => {
+    const map = new HashMap();
+    map.put('a', 1);
+    map.put('b', 2);
+    const entries = map.entries().sort((a, b) => a[0].localeCompare(b[0]));
+    expect(entries).toEqual([['a', 1], ['b', 2]]);
+  });
+
+  it('clear removes all entries', () => {
+    const map = new HashMap();
+    map.put('a', 1);
+    map.put('b', 2);
+    map.clear();
+    expect(map.size()).toBe(0);
+    expect(map.keys()).toEqual([]);
+  });
+
+  it('getOrSet returns existing value', () => {
+    const map = new HashMap();
+    map.put('key', 'existing');
+    expect(map.getOrSet('key', 'default')).toBe('existing');
+    expect(map.size()).toBe(1);
+  });
+
+  it('getOrSet sets and returns default', () => {
+    const map = new HashMap();
+    expect(map.getOrSet('key', 'default')).toBe('default');
+    expect(map.get('key')).toBe('default');
+    expect(map.size()).toBe(1);
+  });
+
+  it('handles collision with same hash', () => {
+    const map = new HashMap();
+    // These keys will likely collide in a small hash map
+    for (let i = 0; i < 100; i++) {
+      map.put(`key${i}`, i);
+    }
+    expect(map.size()).toBe(100);
+    for (let i = 0; i < 100; i++) {
+      expect(map.get(`key${i}`)).toBe(i);
+    }
+  });
+
+  it('handles various value types', () => {
+    const map = new HashMap();
+    map.put('string', 'hello');
+    map.put('number', 42);
+    map.put('boolean', true);
+    map.put('null', null);
+    map.put('undefined', undefined);
+    map.put('object', { a: 1 });
+    map.put('array', [1, 2, 3]);
+    
+    expect(map.get('string')).toBe('hello');
+    expect(map.get('number')).toBe(42);
+    expect(map.get('boolean')).toBe(true);
+    expect(map.get('null')).toBeNull();
+    expect(map.get('undefined')).toBeUndefined();
+    expect(map.get('object')).toEqual({ a: 1 });
+    expect(map.get('array')).toEqual([1, 2, 3]);
+  });
+
+  it('handles empty string key', () => {
+    const map = new HashMap();
+    map.put('', 'empty key');
+    expect(map.get('')).toBe('empty key');
+    expect(map.has('')).toBe(true);
+  });
+
+  it('handles special characters in keys', () => {
+    const map = new HashMap();
+    map.put('key with spaces', 'value1');
+    map.put('key\nwith\nnewlines', 'value2');
+    map.put('key\twith\ttabs', 'value3');
+    map.put('unicode-🎉-emoji', 'value4');
+    
+    expect(map.get('key with spaces')).toBe('value1');
+    expect(map.get('key\nwith\nnewlines')).toBe('value2');
+    expect(map.get('key\twith\ttabs')).toBe('value3');
+    expect(map.get('unicode-🎉-emoji')).toBe('value4');
+  });
+
+  it('initial capacity works', () => {
+    const map = new HashMap(64);
+    for (let i = 0; i < 50; i++) {
+      map.put(`key${i}`, i);
+    }
+    expect(map.size()).toBe(50);
+  });
+
+  it('stress test with many operations', () => {
+    const map = new HashMap();
+    const n = 1000;
+    
+    // Insert
+    for (let i = 0; i < n; i++) {
+      map.put(`key${i}`, i * 2);
+    }
+    expect(map.size()).toBe(n);
+    
+    // Read
+    for (let i = 0; i < n; i++) {
+      expect(map.get(`key${i}`)).toBe(i * 2);
+    }
+    
+    // Update
+    for (let i = 0; i < n; i++) {
+      map.put(`key${i}`, i * 3);
+    }
+    for (let i = 0; i < n; i++) {
+      expect(map.get(`key${i}`)).toBe(i * 3);
+    }
+    
+    // Delete half
+    for (let i = 0; i < n; i += 2) {
+      map.delete(`key${i}`);
+    }
+    expect(map.size()).toBe(n / 2);
+  });
+});
+
+describe('edge cases', () => {
+  it('constructor with zero capacity', () => {
+    const map = new HashMap(0);
+    map.put('key', 'value');
+    expect(map.get('key')).toBe('value');
+  });
+
+  it('delete all keys', () => {
+    const map = new HashMap();
+    map.put('a', 1);
+    map.put('b', 2);
+    map.put('c', 3);
+    map.delete('a');
+    map.delete('b');
+    map.delete('c');
+    expect(map.size()).toBe(0);
+    expect(map.keys()).toEqual([]);
+  });
+
+  it('put after clear', () => {
+    const map = new HashMap();
+    map.put('a', 1);
+    map.clear();
+    map.put('b', 2);
+    expect(map.size()).toBe(1);
+    expect(map.get('b')).toBe(2);
+    expect(map.has('a')).toBe(false);
+  });
+});
+]=],
+  },
+
 }
 
 --- Deterministic challenge selection based on date.
