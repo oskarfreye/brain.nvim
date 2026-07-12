@@ -5721,6 +5721,230 @@ describe('edge cases', () => {
 });
 ]=],
   },
+  {
+    name = "Edit Distance",
+    difficulty = "medium",
+    stub = [=[
+/**
+ * Edit Distance (Levenshtein Distance)
+ *
+ * Implement the classic dynamic programming algorithm for measuring
+ * string similarity through minimum edit operations.
+ *
+ * The edit distance between two strings is the minimum number of operations
+ * required to transform one string into the other, where allowed operations are:
+ * - Insert a character
+ * - Delete a character
+ * - Replace a character
+ *
+ * This algorithm is fundamental to:
+ * - Spell checkers and autocorrect
+ * - DNA sequence alignment in bioinformatics
+ * - Diff tools and version control
+ * - Fuzzy string matching
+ * - Natural language processing
+ *
+ * Implement:
+ * - minDistance(word1: string, word2: string): number
+ *   Return the minimum number of operations to convert word1 to word2.
+ *
+ * - minDistanceWithOps(word1: string, word2: string): { distance: number, operations: Operation[] }
+ *   Return both the distance and the actual sequence of operations.
+ *   Operation types: { type: 'insert' | 'delete' | 'replace' | 'match', index: number, char?: string }
+ *
+ * - isOneEditDistance(s: string, t: string): boolean
+ *   Check if two strings are exactly one edit away from each other.
+ *   Optimized O(min(m,n)) solution without full DP table.
+ *
+ * - longestCommonSubsequence(text1: string, text2: string): number
+ *   Related DP problem: find the length of the longest common subsequence.
+ *   A subsequence maintains relative order but doesn't need to be contiguous.
+ *
+ * Use a 2D DP table where dp[i][j] represents the edit distance between
+ * word1[0..i-1] and word2[0..j-1].
+ *
+ * Bonus: Implement wildcard matching support where '?' matches any single character.
+ */
+
+export function minDistance(word1: string, word2: string): number {
+  // YOUR CODE HERE
+  return 0;
+}
+
+export interface Operation {
+  type: 'insert' | 'delete' | 'replace' | 'match';
+  index: number;
+  char?: string;
+}
+
+export interface EditResult {
+  distance: number;
+  operations: Operation[];
+}
+
+export function minDistanceWithOps(word1: string, word2: string): EditResult {
+  // YOUR CODE HERE
+  return { distance: 0, operations: [] };
+}
+
+export function isOneEditDistance(s: string, t: string): boolean {
+  // YOUR CODE HERE
+  return false;
+}
+
+export function longestCommonSubsequence(text1: string, text2: string): number {
+  // YOUR CODE HERE
+  return 0;
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { minDistance, minDistanceWithOps, isOneEditDistance, longestCommonSubsequence } from './challenge';
+
+describe('minDistance', () => {
+  it('identical strings have distance 0', () => {
+    expect(minDistance('abc', 'abc')).toBe(0);
+    expect(minDistance('', '')).toBe(0);
+    expect(minDistance('a', 'a')).toBe(0);
+  });
+
+  it('empty to non-empty requires insertions', () => {
+    expect(minDistance('', 'abc')).toBe(3);
+    expect(minDistance('', 'a')).toBe(1);
+  });
+
+  it('non-empty to empty requires deletions', () => {
+    expect(minDistance('abc', '')).toBe(3);
+    expect(minDistance('a', '')).toBe(1);
+  });
+
+  it('single character replacement', () => {
+    expect(minDistance('a', 'b')).toBe(1);
+    expect(minDistance('abc', 'adc')).toBe(1);
+  });
+
+  it('horse to ros example', () => {
+    expect(minDistance('horse', 'ros')).toBe(3);
+  });
+
+  it('intention to execution example', () => {
+    expect(minDistance('intention', 'execution')).toBe(5);
+  });
+
+  it('kitten to sitting example', () => {
+    expect(minDistance('kitten', 'sitting')).toBe(3);
+  });
+
+  it('different lengths with common prefix', () => {
+    expect(minDistance('abc', 'abcd')).toBe(1);
+    expect(minDistance('abcd', 'abc')).toBe(1);
+  });
+
+  it('completely different strings', () => {
+    expect(minDistance('abc', 'xyz')).toBe(3);
+  });
+
+  it('single character strings', () => {
+    expect(minDistance('a', 'b')).toBe(1);
+    expect(minDistance('a', '')).toBe(1);
+    expect(minDistance('', 'a')).toBe(1);
+  });
+});
+
+describe('minDistanceWithOps', () => {
+  it('identical strings have no operations', () => {
+    const result = minDistanceWithOps('abc', 'abc');
+    expect(result.distance).toBe(0);
+    expect(result.operations.length).toBe(0);
+  });
+
+  it('tracks insertions', () => {
+    const result = minDistanceWithOps('', 'abc');
+    expect(result.distance).toBe(3);
+    expect(result.operations.filter(op => op.type === 'insert').length).toBe(3);
+  });
+
+  it('tracks deletions', () => {
+    const result = minDistanceWithOps('abc', '');
+    expect(result.distance).toBe(3);
+    expect(result.operations.filter(op => op.type === 'delete').length).toBe(3);
+  });
+
+  it('horse to ros with operations', () => {
+    const result = minDistanceWithOps('horse', 'ros');
+    expect(result.distance).toBe(3);
+  });
+});
+
+describe('isOneEditDistance', () => {
+  it('identical strings are not one edit away', () => {
+    expect(isOneEditDistance('abc', 'abc')).toBe(false);
+    expect(isOneEditDistance('', '')).toBe(false);
+  });
+
+  it('single insertion', () => {
+    expect(isOneEditDistance('ab', 'acb')).toBe(true);
+    expect(isOneEditDistance('', 'a')).toBe(true);
+  });
+
+  it('single deletion', () => {
+    expect(isOneEditDistance('acb', 'ab')).toBe(true);
+    expect(isOneEditDistance('a', '')).toBe(true);
+  });
+
+  it('single replacement', () => {
+    expect(isOneEditDistance('abc', 'adc')).toBe(true);
+    expect(isOneEditDistance('a', 'b')).toBe(true);
+  });
+
+  it('two edits returns false', () => {
+    expect(isOneEditDistance('abc', 'axy')).toBe(false);
+    expect(isOneEditDistance('', 'ab')).toBe(false);
+  });
+
+  it('length difference > 1 returns false', () => {
+    expect(isOneEditDistance('abc', 'abcdef')).toBe(false);
+  });
+});
+
+describe('longestCommonSubsequence', () => {
+  it('identical strings', () => {
+    expect(longestCommonSubsequence('abc', 'abc')).toBe(3);
+    expect(longestCommonSubsequence('', '')).toBe(0);
+  });
+
+  it('no common subsequence', () => {
+    expect(longestCommonSubsequence('abc', 'def')).toBe(0);
+  });
+
+  it('partial match', () => {
+    expect(longestCommonSubsequence('abcde', 'ace')).toBe(3);
+  });
+
+  it('one empty string', () => {
+    expect(longestCommonSubsequence('', 'abc')).toBe(0);
+    expect(longestCommonSubsequence('abc', '')).toBe(0);
+  });
+
+  it('classic example', () => {
+    expect(longestCommonSubsequence('AGGTAB', 'GXTXAYB')).toBe(4);
+  });
+
+  it('repeated characters', () => {
+    expect(longestCommonSubsequence('aaa', 'aa')).toBe(2);
+  });
+});
+
+describe('performance', () => {
+  it('handles moderately long strings', () => {
+    const s1 = 'algorithm'.repeat(10);
+    const s2 = 'altruistic'.repeat(10);
+    const result = minDistance(s1, s2);
+    expect(result).toBeGreaterThan(0);
+  });
+});
+]=],
+  },
 
 }
 
