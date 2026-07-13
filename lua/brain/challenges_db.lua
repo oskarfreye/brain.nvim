@@ -5945,6 +5945,394 @@ describe('performance', () => {
 });
 ]=],
   },
+  {
+    name = "Parallel Promise Runner",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * Parallel Promise Runner
+ *
+ * Implement a utility for running promises with controlled concurrency.
+ *
+ * Running too many async operations in parallel can overwhelm APIs,
+ * exhaust memory, or hit rate limits. A parallel runner limits how
+ * many promises execute concurrently while queuing the rest.
+ *
+ * Implement:
+ * - runParallel<T>(tasks: (() => Promise<T>)[], concurrency: number): Promise<T[]>
+ *   Execute tasks with max `concurrency` running at once. Return results
+ *   in the same order as input tasks (not completion order).
+ *
+ * - runParallelWithRetry<T>(
+ *     tasks: (() => Promise<T>)[],
+ *     options: { concurrency: number, retries?: number, delayMs?: number }
+ *   ): Promise<T[]>
+ *   Same as runParallel but retries failed tasks up to `retries` times
+ *   with exponential backoff (delayMs * 2^attempt).
+ *
+ * - runParallelSettled<T>(tasks: (() => Promise<T>)[], concurrency: number): Promise<PromiseSettledResult<T>[]>
+ *   Like Promise.allSettled but with concurrency control. All results
+ *   include status ('fulfilled' or 'rejected') and value/reason.
+ *
+ * - runParallelRace<T>(tasks: (() => Promise<T>)[], count: number): Promise<T[]>
+ *   Return the first `count` completed promises (race semantics).
+ *   Cancel remaining pending tasks if possible.
+ *
+ * Edge cases:
+ * - Empty task array returns empty array
+ * - concurrency <= 0 should throw or default to 1
+ * - Tasks that throw should reject the whole batch (except settled/retry variants)
+ * - Results must maintain input order (except race variant)
+ */
+
+export function runParallel<T>(
+  tasks: (() => Promise<T>)[],
+  concurrency: number
+): Promise<T[]> {
+  // YOUR CODE HERE
+  return Promise.resolve([]);
+}
+
+export function runParallelWithRetry<T>(
+  tasks: (() => Promise<T>)[],
+  options: {
+    concurrency: number;
+    retries?: number;
+    delayMs?: number;
+  }
+): Promise<T[]> {
+  // YOUR CODE HERE
+  return Promise.resolve([]);
+}
+
+export function runParallelSettled<T>(
+  tasks: (() => Promise<T>)[],
+  concurrency: number
+): Promise<PromiseSettledResult<T>[]> {
+  // YOUR CODE HERE
+  return Promise.resolve([]);
+}
+
+export function runParallelRace<T>(
+  tasks: (() => Promise<T>)[],
+  count: number
+): Promise<T[]> {
+  // YOUR CODE HERE
+  return Promise.resolve([]);
+}
+]==],
+    tests = [==[
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { runParallel, runParallelWithRetry, runParallelSettled, runParallelRace } from './challenge';
+
+describe('runParallel', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('empty task array', async () => {
+    const result = await runParallel([], 3);
+    expect(result).toEqual([]);
+  });
+
+  it('single task', async () => {
+    const tasks = [() => Promise.resolve(42)];
+    const result = await runParallel(tasks, 1);
+    expect(result).toEqual([42]);
+  });
+
+  it('multiple tasks with concurrency 1 (sequential)', async () => {
+    const order: number[] = [];
+    const tasks = [
+      () => new Promise(resolve => setTimeout(() => { order.push(1); resolve(1); }, 10)),
+      () => new Promise(resolve => setTimeout(() => { order.push(2); resolve(2); }, 10)),
+      () => new Promise(resolve => setTimeout(() => { order.push(3); resolve(3); }, 10)),
+    ];
+    const promise = runParallel(tasks, 1);
+    vi.advanceTimersByTime(30);
+    const result = await promise;
+    expect(result).toEqual([1, 2, 3]);
+    expect(order).toEqual([1, 2, 3]);
+  });
+
+  it('multiple tasks with concurrency 2', async () => {
+    const order: number[] = [];
+    const tasks = [
+      () => new Promise(resolve => setTimeout(() => { order.push(1); resolve(1); }, 10)),
+      () => new Promise(resolve => setTimeout(() => { order.push(2); resolve(2); }, 10)),
+      () => new Promise(resolve => setTimeout(() => { order.push(3); resolve(3); }, 10)),
+    ];
+    const promise = runParallel(tasks, 2);
+    vi.advanceTimersByTime(20);
+    const result = await promise;
+    expect(result).toEqual([1, 2, 3]);
+    expect(order.slice(0, 2)).toEqual([1, 2]);
+  });
+
+  it('results maintain input order', async () => {
+    const tasks = [
+      () => new Promise(resolve => setTimeout(() => resolve('slow'), 50)),
+      () => new Promise(resolve => setTimeout(() => resolve('fast'), 10)),
+      () => new Promise(resolve => setTimeout(() => resolve('medium'), 30)),
+    ];
+    const promise = runParallel(tasks, 3);
+    vi.advanceTimersByTime(50);
+    const result = await promise;
+    expect(result).toEqual(['slow', 'fast', 'medium']);
+  });
+
+  it('handles rejected promises', async () => {
+    const tasks = [
+      () => Promise.resolve(1),
+      () => Promise.reject(new Error('fail')),
+      () => Promise.resolve(3),
+    ];
+    await expect(runParallel(tasks, 2)).rejects.toThrow('fail');
+  });
+
+  it('concurrency limit is respected', async () => {
+    let maxConcurrent = 0;
+    let current = 0;
+    const tasks = Array.from({ length: 10 }, (_, i) => () =>
+      new Promise(resolve => {
+        current++;
+        maxConcurrent = Math.max(maxConcurrent, current);
+        setTimeout(() => {
+          current--;
+          resolve(i);
+        }, 10);
+      })
+    );
+    const promise = runParallel(tasks, 3);
+    vi.advanceTimersByTime(100);
+    await promise;
+    expect(maxConcurrent).toBeLessThanOrEqual(3);
+  });
+
+  it('concurrency 0 defaults to 1', async () => {
+    const tasks = [() => Promise.resolve(1), () => Promise.resolve(2)];
+    const result = await runParallel(tasks, 0);
+    expect(result).toEqual([1, 2]);
+  });
+
+  it('async tasks with delays', async () => {
+    const tasks = [
+      async () => {
+        await new Promise(r => setTimeout(r, 20));
+        return 1;
+      },
+      async () => {
+        await new Promise(r => setTimeout(r, 10));
+        return 2;
+      },
+    ];
+    const promise = runParallel(tasks, 2);
+    vi.advanceTimersByTime(20);
+    const result = await promise;
+    expect(result).toEqual([1, 2]);
+  });
+});
+
+describe('runParallelWithRetry', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('succeeds on first try', async () => {
+    const tasks = [() => Promise.resolve('success')];
+    const result = await runParallelWithRetry(tasks, { concurrency: 1, retries: 3 });
+    expect(result).toEqual(['success']);
+  });
+
+  it('retries on failure', async () => {
+    let attempts = 0;
+    const tasks = [
+      () => new Promise((resolve, reject) => {
+        attempts++;
+        if (attempts < 3) reject(new Error('try again'));
+        else resolve('success');
+      }),
+    ];
+    const promise = runParallelWithRetry(tasks, { concurrency: 1, retries: 3, delayMs: 10 });
+    vi.advanceTimersByTime(100);
+    const result = await promise;
+    expect(result).toEqual(['success']);
+    expect(attempts).toBe(3);
+  });
+
+  it('fails after max retries', async () => {
+    const tasks = [() => Promise.reject(new Error('always fails'))];
+    const promise = runParallelWithRetry(tasks, { concurrency: 1, retries: 2, delayMs: 10 });
+    vi.advanceTimersByTime(100);
+    await expect(promise).rejects.toThrow('always fails');
+  });
+
+  it('exponential backoff', async () => {
+    let attempts = 0;
+    const attemptTimes: number[] = [];
+    let startTime = Date.now();
+    const tasks = [
+      () => new Promise((resolve, reject) => {
+        attempts++;
+        attemptTimes.push(Date.now() - startTime);
+        if (attempts < 3) reject(new Error('retry'));
+        else resolve('done');
+      }),
+    ];
+    const promise = runParallelWithRetry(tasks, { concurrency: 1, retries: 3, delayMs: 10 });
+    vi.advanceTimersByTime(100);
+    await promise;
+    expect(attemptTimes[0]).toBe(0);
+    expect(attemptTimes[1]).toBeGreaterThanOrEqual(10);
+    expect(attemptTimes[2]).toBeGreaterThanOrEqual(30);
+  });
+
+  it('partial failures with retry', async () => {
+    const tasks = [
+      () => Promise.resolve('ok'),
+      () => Promise.reject(new Error('fail')),
+    ];
+    const promise = runParallelWithRetry(tasks, { concurrency: 2, retries: 1 });
+    await expect(promise).rejects.toThrow('fail');
+  });
+});
+
+describe('runParallelSettled', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('all fulfilled', async () => {
+    const tasks = [
+      () => Promise.resolve(1),
+      () => Promise.resolve(2),
+      () => Promise.resolve(3),
+    ];
+    const result = await runParallelSettled(tasks, 2);
+    expect(result).toEqual([
+      { status: 'fulfilled', value: 1 },
+      { status: 'fulfilled', value: 2 },
+      { status: 'fulfilled', value: 3 },
+    ]);
+  });
+
+  it('mixed fulfilled and rejected', async () => {
+    const tasks = [
+      () => Promise.resolve('ok'),
+      () => Promise.reject(new Error('fail')),
+      () => Promise.resolve('also ok'),
+    ];
+    const result = await runParallelSettled(tasks, 2);
+    expect(result[0]).toEqual({ status: 'fulfilled', value: 'ok' });
+    expect(result[1]).toEqual({ status: 'rejected', reason: expect.any(Error) });
+    expect(result[2]).toEqual({ status: 'fulfilled', value: 'also ok' });
+  });
+
+  it('all rejected', async () => {
+    const tasks = [
+      () => Promise.reject(new Error('err1')),
+      () => Promise.reject(new Error('err2')),
+    ];
+    const result = await runParallelSettled(tasks, 1);
+    expect(result.every(r => r.status === 'rejected')).toBe(true);
+  });
+
+  it('maintains order with mixed results', async () => {
+    const tasks = [
+      () => new Promise(resolve => setTimeout(() => resolve('slow'), 30)),
+      () => new Promise((_, reject) => setTimeout(() => reject('fast fail'), 10)),
+      () => new Promise(resolve => setTimeout(() => resolve('medium'), 20)),
+    ];
+    const promise = runParallelSettled(tasks, 3);
+    vi.advanceTimersByTime(30);
+    const result = await promise;
+    expect(result[0].status).toBe('fulfilled');
+    expect(result[1].status).toBe('rejected');
+    expect(result[2].status).toBe('fulfilled');
+  });
+});
+
+describe('runParallelRace', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('race to get first completed', async () => {
+    const tasks = [
+      () => new Promise(resolve => setTimeout(() => resolve('slow'), 50)),
+      () => new Promise(resolve => setTimeout(() => resolve('fast'), 10)),
+      () => new Promise(resolve => setTimeout(() => resolve('medium'), 30)),
+    ];
+    const result = await runParallelRace(tasks, 1);
+    vi.advanceTimersByTime(50);
+    expect(result).toEqual(['fast']);
+  });
+
+  it('race to get first N completed', async () => {
+    const tasks = [
+      () => new Promise(resolve => setTimeout(() => resolve('third'), 30)),
+      () => new Promise(resolve => setTimeout(() => resolve('first'), 10)),
+      () => new Promise(resolve => setTimeout(() => resolve('second'), 20)),
+      () => new Promise(resolve => setTimeout(() => resolve('fourth'), 40)),
+    ];
+    const result = await runParallelRace(tasks, 2);
+    vi.advanceTimersByTime(40);
+    expect(result).toEqual(['first', 'second']);
+  });
+
+  it('count greater than tasks returns all', async () => {
+    const tasks = [
+      () => Promise.resolve(1),
+      () => Promise.resolve(2),
+    ];
+    const result = await runParallelRace(tasks, 10);
+    expect(result).toEqual([1, 2]);
+  });
+
+  it('empty tasks returns empty', async () => {
+    const result = await runParallelRace([], 5);
+    expect(result).toEqual([]);
+  });
+});
+
+describe('edge cases', () => {
+  it('tasks that throw synchronously', async () => {
+    const tasks = [
+      () => { throw new Error('sync error'); },
+    ];
+    await expect(runParallel(tasks, 1)).rejects.toThrow('sync error');
+  });
+
+  it('very large concurrency limit', async () => {
+    const tasks = Array.from({ length: 5 }, (_, i) => () => Promise.resolve(i));
+    const result = await runParallel(tasks, 1000);
+    expect(result).toEqual([0, 1, 2, 3, 4]);
+  });
+
+  it('tasks returning undefined', async () => {
+    const tasks = [() => Promise.resolve(undefined)];
+    const result = await runParallel(tasks, 1);
+    expect(result).toEqual([undefined]);
+  });
+});
+]==],
+  },
 
 }
 
