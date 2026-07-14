@@ -6332,6 +6332,452 @@ describe('edge cases', () => {
   });
 });
 ]==],
+  {
+    name = "Tiny Language Compiler",
+    difficulty = "hard",
+    stub = [=[
+/**
+ * Tiny Language Compiler
+ *
+ * Build a compiler for a minimal imperative language that compiles to JavaScript.
+ *
+ * Language syntax:
+ * - Variable declarations: `let x = 5;`
+ * - Arithmetic expressions: `x + 3 * (y - 1)`
+ * - Comparisons: `x > 5`, `x == y`, `x <= 10`
+ * - If statements: `if (x > 0) { x = x - 1; }`
+ * - While loops: `while (x > 0) { x = x - 1; }`
+ * - Print statements: `print(x);`
+ * - Block scope with curly braces
+ *
+ * Implement a complete compiler pipeline:
+ * 1. Lexer: Tokenize source code into tokens
+ * 2. Parser: Build an Abstract Syntax Tree (AST)
+ * 3. Code Generator: Emit JavaScript code from AST
+ *
+ * Token types: LET, IDENT, NUMBER, PLUS, MINUS, STAR, SLASH, LPAREN, RPAREN,
+ *              LBRACE, RBRACE, SEMICOLON, EQUALS, EQ, NEQ, LT, LTE, GT, GTE,
+ *              IF, WHILE, PRINT, EOF
+ *
+ * AST Node types: Program, VariableDecl, Assignment, BinaryExpr, IfStmt,
+ *                 WhileStmt, PrintStmt, NumberLit, Identifier
+ *
+ * Implement:
+ * - tokenize(source: string): Token[]
+ * - parse(tokens: Token[]): Program
+ * - generate(ast: Program): string
+ * - compile(source: string): string  (full pipeline)
+ *
+ * Example:
+ * Input:  `let x = 5; let y = 3; print(x + y);`
+ * Output: `let x = 5; let y = 3; console.log(x + y);`
+ */
+
+export interface Token {
+  type: string;
+  value: any;
+  line: number;
+  column: number;
+}
+
+export interface ASTNode {
+  type: string;
+}
+
+export interface Program extends ASTNode {
+  type: 'Program';
+  body: Statement[];
+}
+
+export interface VariableDecl extends ASTNode {
+  type: 'VariableDecl';
+  name: string;
+  init: Expression;
+}
+
+export interface Assignment extends ASTNode {
+  type: 'Assignment';
+  name: string;
+  value: Expression;
+}
+
+export interface BinaryExpr extends ASTNode {
+  type: 'BinaryExpr';
+  operator: string;
+  left: Expression;
+  right: Expression;
+}
+
+export interface IfStmt extends ASTNode {
+  type: 'IfStmt';
+  condition: Expression;
+  body: Statement[];
+}
+
+export interface WhileStmt extends ASTNode {
+  type: 'WhileStmt';
+  condition: Expression;
+  body: Statement[];
+}
+
+export interface PrintStmt extends ASTNode {
+  type: 'PrintStmt';
+  argument: Expression;
+}
+
+export interface NumberLit extends ASTNode {
+  type: 'NumberLit';
+  value: number;
+}
+
+export interface Identifier extends ASTNode {
+  type: 'Identifier';
+  name: string;
+}
+
+export type Statement = VariableDecl | Assignment | IfStmt | WhileStmt | PrintStmt;
+export type Expression = BinaryExpr | NumberLit | Identifier;
+
+export function tokenize(source: string): Token[] {
+  // YOUR CODE HERE
+  return [];
+}
+
+export function parse(tokens: Token[]): Program {
+  // YOUR CODE HERE
+  return { type: 'Program', body: [] };
+}
+
+export function generate(ast: Program): string {
+  // YOUR CODE HERE
+  return '';
+}
+
+export function compile(source: string): string {
+  // YOUR CODE HERE
+  return '';
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { tokenize, parse, generate, compile } from './challenge';
+
+describe('tokenize', () => {
+  it('tokenizes number literal', () => {
+    const tokens = tokenize('42');
+    expect(tokens).toHaveLength(2); // NUMBER + EOF
+    expect(tokens[0].type).toBe('NUMBER');
+    expect(tokens[0].value).toBe(42);
+  });
+
+  it('tokenizes identifier', () => {
+    const tokens = tokenize('x');
+    expect(tokens[0].type).toBe('IDENT');
+    expect(tokens[0].value).toBe('x');
+  });
+
+  it('tokenizes let declaration', () => {
+    const tokens = tokenize('let x = 5;');
+    expect(tokens[0].type).toBe('LET');
+    expect(tokens[1].type).toBe('IDENT');
+    expect(tokens[2].type).toBe('EQUALS');
+    expect(tokens[3].type).toBe('NUMBER');
+    expect(tokens[4].type).toBe('SEMICOLON');
+  });
+
+  it('tokenizes arithmetic operators', () => {
+    const tokens = tokenize('1 + 2 - 3 * 4 / 5');
+    const types = tokens.slice(0, -1).map(t => t.type);
+    expect(types).toEqual(['NUMBER', 'PLUS', 'NUMBER', 'MINUS', 'NUMBER', 'STAR', 'NUMBER', 'SLASH', 'NUMBER']);
+  });
+
+  it('tokenizes parentheses', () => {
+    const tokens = tokenize('(x + y)');
+    expect(tokens[0].type).toBe('LPAREN');
+    expect(tokens[4].type).toBe('RPAREN');
+  });
+
+  it('tokenizes comparison operators', () => {
+    const tokens = tokenize('a == b != c < d > e <= f >= g');
+    const types = tokens.slice(0, -1).map(t => t.type);
+    expect(types).toEqual([
+      'IDENT', 'EQ', 'IDENT',
+      'IDENT', 'NEQ', 'IDENT',
+      'IDENT', 'LT', 'IDENT',
+      'IDENT', 'GT', 'IDENT',
+      'IDENT', 'LTE', 'IDENT',
+      'IDENT', 'GTE', 'IDENT'
+    ]);
+  });
+
+  it('tokenizes if statement', () => {
+    const tokens = tokenize('if (x > 0) { }');
+    expect(tokens[0].type).toBe('IF');
+    expect(tokens[1].type).toBe('LPAREN');
+    expect(tokens[5].type).toBe('RPAREN');
+    expect(tokens[6].type).toBe('LBRACE');
+    expect(tokens[8].type).toBe('RBRACE');
+  });
+
+  it('tokenizes while statement', () => {
+    const tokens = tokenize('while (x > 0) { }');
+    expect(tokens[0].type).toBe('WHILE');
+  });
+
+  it('tokenizes print statement', () => {
+    const tokens = tokenize('print(x);');
+    expect(tokens[0].type).toBe('PRINT');
+  });
+
+  it('handles multi-digit numbers', () => {
+    const tokens = tokenize('12345');
+    expect(tokens[0].value).toBe(12345);
+  });
+
+  it('handles whitespace', () => {
+    const tokens = tokenize('  let   x  =  42  ;  ');
+    const types = tokens.slice(0, -1).map(t => t.type);
+    expect(types).toEqual(['LET', 'IDENT', 'EQUALS', 'NUMBER', 'SEMICOLON']);
+  });
+
+  it('handles newlines and tracks line numbers', () => {
+    const tokens = tokenize('let x = 1;
+let y = 2;');
+    const xToken = tokens.find(t => t.value === 'x');
+    const yToken = tokens.find(t => t.value === 'y');
+    expect(xToken?.line).toBe(1);
+    expect(yToken?.line).toBe(2);
+  });
+
+  it('tokenizes complete program', () => {
+    const source = `let x = 5;
+let y = 3;
+if (x > y) {
+  print(x);
+}
+while (y > 0) {
+  y = y - 1;
+}
+print(y);`;
+    const tokens = tokenize(source);
+    expect(tokens[tokens.length - 1].type).toBe('EOF');
+  });
+});
+
+describe('parse', () => {
+  it('parses empty program', () => {
+    const ast = parse(tokenize(''));
+    expect(ast.type).toBe('Program');
+    expect(ast.body).toEqual([]);
+  });
+
+  it('parses variable declaration', () => {
+    const ast = parse(tokenize('let x = 5;'));
+    expect(ast.body).toHaveLength(1);
+    expect(ast.body[0].type).toBe('VariableDecl');
+    expect((ast.body[0] as any).name).toBe('x');
+    expect((ast.body[0] as any).init.type).toBe('NumberLit');
+    expect((ast.body[0] as any).init.value).toBe(5);
+  });
+
+  it('parses multiple declarations', () => {
+    const ast = parse(tokenize('let x = 1; let y = 2;'));
+    expect(ast.body).toHaveLength(2);
+  });
+
+  it('parses binary expression', () => {
+    const ast = parse(tokenize('let z = x + y;'));
+    const decl = ast.body[0] as any;
+    expect(decl.init.type).toBe('BinaryExpr');
+    expect(decl.init.operator).toBe('+');
+    expect(decl.init.left.type).toBe('Identifier');
+    expect(decl.init.right.type).toBe('Identifier');
+  });
+
+  it('respects operator precedence', () => {
+    const ast = parse(tokenize('let z = 1 + 2 * 3;'));
+    const decl = ast.body[0] as any;
+    // Should be 1 + (2 * 3), not (1 + 2) * 3
+    expect(decl.init.operator).toBe('+');
+    expect(decl.init.right.operator).toBe('*');
+  });
+
+  it('parses parentheses', () => {
+    const ast = parse(tokenize('let z = (1 + 2) * 3;'));
+    const decl = ast.body[0] as any;
+    expect(decl.init.operator).toBe('*');
+    expect(decl.init.left.operator).toBe('+');
+  });
+
+  it('parses if statement', () => {
+    const ast = parse(tokenize('if (x > 0) { x = 1; }'));
+    expect(ast.body[0].type).toBe('IfStmt');
+    const ifStmt = ast.body[0] as any;
+    expect(ifStmt.condition.type).toBe('BinaryExpr');
+    expect(ifStmt.body).toHaveLength(1);
+  });
+
+  it('parses while statement', () => {
+    const ast = parse(tokenize('while (x > 0) { x = x - 1; }'));
+    expect(ast.body[0].type).toBe('WhileStmt');
+    const whileStmt = ast.body[0] as any;
+    expect(whileStmt.body).toHaveLength(1);
+  });
+
+  it('parses print statement', () => {
+    const ast = parse(tokenize('print(x + 1);'));
+    expect(ast.body[0].type).toBe('PrintStmt');
+    const printStmt = ast.body[0] as any;
+    expect(printStmt.argument.type).toBe('BinaryExpr');
+  });
+
+  it('parses nested blocks', () => {
+    const ast = parse(tokenize('if (x > 0) { if (y > 0) { print(1); } }'));
+    const outerIf = ast.body[0] as any;
+    expect(outerIf.body[0].type).toBe('IfStmt');
+  });
+
+  it('parses assignment statement', () => {
+    const ast = parse(tokenize('x = 5;'));
+    expect(ast.body[0].type).toBe('Assignment');
+    const assign = ast.body[0] as any;
+    expect(assign.name).toBe('x');
+    expect(assign.value.value).toBe(5);
+  });
+
+  it('parses comparison in condition', () => {
+    const ast = parse(tokenize('if (x == y) { print(1); }'));
+    const ifStmt = ast.body[0] as any;
+    expect(ifStmt.condition.operator).toBe('==');
+  });
+});
+
+describe('generate', () => {
+  it('generates variable declaration', () => {
+    const ast = parse(tokenize('let x = 5;'));
+    const js = generate(ast);
+    expect(js).toBe('let x = 5;');
+  });
+
+  it('generates binary expression', () => {
+    const ast = parse(tokenize('let z = x + y;'));
+    const js = generate(ast);
+    expect(js).toBe('let z = x + y;');
+  });
+
+  it('generates if statement', () => {
+    const ast = parse(tokenize('if (x > 0) { x = 1; }'));
+    const js = generate(ast);
+    expect(js).toContain('if (x > 0)');
+    expect(js).toContain('x = 1;');
+  });
+
+  it('generates while statement', () => {
+    const ast = parse(tokenize('while (x > 0) { x = x - 1; }'));
+    const js = generate(ast);
+    expect(js).toContain('while (x > 0)');
+    expect(js).toContain('x = x - 1;');
+  });
+
+  it('generates print as console.log', () => {
+    const ast = parse(tokenize('print(x);'));
+    const js = generate(ast);
+    expect(js).toBe('console.log(x);');
+  });
+
+  it('generates complete program', () => {
+    const source = 'let x = 5; let y = 3; print(x + y);';
+    const ast = parse(tokenize(source));
+    const js = generate(ast);
+    expect(js).toContain('let x = 5;');
+    expect(js).toContain('let y = 3;');
+    expect(js).toContain('console.log(x + y);');
+  });
+});
+
+describe('compile (full pipeline)', () => {
+  it('compiles simple program', () => {
+    const source = 'let x = 5; print(x);';
+    const js = compile(source);
+    expect(js).toBe('let x = 5; console.log(x);');
+  });
+
+  it('compiles arithmetic', () => {
+    const source = 'let sum = 1 + 2 * 3; print(sum);';
+    const js = compile(source);
+    expect(js).toContain('let sum = 1 + 2 * 3;');
+  });
+
+  it('compiles conditional', () => {
+    const source = 'let x = 10; if (x > 5) { print(x); }';
+    const js = compile(source);
+    expect(js).toContain('if (x > 5)');
+  });
+
+  it('compiles loop', () => {
+    const source = 'let i = 3; while (i > 0) { print(i); i = i - 1; }';
+    const js = compile(source);
+    expect(js).toContain('while (i > 0)');
+    expect(js).toContain('i = i - 1;');
+  });
+
+  it('compiles factorial program', () => {
+    const source = `let n = 5;
+let result = 1;
+while (n > 0) {
+  result = result * n;
+  n = n - 1;
+}
+print(result);`;
+    const js = compile(source);
+    expect(js).toContain('while (n > 0)');
+    expect(js).toContain('console.log(result);');
+  });
+
+  it('compiles nested conditions', () => {
+    const source = 'if (x > 0) { if (y > 0) { print(1); } }';
+    const js = compile(source);
+    expect(js).toContain('if (x > 0)');
+    expect(js).toContain('if (y > 0)');
+  });
+
+  it('compiles comparison operators', () => {
+    const source = 'if (x == y) { print(1); } if (a != b) { print(2); }';
+    const js = compile(source);
+    expect(js).toContain('x === y');
+    expect(js).toContain('a !== b');
+  });
+
+  it('handles complex expression', () => {
+    const source = 'let result = (a + b) * (c - d) / e;';
+    const js = compile(source);
+    expect(js).toBe('let result = (a + b) * (c - d) / e;');
+  });
+});
+
+describe('edge cases', () => {
+  it('handles zero', () => {
+    const js = compile('let x = 0; print(x);');
+    expect(js).toContain('let x = 0;');
+  });
+
+  it('handles negative numbers in expression', () => {
+    const js = compile('let x = 5 - 10;');
+    expect(js).toBe('let x = 5 - 10;');
+  });
+
+  it('handles deeply nested expressions', () => {
+    const js = compile('let x = (((1 + 2)));');
+    expect(js).toBe('let x = (((1 + 2)));');
+  });
+
+  it('handles multiple statements on same conceptual line', () => {
+    const js = compile('let a = 1; let b = 2; let c = 3;');
+    expect(js).toBe('let a = 1; let b = 2; let c = 3;');
+  });
+});
+]=],
+  },
   },
 
 }
