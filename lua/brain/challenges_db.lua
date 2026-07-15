@@ -6778,7 +6778,267 @@ describe('edge cases', () => {
 });
 ]=],
   },
+  },  {
+    name = "Longest Common Subsequence",
+    difficulty = "medium",
+    stub = [=[
+/**
+ * Longest Common Subsequence
+ *
+ * Implement the classic dynamic programming problem to find the longest
+ * common subsequence between two strings.
+ *
+ * A subsequence is a sequence that can be derived from another sequence
+ * by deleting some or no elements without changing the order of the
+ * remaining elements. "ace" is a subsequence of "abcde".
+ *
+ * Implement:
+ * - lcs(text1: string, text2: string): number
+ *   Return the length of the longest common subsequence.
+ *
+ * - lcsWithResult(text1: string, text2: string): string
+ *   Return the actual longest common subsequence string.
+ *
+ * - lcsAll(text1: string, text2: string): string[]
+ *   Return ALL distinct longest common subsequences (can be multiple).
+ *
+ * Time complexity: O(m * n) where m and n are string lengths.
+ * Space complexity: O(m * n) for the DP table.
+ *
+ * Bonus: Implement lcsOptimized with O(min(m, n)) space complexity.
+ */
+
+export function lcs(text1: string, text2: string): number {
+  // YOUR CODE HERE
+  return 0;
+}
+
+export function lcsWithResult(text1: string, text2: string): string {
+  // YOUR CODE HERE
+  return '';
+}
+
+export function lcsAll(text1: string, text2: string): string[] {
+  // YOUR CODE HERE
+  return [];
+}
+
+export function lcsOptimized(text1: string, text2: string): number {
+  // YOUR CODE HERE
+  return 0;
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { lcs, lcsWithResult, lcsAll, lcsOptimized } from './challenge';
+
+describe('lcs - length only', () => {
+  it('empty strings', () => {
+    expect(lcs('', '')).toBe(0);
+    expect(lcs('abc', '')).toBe(0);
+    expect(lcs('', 'xyz')).toBe(0);
+  });
+
+  it('identical strings', () => {
+    expect(lcs('abc', 'abc')).toBe(3);
+    expect(lcs('hello', 'hello')).toBe(5);
+  });
+
+  it('no common subsequence', () => {
+    expect(lcs('abc', 'xyz')).toBe(0);
+    expect(lcs('aaa', 'bbb')).toBe(0);
+  });
+
+  it('simple common subsequence', () => {
+    expect(lcs('abcde', 'ace')).toBe(3);
+    expect(lcs('abc', 'ac')).toBe(2);
+  });
+
+  it('subsequence in middle', () => {
+    expect(lcs('axbycz', 'abc')).toBe(3);
+  });
+
+  it('single character match', () => {
+    expect(lcs('a', 'a')).toBe(1);
+    expect(lcs('a', 'b')).toBe(0);
+    expect(lcs('abc', 'b')).toBe(1);
+  });
+
+  it('repeated characters', () => {
+    expect(lcs('aaa', 'aa')).toBe(2);
+    expect(lcs('aaa', 'aaaa')).toBe(3);
+  });
+
+  it('classic example', () => {
+    expect(lcs('ABCDGH', 'AEDFHR')).toBe(3); // ADH
+    expect(lcs('AGGTAB', 'GXTXAYB')).toBe(4); // GTAB
+  });
+
+  it('longer strings', () => {
+    expect(lcs('programming', 'gaming')).toBe(5); // gamig or amin
+    expect(lcs('dynamicprogramming', 'programming')).toBe(11);
+  });
+
+  it('case sensitive', () => {
+    expect(lcs('ABC', 'abc')).toBe(0);
+    expect(lcs('AbC', 'AbC')).toBe(3);
+  });
+});
+
+describe('lcsWithResult - actual subsequence', () => {
+  it('empty strings', () => {
+    expect(lcsWithResult('', '')).toBe('');
+    expect(lcsWithResult('abc', '')).toBe('');
+  });
+
+  it('identical strings', () => {
+    expect(lcsWithResult('abc', 'abc')).toBe('abc');
+  });
+
+  it('no common subsequence', () => {
+    expect(lcsWithResult('abc', 'xyz')).toBe('');
+  });
+
+  it('simple case', () => {
+    const result = lcsWithResult('abcde', 'ace');
+    expect(result.length).toBe(3);
+    expect(result).toBe('ace');
+  });
+
+  it('classic example', () => {
+    const result = lcsWithResult('ABCDGH', 'AEDFHR');
+    expect(result.length).toBe(3);
+    // Could be ADH
+    expect(result).toMatch(/^[ADH]{3}$/);
+  });
+
+  it('multiple possible results', () => {
+    const result = lcsWithResult('abc', 'bac');
+    expect(result.length).toBe(2);
+    // Could be 'ac' or 'bc'
+    expect(['ac', 'bc']).toContain(result);
+  });
+});
+
+describe('lcsAll - all distinct LCS', () => {
+  it('empty strings', () => {
+    expect(lcsAll('', '')).toEqual(['']);
+  });
+
+  it('identical strings', () => {
+    expect(lcsAll('abc', 'abc')).toEqual(['abc']);
+  });
+
+  it('no common subsequence', () => {
+    expect(lcsAll('abc', 'xyz')).toEqual(['']);
+  });
+
+  it('single result', () => {
+    const results = lcsAll('abcde', 'ace');
+    expect(results).toContain('ace');
+    expect(results.length).toBe(1);
+  });
+
+  it('multiple results', () => {
+    const results = lcsAll('abc', 'bac');
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results.every(r => r.length === 2)).toBe(true);
+  });
+
+  it('all results have same length', () => {
+    const results = lcsAll('AGGTAB', 'GXTXAYB');
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    const lengths = results.map(r => r.length);
+    expect(lengths.every(l => l === lengths[0])).toBe(true);
+  });
+});
+
+describe('lcsOptimized - space optimized', () => {
+  it('empty strings', () => {
+    expect(lcsOptimized('', '')).toBe(0);
+    expect(lcsOptimized('abc', '')).toBe(0);
+  });
+
+  it('identical strings', () => {
+    expect(lcsOptimized('abc', 'abc')).toBe(3);
+  });
+
+  it('no common subsequence', () => {
+    expect(lcsOptimized('abc', 'xyz')).toBe(0);
+  });
+
+  it('matches regular lcs', () => {
+    const testCases = [
+      ['abcde', 'ace'],
+      ['ABCDGH', 'AEDFHR'],
+      ['AGGTAB', 'GXTXAYB'],
+      ['programming', 'gaming'],
+      ['aaa', 'aa'],
+    ];
+    testCases.forEach(([t1, t2]) => {
+      expect(lcsOptimized(t1, t2)).toBe(lcs(t1, t2));
+    });
+  });
+
+  it('stress test with longer strings', () => {
+    const s1 = 'a'.repeat(100) + 'b'.repeat(100);
+    const s2 = 'a'.repeat(50) + 'c'.repeat(50) + 'b'.repeat(100);
+    expect(lcsOptimized(s1, s2)).toBe(200);
+  });
+});
+
+describe('edge cases', () => {
+  it('single character strings', () => {
+    expect(lcs('a', 'a')).toBe(1);
+    expect(lcs('a', 'b')).toBe(0);
+  });
+
+  it('one character longer', () => {
+    expect(lcs('ab', 'abc')).toBe(2);
+    expect(lcs('abc', 'ab')).toBe(2);
+  });
+
+  it('all same character', () => {
+    expect(lcs('aaaa', 'aa')).toBe(2);
+    expect(lcs('aaaa', 'aaaaa')).toBe(4);
+  });
+
+  it('alternating pattern', () => {
+    expect(lcs('ababab', 'bababa')).toBe(5);
+  });
+
+  it('special characters', () => {
+    expect(lcs('a!b@c#', 'a!b@c#')).toBe(6);
+    expect(lcs('a!b@c#', 'xyz')).toBe(0);
+  });
+
+  it('unicode characters', () => {
+    expect(lcs('你好世界', '你好')).toBe(2);
+    expect(lcs('🎉🎊🎈', '🎉🎈')).toBe(2);
+  });
+});
+
+describe('performance', () => {
+  it('handles 100x100 strings', () => {
+    const s1 = 'abcdefghij'.repeat(10);
+    const s2 = 'fghijklmno'.repeat(10);
+    const start = Date.now();
+    const result = lcs(s1, s2);
+    const elapsed = Date.now() - start;
+    expect(result).toBeGreaterThan(0);
+    expect(elapsed).toBeLessThan(1000);
+  });
+
+  it('handles 500x500 strings', () => {
+    const s1 = 'abc'.repeat(167);
+    const s2 = 'bca'.repeat(167);
+    const result = lcs(s1, s2);
+    expect(result).toBeGreaterThan(0);
+  });
+});
+]=],
   },
+
 
 }
 
