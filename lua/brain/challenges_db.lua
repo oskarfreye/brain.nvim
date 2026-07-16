@@ -7040,6 +7040,378 @@ describe('performance', () => {
   },
 
 
+  {
+    name = "Kruskal's Minimum Spanning Tree",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * Kruskal's Minimum Spanning Tree
+ *
+ * Implement Kruskal's algorithm for finding the Minimum Spanning Tree (MST)
+ * of a weighted undirected graph.
+ *
+ * The MST is a subset of edges that connects all vertices with minimum total
+ * weight and no cycles. Kruskal's algorithm uses a greedy approach:
+ * 1. Sort all edges by weight (ascending)
+ * 2. Add edges one by one if they don't create a cycle
+ * 3. Stop when all vertices are connected
+ *
+ * This challenge combines graph theory with Union-Find (Disjoint Set Union).
+ *
+ * Implement:
+ * - kruskal(n: number, edges: Edge[]): Edge[] | null
+ *   Return the MST edges, or null if graph is disconnected.
+ *   n = number of vertices (0 to n-1)
+ *   edges = array of { from, to, weight }
+ *
+ * - mstWeight(n: number, edges: Edge[]): number | null
+ *   Return just the total weight of the MST, or null if disconnected.
+ *
+ * - isSpanningTree(n: number, edges: Edge[], mst: Edge[]): boolean
+ *   Verify that a given set of edges forms a valid spanning tree.
+ *
+ * Edge interface:
+ * interface Edge {
+ *   from: number;
+ *   to: number;
+ *   weight: number;
+ * }
+ *
+ * Bonus: Implement kruskalWithPaths that returns both the MST and the
+ * total weight in a single result object.
+ */
+
+export interface Edge {
+  from: number;
+  to: number;
+  weight: number;
+}
+
+export interface MSTResult {
+  edges: Edge[];
+  totalWeight: number;
+}
+
+export function kruskal(n: number, edges: Edge[]): Edge[] | null {
+  // YOUR CODE HERE
+  return null;
+}
+
+export function mstWeight(n: number, edges: Edge[]): number | null {
+  // YOUR CODE HERE
+  return null;
+}
+
+export function isSpanningTree(n: number, edges: Edge[], mst: Edge[]): boolean {
+  // YOUR CODE HERE
+  return false;
+}
+
+export function kruskalWithPaths(n: number, edges: Edge[]): MSTResult | null {
+  // YOUR CODE HERE
+  return null;
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { kruskal, mstWeight, isSpanningTree, kruskalWithPaths, Edge } from './challenge';
+
+describe('kruskal', () => {
+  it('single node graph', () => {
+    const result = kruskal(1, []);
+    expect(result).toEqual([]);
+  });
+
+  it('two nodes, one edge', () => {
+    const edges: Edge[] = [{ from: 0, to: 1, weight: 5 }];
+    const result = kruskal(2, edges);
+    expect(result).toHaveLength(1);
+    expect(result![0].weight).toBe(5);
+  });
+
+  it('triangle graph', () => {
+    const edges: Edge[] = [
+      { from: 0, to: 1, weight: 1 },
+      { from: 1, to: 2, weight: 2 },
+      { from: 0, to: 2, weight: 3 }
+    ];
+    const result = kruskal(3, edges);
+    expect(result).toHaveLength(2);
+    const totalWeight = result!.reduce((sum, e) => sum + e.weight, 0);
+    expect(totalWeight).toBe(3);
+  });
+
+  it('square graph with diagonal', () => {
+    const edges: Edge[] = [
+      { from: 0, to: 1, weight: 1 },
+      { from: 1, to: 2, weight: 2 },
+      { from: 2, to: 3, weight: 3 },
+      { from: 0, to: 3, weight: 4 },
+      { from: 0, to: 2, weight: 5 }
+    ];
+    const result = kruskal(4, edges);
+    expect(result).toHaveLength(3);
+    const totalWeight = result!.reduce((sum, e) => sum + e.weight, 0);
+    expect(totalWeight).toBe(6);
+  });
+
+  it('disconnected graph returns null', () => {
+    const edges: Edge[] = [
+      { from: 0, to: 1, weight: 1 },
+      { from: 2, to: 3, weight: 2 }
+    ];
+    expect(kruskal(4, edges)).toBeNull();
+  });
+
+  it('handles duplicate edges', () => {
+    const edges: Edge[] = [
+      { from: 0, to: 1, weight: 5 },
+      { from: 0, to: 1, weight: 3 },
+      { from: 1, to: 2, weight: 2 }
+    ];
+    const result = kruskal(3, edges);
+    expect(result).toHaveLength(2);
+    const totalWeight = result!.reduce((sum, e) => sum + e.weight, 0);
+    expect(totalWeight).toBe(5);
+  });
+
+  it('handles parallel edges with same weight', () => {
+    const edges: Edge[] = [
+      { from: 0, to: 1, weight: 1 },
+      { from: 0, to: 1, weight: 1 },
+      { from: 1, to: 2, weight: 2 }
+    ];
+    const result = kruskal(3, edges);
+    expect(result).toHaveLength(2);
+  });
+
+  it('complete graph K4', () => {
+    const edges: Edge[] = [
+      { from: 0, to: 1, weight: 1 },
+      { from: 0, to: 2, weight: 2 },
+      { from: 0, to: 3, weight: 3 },
+      { from: 1, to: 2, weight: 4 },
+      { from: 1, to: 3, weight: 5 },
+      { from: 2, to: 3, weight: 6 }
+    ];
+    const result = kruskal(4, edges);
+    expect(result).toHaveLength(3);
+    const totalWeight = result!.reduce((sum, e) => sum + e.weight, 0);
+    expect(totalWeight).toBe(6);
+  });
+
+  it('handles zero-weight edges', () => {
+    const edges: Edge[] = [
+      { from: 0, to: 1, weight: 0 },
+      { from: 1, to: 2, weight: 0 },
+      { from: 0, to: 2, weight: 1 }
+    ];
+    const result = kruskal(3, edges);
+    expect(result).toHaveLength(2);
+    const totalWeight = result!.reduce((sum, e) => sum + e.weight, 0);
+    expect(totalWeight).toBe(0);
+  });
+
+  it('handles negative weights', () => {
+    const edges: Edge[] = [
+      { from: 0, to: 1, weight: -5 },
+      { from: 1, to: 2, weight: 3 },
+      { from: 0, to: 2, weight: 10 }
+    ];
+    const result = kruskal(3, edges);
+    expect(result).toHaveLength(2);
+    const totalWeight = result!.reduce((sum, e) => sum + e.weight, 0);
+    expect(totalWeight).toBe(-2);
+  });
+
+  it('star graph', () => {
+    const edges: Edge[] = [
+      { from: 0, to: 1, weight: 1 },
+      { from: 0, to: 2, weight: 2 },
+      { from: 0, to: 3, weight: 3 },
+      { from: 0, to: 4, weight: 4 }
+    ];
+    const result = kruskal(5, edges);
+    expect(result).toHaveLength(4);
+    const totalWeight = result!.reduce((sum, e) => sum + e.weight, 0);
+    expect(totalWeight).toBe(10);
+  });
+
+  it('line graph', () => {
+    const edges: Edge[] = [
+      { from: 0, to: 1, weight: 1 },
+      { from: 1, to: 2, weight: 2 },
+      { from: 2, to: 3, weight: 3 },
+      { from: 3, to: 4, weight: 4 }
+    ];
+    const result = kruskal(5, edges);
+    expect(result).toHaveLength(4);
+    expect(result).toEqual(edges);
+  });
+});
+
+describe('mstWeight', () => {
+  it('single node has weight 0', () => {
+    expect(mstWeight(1, [])).toBe(0);
+  });
+
+  it('two nodes', () => {
+    const edges: Edge[] = [{ from: 0, to: 1, weight: 7 }];
+    expect(mstWeight(2, edges)).toBe(7);
+  });
+
+  it('triangle', () => {
+    const edges: Edge[] = [
+      { from: 0, to: 1, weight: 1 },
+      { from: 1, to: 2, weight: 2 },
+      { from: 0, to: 2, weight: 3 }
+    ];
+    expect(mstWeight(3, edges)).toBe(3);
+  });
+
+  it('disconnected returns null', () => {
+    const edges: Edge[] = [
+      { from: 0, to: 1, weight: 1 },
+      { from: 2, to: 3, weight: 2 }
+    ];
+    expect(mstWeight(4, edges)).toBeNull();
+  });
+
+  it('matches kruskal result', () => {
+    const edges: Edge[] = [
+      { from: 0, to: 1, weight: 1 },
+      { from: 1, to: 2, weight: 2 },
+      { from: 2, to: 3, weight: 3 },
+      { from: 0, to: 3, weight: 4 }
+    ];
+    const mst = kruskal(4, edges);
+    const weight = mstWeight(4, edges);
+    expect(weight).toBe(mst!.reduce((sum, e) => sum + e.weight, 0));
+  });
+});
+
+describe('isSpanningTree', () => {
+  it('valid spanning tree', () => {
+    const edges: Edge[] = [
+      { from: 0, to: 1, weight: 1 },
+      { from: 0, to: 2, weight: 2 },
+      { from: 0, to: 3, weight: 3 }
+    ];
+    expect(isSpanningTree(4, edges, edges)).toBe(true);
+  });
+
+  it('too few edges', () => {
+    const edges: Edge[] = [
+      { from: 0, to: 1, weight: 1 },
+      { from: 1, to: 2, weight: 2 }
+    ];
+    expect(isSpanningTree(4, edges, edges)).toBe(false);
+  });
+
+  it('has cycle', () => {
+    const allEdges: Edge[] = [
+      { from: 0, to: 1, weight: 1 },
+      { from: 1, to: 2, weight: 2 },
+      { from: 0, to: 2, weight: 3 }
+    ];
+    expect(isSpanningTree(3, allEdges, allEdges)).toBe(false);
+  });
+
+  it('does not connect all vertices', () => {
+    const edges: Edge[] = [
+      { from: 0, to: 1, weight: 1 },
+      { from: 2, to: 3, weight: 2 }
+    ];
+    expect(isSpanningTree(4, edges, edges)).toBe(false);
+  });
+
+  it('empty tree for single node', () => {
+    expect(isSpanningTree(1, [], [])).toBe(true);
+  });
+});
+
+describe('kruskalWithPaths', () => {
+  it('returns edges and weight', () => {
+    const edges: Edge[] = [
+      { from: 0, to: 1, weight: 1 },
+      { from: 1, to: 2, weight: 2 }
+    ];
+    const result = kruskalWithPaths(3, edges);
+    expect(result).not.toBeNull();
+    expect(result!.edges).toHaveLength(2);
+    expect(result!.totalWeight).toBe(3);
+  });
+
+  it('disconnected returns null', () => {
+    const edges: Edge[] = [
+      { from: 0, to: 1, weight: 1 }
+    ];
+    expect(kruskalWithPaths(3, edges)).toBeNull();
+  });
+
+  it('single node', () => {
+    const result = kruskalWithPaths(1, []);
+    expect(result).not.toBeNull();
+    expect(result!.edges).toEqual([]);
+    expect(result!.totalWeight).toBe(0);
+  });
+});
+
+describe('edge cases', () => {
+  it('zero nodes', () => {
+    expect(kruskal(0, [])).toEqual([]);
+    expect(mstWeight(0, [])).toBe(0);
+  });
+
+  it('no edges with multiple nodes', () => {
+    expect(kruskal(3, [])).toBeNull();
+    expect(mstWeight(3, [])).toBeNull();
+  });
+
+  it('self-loops are ignored', () => {
+    const edges: Edge[] = [
+      { from: 0, to: 0, weight: 1 },
+      { from: 0, to: 1, weight: 2 },
+      { from: 1, to: 2, weight: 3 }
+    ];
+    const result = kruskal(3, edges);
+    expect(result).toHaveLength(2);
+  });
+
+  it('large graph', () => {
+    const edges: Edge[] = [];
+    for (let i = 0; i < 99; i++) {
+      edges.push({ from: i, to: i + 1, weight: i + 1 });
+    }
+    const result = kruskal(100, edges);
+    expect(result).toHaveLength(99);
+    const totalWeight = result!.reduce((sum, e) => sum + e.weight, 0);
+    expect(totalWeight).toBe(4950);
+  });
+});
+
+describe('performance', () => {
+  it('handles 100 nodes, 500 edges', () => {
+    const edges: Edge[] = [];
+    for (let i = 0; i < 500; i++) {
+      edges.push({
+        from: Math.floor(Math.random() * 100),
+        to: Math.floor(Math.random() * 100),
+        weight: Math.random() * 100
+      });
+    }
+    const start = Date.now();
+    const result = kruskal(100, edges);
+    const elapsed = Date.now() - start;
+    if (result) {
+      expect(result).toHaveLength(99);
+    }
+    expect(elapsed).toBeLessThan(1000);
+  });
+});
+]==],
+  },
+
 }
 
 --- Deterministic challenge selection based on date.
