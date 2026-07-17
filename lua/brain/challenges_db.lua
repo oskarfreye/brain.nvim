@@ -7412,6 +7412,376 @@ describe('performance', () => {
 ]==],
   },
 
+  {
+    name = "Sudoku Solver",
+    difficulty = "medium",
+    stub = [=[
+/**
+ * Sudoku Solver
+ *
+ * Implement a backtracking algorithm to solve Sudoku puzzles.
+ *
+ * Sudoku is a 9x9 grid where each row, column, and 3x3 box
+ * must contain all digits from 1 to 9 exactly once.
+ *
+ * Implement:
+ * - solveSudoku(board: number[][]): number[][] | null
+ *   Take a 9x9 board where 0 represents empty cells.
+ *   Return the solved board, or null if no solution exists.
+ *
+ * - isValidPlacement(board: number[][], row: number, col: number, num: number): boolean
+ *   Check if placing num at (row, col) violates Sudoku rules.
+ *
+ * - findEmptyCell(board: number[][]): [number, number] | null
+ *   Find the next empty cell (value 0). Return [row, col] or null if full.
+ *
+ * - validateSolution(board: number[][]): boolean
+ *   Verify a completed board is a valid Sudoku solution.
+ *
+ * - solveSudokuWithSteps(board: number[][]): { board: number[][], steps: number }
+ *   Return the solved board plus the number of backtracking steps taken.
+ *
+ * Bonus: Implement solveSudokuOptimized that uses constraint propagation
+ * (maintain possible values for each cell) to reduce backtracking.
+ */
+
+export function solveSudoku(board: number[][]): number[][] | null {
+  // YOUR CODE HERE
+  return null;
+}
+
+export function isValidPlacement(
+  board: number[][],
+  row: number,
+  col: number,
+  num: number
+): boolean {
+  // YOUR CODE HERE
+  return false;
+}
+
+export function findEmptyCell(board: number[][]): [number, number] | null {
+  // YOUR CODE HERE
+  return null;
+}
+
+export function validateSolution(board: number[][]): boolean {
+  // YOUR CODE HERE
+  return false;
+}
+
+export function solveSudokuWithSteps(board: number[][]): { board: number[][]; steps: number } {
+  // YOUR CODE HERE
+  return { board: [], steps: 0 };
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { solveSudoku, isValidPlacement, findEmptyCell, validateSolution, solveSudokuWithSteps } from './challenge';
+
+function deepCopyBoard(board: number[][]): number[][] {
+  return board.map(row => [...row]);
+}
+
+function boardsEqual(a: number[][], b: number[][]): boolean {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i].length !== b[i].length) return false;
+    for (let j = 0; j < a[i].length; j++) {
+      if (a[i][j] !== b[i][j]) return false;
+    }
+  }
+  return true;
+}
+
+describe('isValidPlacement', () => {
+  it('allows valid placement in empty board', () => {
+    const board = Array(9).fill(null).map(() => Array(9).fill(0));
+    expect(isValidPlacement(board, 0, 0, 5)).toBe(true);
+  });
+
+  it('rejects duplicate in same row', () => {
+    const board = Array(9).fill(null).map(() => Array(9).fill(0));
+    board[0][3] = 5;
+    expect(isValidPlacement(board, 0, 7, 5)).toBe(false);
+  });
+
+  it('rejects duplicate in same column', () => {
+    const board = Array(9).fill(null).map(() => Array(9).fill(0));
+    board[4][5] = 7;
+    expect(isValidPlacement(board, 8, 5, 7)).toBe(false);
+  });
+
+  it('rejects duplicate in same 3x3 box', () => {
+    const board = Array(9).fill(null).map(() => Array(9).fill(0));
+    board[1][1] = 3;
+    expect(isValidPlacement(board, 2, 2, 3)).toBe(false);
+  });
+
+  it('allows placement when only row conflict exists elsewhere', () => {
+    const board = Array(9).fill(null).map(() => Array(9).fill(0));
+    board[0][0] = 5;
+    expect(isValidPlacement(board, 1, 1, 5)).toBe(true);
+  });
+});
+
+describe('findEmptyCell', () => {
+  it('finds first empty cell', () => {
+    const board = Array(9).fill(null).map(() => Array(9).fill(0));
+    board[0][0] = 1;
+    board[0][1] = 0;
+    expect(findEmptyCell(board)).toEqual([0, 1]);
+  });
+
+  it('returns null for full board', () => {
+    const board = Array(9).fill(null).map(() => Array(9).fill(1));
+    expect(findEmptyCell(board)).toBeNull();
+  });
+
+  it('finds empty cell in middle of board', () => {
+    const board = Array(9).fill(null).map(() => Array(9).fill(1));
+    board[4][4] = 0;
+    board[5][5] = 0;
+    expect(findEmptyCell(board)).toEqual([4, 4]);
+  });
+});
+
+describe('validateSolution', () => {
+  it('validates a correct solution', () => {
+    const solution = [
+      [5, 3, 4, 6, 7, 8, 9, 1, 2],
+      [6, 7, 2, 1, 9, 5, 3, 4, 8],
+      [1, 9, 8, 3, 4, 2, 5, 6, 7],
+      [8, 5, 9, 7, 6, 1, 4, 2, 3],
+      [4, 2, 6, 8, 5, 3, 7, 9, 1],
+      [7, 1, 3, 9, 2, 4, 8, 5, 6],
+      [9, 6, 1, 5, 3, 7, 2, 8, 4],
+      [2, 8, 7, 4, 1, 9, 6, 3, 5],
+      [3, 4, 5, 2, 8, 6, 1, 7, 9]
+    ];
+    expect(validateSolution(solution)).toBe(true);
+  });
+
+  it('rejects solution with duplicate in row', () => {
+    const board = Array(9).fill(null).map(() => Array(9).fill(0));
+    board[0][0] = 1;
+    board[0][1] = 1; // Duplicate
+    expect(validateSolution(board)).toBe(false);
+  });
+
+  it('rejects solution with duplicate in column', () => {
+    const board = Array(9).fill(null).map(() => Array(9).fill(0));
+    board[0][0] = 1;
+    board[1][0] = 1; // Duplicate
+    expect(validateSolution(board)).toBe(false);
+  });
+
+  it('rejects solution with duplicate in box', () => {
+    const board = Array(9).fill(null).map(() => Array(9).fill(0));
+    board[0][0] = 1;
+    board[1][1] = 1; // Duplicate in same box
+    expect(validateSolution(board)).toBe(false);
+  });
+
+  it('rejects incomplete board', () => {
+    const board = Array(9).fill(null).map(() => Array(9).fill(0));
+    expect(validateSolution(board)).toBe(false);
+  });
+
+  it('rejects board with invalid numbers', () => {
+    const board = Array(9).fill(null).map(() => Array(9).fill(0));
+    board[0][0] = 10; // Invalid
+    expect(validateSolution(board)).toBe(false);
+  });
+});
+
+describe('solveSudoku', () => {
+  it('solves easy puzzle', () => {
+    const puzzle = [
+      [5, 3, 0, 0, 7, 0, 0, 0, 0],
+      [6, 0, 0, 1, 9, 5, 0, 0, 0],
+      [0, 9, 8, 0, 0, 0, 0, 6, 0],
+      [8, 0, 0, 0, 6, 0, 0, 0, 3],
+      [4, 0, 0, 8, 0, 3, 0, 0, 1],
+      [7, 0, 0, 0, 2, 0, 0, 0, 6],
+      [0, 6, 0, 0, 0, 0, 2, 8, 0],
+      [0, 0, 0, 4, 1, 9, 0, 0, 5],
+      [0, 0, 0, 0, 8, 0, 0, 7, 9]
+    ];
+    const solution = solveSudoku(puzzle);
+    expect(solution).not.toBeNull();
+    expect(validateSolution(solution!)).toBe(true);
+    // Verify original clues are preserved
+    expect(solution![0][0]).toBe(5);
+    expect(solution![0][4]).toBe(7);
+    expect(solution![1][0]).toBe(6);
+  });
+
+  it('solves puzzle with minimal clues', () => {
+    // 17-clue puzzle (minimum for unique solution)
+    const puzzle = [
+      [0, 0, 0, 0, 0, 0, 0, 1, 2],
+      [0, 0, 0, 0, 3, 5, 0, 0, 0],
+      [0, 0, 0, 6, 0, 0, 0, 7, 0],
+      [7, 0, 0, 0, 0, 0, 3, 0, 0],
+      [0, 0, 0, 4, 0, 0, 8, 0, 0],
+      [1, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 1, 2, 0, 0, 0, 0],
+      [0, 8, 0, 0, 0, 0, 0, 4, 0],
+      [0, 5, 0, 0, 0, 0, 6, 0, 0]
+    ];
+    const solution = solveSudoku(puzzle);
+    expect(solution).not.toBeNull();
+    expect(validateSolution(solution!)).toBe(true);
+  });
+
+  it('returns null for unsolvable puzzle', () => {
+    const invalid = [
+      [1, 1, 0, 0, 0, 0, 0, 0, 0], // Duplicate 1s in row
+      [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0]
+    ];
+    expect(solveSudoku(invalid)).toBeNull();
+  });
+
+  it('solves empty board', () => {
+    const empty = Array(9).fill(null).map(() => Array(9).fill(0));
+    const solution = solveSudoku(empty);
+    expect(solution).not.toBeNull();
+    expect(validateSolution(solution!)).toBe(true);
+  });
+
+  it('does not modify input board', () => {
+    const puzzle = [
+      [5, 3, 0, 0, 7, 0, 0, 0, 0],
+      [6, 0, 0, 1, 9, 5, 0, 0, 0],
+      [0, 9, 8, 0, 0, 0, 0, 6, 0],
+      [8, 0, 0, 0, 6, 0, 0, 0, 3],
+      [4, 0, 0, 8, 0, 3, 0, 0, 1],
+      [7, 0, 0, 0, 2, 0, 0, 0, 6],
+      [0, 6, 0, 0, 0, 0, 2, 8, 0],
+      [0, 0, 0, 4, 1, 9, 0, 0, 5],
+      [0, 0, 0, 0, 8, 0, 0, 7, 9]
+    ];
+    const original = deepCopyBoard(puzzle);
+    solveSudoku(puzzle);
+    expect(boardsEqual(puzzle, original)).toBe(true);
+  });
+
+  it('solves multiple puzzles in sequence', () => {
+    const puzzles = [
+      [
+        [0, 0, 3, 0, 2, 0, 6, 0, 0],
+        [9, 0, 0, 3, 0, 5, 0, 0, 1],
+        [0, 0, 1, 8, 0, 6, 4, 0, 0],
+        [0, 0, 8, 1, 0, 2, 9, 0, 0],
+        [7, 0, 0, 0, 0, 0, 0, 0, 8],
+        [0, 0, 6, 7, 0, 8, 2, 0, 0],
+        [0, 0, 2, 6, 0, 9, 5, 0, 0],
+        [8, 0, 0, 2, 0, 3, 0, 0, 9],
+        [0, 0, 5, 0, 1, 0, 3, 0, 0]
+      ],
+      [
+        [1, 0, 0, 4, 8, 9, 0, 0, 6],
+        [7, 3, 0, 0, 0, 0, 0, 4, 0],
+        [0, 0, 0, 0, 0, 1, 2, 9, 5],
+        [0, 0, 7, 1, 2, 0, 6, 0, 0],
+        [5, 0, 0, 7, 0, 3, 0, 0, 8],
+        [0, 0, 6, 0, 9, 5, 7, 0, 0],
+        [9, 1, 4, 6, 0, 0, 0, 0, 0],
+        [0, 2, 0, 0, 0, 0, 0, 3, 7],
+        [8, 0, 0, 5, 4, 2, 0, 0, 1]
+      ]
+    ];
+    puzzles.forEach(puzzle => {
+      const solution = solveSudoku(puzzle);
+      expect(solution).not.toBeNull();
+      expect(validateSolution(solution!)).toBe(true);
+    });
+  });
+});
+
+describe('solveSudokuWithSteps', () => {
+  it('tracks backtracking steps', () => {
+    const puzzle = [
+      [5, 3, 0, 0, 7, 0, 0, 0, 0],
+      [6, 0, 0, 1, 9, 5, 0, 0, 0],
+      [0, 9, 8, 0, 0, 0, 0, 6, 0],
+      [8, 0, 0, 0, 6, 0, 0, 0, 3],
+      [4, 0, 0, 8, 0, 3, 0, 0, 1],
+      [7, 0, 0, 0, 2, 0, 0, 0, 6],
+      [0, 6, 0, 0, 0, 0, 2, 8, 0],
+      [0, 0, 0, 4, 1, 9, 0, 0, 5],
+      [0, 0, 0, 0, 8, 0, 0, 7, 9]
+    ];
+    const result = solveSudokuWithSteps(puzzle);
+    expect(result.board).not.toBeNull();
+    expect(validateSolution(result.board)).toBe(true);
+    expect(result.steps).toBeGreaterThan(0);
+  });
+
+  it('reports fewer steps for easier puzzles', () => {
+    const easyPuzzle = [
+      [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0]
+    ];
+    // Empty board should be solved quickly (greedy fill)
+    const result = solveSudokuWithSteps(easyPuzzle);
+    expect(result.steps).toBeLessThan(100);
+  });
+});
+
+describe('edge cases', () => {
+  it('handles board with single empty cell', () => {
+    const board = [
+      [5, 3, 4, 6, 7, 8, 9, 1, 2],
+      [6, 7, 2, 1, 9, 5, 3, 4, 8],
+      [1, 9, 8, 3, 4, 2, 5, 6, 7],
+      [8, 5, 9, 7, 6, 1, 4, 2, 3],
+      [4, 2, 6, 8, 5, 3, 7, 9, 1],
+      [7, 1, 3, 9, 2, 4, 8, 5, 6],
+      [9, 6, 1, 5, 3, 7, 2, 8, 4],
+      [2, 8, 7, 4, 1, 9, 6, 3, 5],
+      [3, 4, 5, 2, 8, 6, 1, 7, 0] // Missing last cell
+    ];
+    const solution = solveSudoku(board);
+    expect(solution).not.toBeNull();
+    expect(solution![8][8]).toBe(9);
+  });
+
+  it('handles already solved board', () => {
+    const solved = [
+      [5, 3, 4, 6, 7, 8, 9, 1, 2],
+      [6, 7, 2, 1, 9, 5, 3, 4, 8],
+      [1, 9, 8, 3, 4, 2, 5, 6, 7],
+      [8, 5, 9, 7, 6, 1, 4, 2, 3],
+      [4, 2, 6, 8, 5, 3, 7, 9, 1],
+      [7, 1, 3, 9, 2, 4, 8, 5, 6],
+      [9, 6, 1, 5, 3, 7, 2, 8, 4],
+      [2, 8, 7, 4, 1, 9, 6, 3, 5],
+      [3, 4, 5, 2, 8, 6, 1, 7, 9]
+    ];
+    const result = solveSudoku(solved);
+    expect(result).not.toBeNull();
+    expect(boardsEqual(result!, solved)).toBe(true);
+  });
+});
+]=],
+  },
+
 }
 
 --- Deterministic challenge selection based on date.
