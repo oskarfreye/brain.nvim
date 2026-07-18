@@ -7782,6 +7782,317 @@ describe('edge cases', () => {
 ]=],
   },
 
+  {
+    name = "Red-Black Tree",
+    difficulty = "hard",
+    stub = [==[
+/**
+ * Red-Black Tree
+ *
+ * Implement a self-balancing Binary Search Tree with Red-Black properties.
+ *
+ * A Red-Black Tree is a BST where each node has a color (red or black) and
+ * satisfies these properties:
+ * 1. Every node is either red or black
+ * 2. The root is black
+ * 3. All leaves (NIL/null) are black
+ * 4. If a node is red, both its children are black (no two consecutive reds)
+ * 5. Every path from a node to its descendant leaves has the same black count
+ *
+ * These properties guarantee O(log n) operations by keeping the tree balanced.
+ *
+ * Implement the RedBlackTree class with:
+ * - insert(value: number): void — Insert a value, rebalancing as needed
+ * - search(value: number): boolean — Return true if value exists
+ * - delete(value: number): boolean — Remove a value, rebalancing as needed
+ * - inOrder(): number[] — Return values in sorted order
+ * - isValid(): boolean — Verify all Red-Black properties are satisfied
+ * - blackHeight(): number — Return the black height (should be consistent)
+ * - height(): number — Return the tree height
+ *
+ * For insert: Use recoloring and rotations (left/right) to maintain properties.
+ * For delete: Handle the more complex delete rebalancing cases.
+ *
+ * Bonus: Implement range queries:
+ * - rangeSearch(min: number, max: number): number[] — Values in range [min, max]
+ */
+
+export class RedBlackTree {
+  constructor() {
+    // YOUR CODE HERE
+  }
+
+  insert(value: number): void {
+    // YOUR CODE HERE
+  }
+
+  search(value: number): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  delete(value: number): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  inOrder(): number[] {
+    // YOUR CODE HERE
+    return [];
+  }
+
+  isValid(): boolean {
+    // YOUR CODE HERE
+    return true;
+  }
+
+  blackHeight(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  height(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  rangeSearch(min: number, max: number): number[] {
+    // YOUR CODE HERE
+    return [];
+  }
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { RedBlackTree } from './challenge';
+
+describe('RedBlackTree', () => {
+  it('creates empty tree', () => {
+    const tree = new RedBlackTree();
+    expect(tree.inOrder()).toEqual([]);
+    expect(tree.isValid()).toBe(true);
+    expect(tree.height()).toBe(0);
+  });
+
+  it('inserts single value', () => {
+    const tree = new RedBlackTree();
+    tree.insert(5);
+    expect(tree.search(5)).toBe(true);
+    expect(tree.inOrder()).toEqual([5]);
+    expect(tree.isValid()).toBe(true);
+  });
+
+  it('inserts multiple values in order', () => {
+    const tree = new RedBlackTree();
+    tree.insert(1);
+    tree.insert(2);
+    tree.insert(3);
+    expect(tree.inOrder()).toEqual([1, 2, 3]);
+    expect(tree.isValid()).toBe(true);
+  });
+
+  it('inserts multiple values in reverse order', () => {
+    const tree = new RedBlackTree();
+    tree.insert(5);
+    tree.insert(4);
+    tree.insert(3);
+    tree.insert(2);
+    tree.insert(1);
+    expect(tree.inOrder()).toEqual([1, 2, 3, 4, 5]);
+    expect(tree.isValid()).toBe(true);
+  });
+
+  it('inserts random values and stays balanced', () => {
+    const tree = new RedBlackTree();
+    const values = [50, 25, 75, 10, 30, 60, 90, 5, 15, 27, 35, 55, 65, 85, 95];
+    values.forEach(v => tree.insert(v));
+    expect(tree.inOrder()).toEqual(values.sort((a, b) => a - b));
+    expect(tree.isValid()).toBe(true);
+    // Height should be O(log n), for 15 nodes max height ~ 2*log2(16) = 8
+    expect(tree.height()).toBeLessThan(10);
+  });
+
+  it('search finds existing values', () => {
+    const tree = new RedBlackTree();
+    [10, 5, 15, 3, 7, 12, 20].forEach(v => tree.insert(v));
+    expect(tree.search(10)).toBe(true);
+    expect(tree.search(5)).toBe(true);
+    expect(tree.search(20)).toBe(true);
+  });
+
+  it('search returns false for missing values', () => {
+    const tree = new RedBlackTree();
+    [10, 5, 15].forEach(v => tree.insert(v));
+    expect(tree.search(1)).toBe(false);
+    expect(tree.search(7)).toBe(false);
+    expect(tree.search(99)).toBe(false);
+  });
+
+  it('delete leaf node', () => {
+    const tree = new RedBlackTree();
+    [10, 5, 15, 3, 7].forEach(v => tree.insert(v));
+    expect(tree.delete(3)).toBe(true);
+    expect(tree.search(3)).toBe(false);
+    expect(tree.isValid()).toBe(true);
+  });
+
+  it('delete node with one child', () => {
+    const tree = new RedBlackTree();
+    [10, 5, 15, 3].forEach(v => tree.insert(v));
+    expect(tree.delete(5)).toBe(true);
+    expect(tree.search(5)).toBe(false);
+    expect(tree.search(3)).toBe(true);
+    expect(tree.isValid()).toBe(true);
+  });
+
+  it('delete node with two children', () => {
+    const tree = new RedBlackTree();
+    [10, 5, 15, 3, 7, 12, 20].forEach(v => tree.insert(v));
+    expect(tree.delete(10)).toBe(true);
+    expect(tree.search(10)).toBe(false);
+    expect(tree.isValid()).toBe(true);
+    expect(tree.inOrder()).toEqual([3, 5, 7, 12, 15, 20]);
+  });
+
+  it('delete root node', () => {
+    const tree = new RedBlackTree();
+    tree.insert(10);
+    tree.insert(5);
+    tree.insert(15);
+    expect(tree.delete(10)).toBe(true);
+    expect(tree.search(10)).toBe(false);
+    expect(tree.isValid()).toBe(true);
+  });
+
+  it('delete non-existent value', () => {
+    const tree = new RedBlackTree();
+    [10, 5, 15].forEach(v => tree.insert(v));
+    expect(tree.delete(99)).toBe(false);
+  });
+
+  it('delete all nodes', () => {
+    const tree = new RedBlackTree();
+    [10, 5, 15].forEach(v => tree.insert(v));
+    tree.delete(10);
+    tree.delete(5);
+    tree.delete(15);
+    expect(tree.inOrder()).toEqual([]);
+    expect(tree.isValid()).toBe(true);
+  });
+
+  it('handles duplicate insertions', () => {
+    const tree = new RedBlackTree();
+    tree.insert(5);
+    tree.insert(5);
+    tree.insert(5);
+    expect(tree.inOrder()).toEqual([5]);
+    expect(tree.isValid()).toBe(true);
+  });
+
+  it('rangeSearch returns values in range', () => {
+    const tree = new RedBlackTree();
+    [5, 10, 15, 20, 25, 30].forEach(v => tree.insert(v));
+    expect(tree.rangeSearch(10, 25)).toEqual([10, 15, 20, 25]);
+    expect(tree.rangeSearch(0, 100)).toEqual([5, 10, 15, 20, 25, 30]);
+    expect(tree.rangeSearch(12, 18)).toEqual([15]);
+    expect(tree.rangeSearch(50, 100)).toEqual([]);
+  });
+
+  it('blackHeight is consistent across all paths', () => {
+    const tree = new RedBlackTree();
+    for (let i = 1; i <= 20; i++) {
+      tree.insert(i);
+    }
+    expect(tree.isValid()).toBe(true);
+    const bh = tree.blackHeight();
+    expect(bh).toBeGreaterThan(0);
+  });
+
+  it('stress test with 100 insertions', () => {
+    const tree = new RedBlackTree();
+    const values: number[] = [];
+    for (let i = 0; i < 100; i++) {
+      const val = Math.floor(Math.random() * 1000);
+      values.push(val);
+      tree.insert(val);
+    }
+    expect(tree.isValid()).toBe(true);
+    expect(tree.height()).toBeLessThan(20); // log2(100) * 2 ≈ 14
+  });
+
+  it('stress test with sequential insert then delete', () => {
+    const tree = new RedBlackTree();
+    for (let i = 1; i <= 50; i++) {
+      tree.insert(i);
+    }
+    expect(tree.isValid()).toBe(true);
+    for (let i = 1; i <= 25; i++) {
+      tree.delete(i);
+    }
+    expect(tree.isValid()).toBe(true);
+    for (let i = 26; i <= 50; i++) {
+      expect(tree.search(i)).toBe(true);
+    }
+    for (let i = 1; i <= 25; i++) {
+      expect(tree.search(i)).toBe(false);
+    }
+  });
+
+  it('handles negative values', () => {
+    const tree = new RedBlackTree();
+    [-5, -10, -3, 0, 5, 10].forEach(v => tree.insert(v));
+    expect(tree.inOrder()).toEqual([-10, -5, -3, 0, 5, 10]);
+    expect(tree.isValid()).toBe(true);
+  });
+
+  it('inOrder on empty tree', () => {
+    const tree = new RedBlackTree();
+    expect(tree.inOrder()).toEqual([]);
+  });
+});
+
+// Red-Black property validation
+describe('Red-Black properties', () => {
+  it('root is always black after insertions', () => {
+    const tree = new RedBlackTree();
+    tree.insert(5);
+    tree.insert(3);
+    tree.insert(7);
+    tree.insert(1);
+    tree.insert(9);
+    expect(tree.isValid()).toBe(true);
+  });
+
+  it('no two consecutive red nodes', () => {
+    const tree = new RedBlackTree();
+    for (let i = 0; i < 30; i++) {
+      tree.insert(i);
+    }
+    expect(tree.isValid()).toBe(true);
+  });
+
+  it('maintains balance with sorted input', () => {
+    const tree = new RedBlackTree();
+    for (let i = 1; i <= 100; i++) {
+      tree.insert(i);
+    }
+    expect(tree.isValid()).toBe(true);
+    // Should be O(log n), not O(n) like unbalanced BST
+    expect(tree.height()).toBeLessThan(15);
+  });
+
+  it('maintains balance with reverse sorted input', () => {
+    const tree = new RedBlackTree();
+    for (let i = 100; i >= 1; i--) {
+      tree.insert(i);
+    }
+    expect(tree.isValid()).toBe(true);
+    expect(tree.height()).toBeLessThan(15);
+  });
+});
+]==],
+  },
+
 }
 
 --- Deterministic challenge selection based on date.
