@@ -8092,6 +8092,290 @@ describe('Red-Black properties', () => {
 });
 ]==],
   },
+  {
+    name = "Min-Max Stack",
+    difficulty = "medium",
+    stub = [=[
+/**
+ * Min-Max Stack
+ *
+ * Implement a stack that supports push, pop, peek, getMin, and getMax
+ * all in O(1) time complexity.
+ *
+ * A standard stack supports push, pop, and peek in O(1), but finding
+ * the min or max requires O(n) scanning. This challenge asks you to
+ * augment the stack to track min and max efficiently.
+ *
+ * Implement the MinMaxStack class with:
+ * - push(value: number): void — Push a value onto the stack
+ * - pop(): number | null — Remove and return the top value, or null if empty
+ * - peek(): number | null — Return the top value without removing
+ * - getMin(): number | null — Return the minimum value in the stack
+ * - getMax(): number | null — Return the maximum value in the stack
+ * - size(): number — Return the number of elements
+ * - isEmpty(): boolean — Check if the stack is empty
+ *
+ * Strategy hints:
+ * - Use auxiliary stacks to track min/max at each level
+ * - Or store tuples of (value, currentMin, currentMax) in each node
+ * - Both approaches achieve O(1) for all operations with O(n) space
+ *
+ * Bonus: Implement getMinCount() and getMaxCount() to return how many
+ * times the min/max value appears in the stack.
+ */
+
+export class MinMaxStack {
+  constructor() {
+    // YOUR CODE HERE
+  }
+
+  push(value: number): void {
+    // YOUR CODE HERE
+  }
+
+  pop(): number | null {
+    // YOUR CODE HERE
+    return null;
+  }
+
+  peek(): number | null {
+    // YOUR CODE HERE
+    return null;
+  }
+
+  getMin(): number | null {
+    // YOUR CODE HERE
+    return null;
+  }
+
+  getMax(): number | null {
+    // YOUR CODE HERE
+    return null;
+  }
+
+  size(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  isEmpty(): boolean {
+    // YOUR CODE HERE
+    return true;
+  }
+
+  getMinCount(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  getMaxCount(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import { MinMaxStack } from './challenge';
+
+describe('MinMaxStack', () => {
+  it('creates empty stack', () => {
+    const stack = new MinMaxStack();
+    expect(stack.isEmpty()).toBe(true);
+    expect(stack.size()).toBe(0);
+    expect(stack.peek()).toBeNull();
+    expect(stack.getMin()).toBeNull();
+    expect(stack.getMax()).toBeNull();
+  });
+
+  it('push single value', () => {
+    const stack = new MinMaxStack();
+    stack.push(5);
+    expect(stack.size()).toBe(1);
+    expect(stack.peek()).toBe(5);
+    expect(stack.getMin()).toBe(5);
+    expect(stack.getMax()).toBe(5);
+    expect(stack.isEmpty()).toBe(false);
+  });
+
+  it('push multiple values ascending', () => {
+    const stack = new MinMaxStack();
+    stack.push(1);
+    stack.push(2);
+    stack.push(3);
+    expect(stack.peek()).toBe(3);
+    expect(stack.getMin()).toBe(1);
+    expect(stack.getMax()).toBe(3);
+    expect(stack.size()).toBe(3);
+  });
+
+  it('push multiple values descending', () => {
+    const stack = new MinMaxStack();
+    stack.push(3);
+    stack.push(2);
+    stack.push(1);
+    expect(stack.peek()).toBe(1);
+    expect(stack.getMin()).toBe(1);
+    expect(stack.getMax()).toBe(3);
+    expect(stack.size()).toBe(3);
+  });
+
+  it('push multiple values random order', () => {
+    const stack = new MinMaxStack();
+    [5, 2, 8, 1, 9, 3].forEach(v => stack.push(v));
+    expect(stack.peek()).toBe(3);
+    expect(stack.getMin()).toBe(1);
+    expect(stack.getMax()).toBe(9);
+  });
+
+  it('pop returns values in LIFO order', () => {
+    const stack = new MinMaxStack();
+    [1, 2, 3].forEach(v => stack.push(v));
+    expect(stack.pop()).toBe(3);
+    expect(stack.pop()).toBe(2);
+    expect(stack.pop()).toBe(1);
+    expect(stack.pop()).toBeNull();
+  });
+
+  it('pop updates min/max correctly', () => {
+    const stack = new MinMaxStack();
+    stack.push(5);
+    stack.push(2);
+    stack.push(8);
+    expect(stack.getMin()).toBe(2);
+    expect(stack.getMax()).toBe(8);
+    stack.pop(); // Remove 8
+    expect(stack.getMax()).toBe(5);
+    stack.pop(); // Remove 2
+    expect(stack.getMin()).toBe(5);
+    expect(stack.getMax()).toBe(5);
+  });
+
+  it('pop from empty stack returns null', () => {
+    const stack = new MinMaxStack();
+    expect(stack.pop()).toBeNull();
+  });
+
+  it('peek does not remove element', () => {
+    const stack = new MinMaxStack();
+    stack.push(42);
+    expect(stack.peek()).toBe(42);
+    expect(stack.peek()).toBe(42);
+    expect(stack.size()).toBe(1);
+  });
+
+  it('handles negative values', () => {
+    const stack = new MinMaxStack();
+    [-5, -10, -3, 0, 5].forEach(v => stack.push(v));
+    expect(stack.getMin()).toBe(-10);
+    expect(stack.getMax()).toBe(5);
+  });
+
+  it('handles duplicate min values', () => {
+    const stack = new MinMaxStack();
+    stack.push(5);
+    stack.push(2);
+    stack.push(2);
+    stack.push(8);
+    expect(stack.getMin()).toBe(2);
+    expect(stack.getMinCount()).toBe(2);
+    stack.pop();
+    stack.pop();
+    expect(stack.getMinCount()).toBe(1);
+  });
+
+  it('handles duplicate max values', () => {
+    const stack = new MinMaxStack();
+    stack.push(2);
+    stack.push(8);
+    stack.push(5);
+    stack.push(8);
+    expect(stack.getMax()).toBe(8);
+    expect(stack.getMaxCount()).toBe(2);
+    stack.pop();
+    expect(stack.getMaxCount()).toBe(1);
+  });
+
+  it('getMinCount on empty stack', () => {
+    const stack = new MinMaxStack();
+    expect(stack.getMinCount()).toBe(0);
+  });
+
+  it('getMaxCount on empty stack', () => {
+    const stack = new MinMaxStack();
+    expect(stack.getMaxCount()).toBe(0);
+  });
+
+  it('all same values', () => {
+    const stack = new MinMaxStack();
+    [7, 7, 7, 7].forEach(v => stack.push(v));
+    expect(stack.getMin()).toBe(7);
+    expect(stack.getMax()).toBe(7);
+    expect(stack.getMinCount()).toBe(4);
+    expect(stack.getMaxCount()).toBe(4);
+  });
+
+  it('interleaved push and pop', () => {
+    const stack = new MinMaxStack();
+    stack.push(10);
+    stack.push(5);
+    stack.pop();
+    expect(stack.getMin()).toBe(10);
+    expect(stack.getMax()).toBe(10);
+    stack.push(3);
+    stack.push(8);
+    expect(stack.getMin()).toBe(3);
+    expect(stack.getMax()).toBe(10);
+  });
+
+  it('stress test with many operations', () => {
+    const stack = new MinMaxStack();
+    const values = [50, 25, 75, 10, 90, 5, 95, 0, 100];
+    values.forEach(v => stack.push(v));
+    expect(stack.getMin()).toBe(0);
+    expect(stack.getMax()).toBe(100);
+    expect(stack.size()).toBe(9);
+    
+    stack.pop(); // 100
+    stack.pop(); // 0
+    expect(stack.getMin()).toBe(5);
+    expect(stack.getMax()).toBe(95);
+  });
+
+  it('large values', () => {
+    const stack = new MinMaxStack();
+    stack.push(Number.MAX_SAFE_INTEGER);
+    stack.push(Number.MIN_SAFE_INTEGER);
+    stack.push(0);
+    expect(stack.getMin()).toBe(Number.MIN_SAFE_INTEGER);
+    expect(stack.getMax()).toBe(Number.MAX_SAFE_INTEGER);
+  });
+
+  it('single element operations', () => {
+    const stack = new MinMaxStack();
+    stack.push(42);
+    expect(stack.pop()).toBe(42);
+    expect(stack.isEmpty()).toBe(true);
+    stack.push(100);
+    expect(stack.peek()).toBe(100);
+    expect(stack.getMin()).toBe(100);
+    expect(stack.getMax()).toBe(100);
+  });
+
+  it('pop all elements', () => {
+    const stack = new MinMaxStack();
+    [1, 2, 3, 4, 5].forEach(v => stack.push(v));
+    for (let i = 0; i < 5; i++) {
+      stack.pop();
+    }
+    expect(stack.isEmpty()).toBe(true);
+    expect(stack.size()).toBe(0);
+    expect(stack.getMin()).toBeNull();
+    expect(stack.getMax()).toBeNull();
+  });
+});
+]=],
+  },
 
 }
 
