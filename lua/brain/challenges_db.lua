@@ -8377,6 +8377,500 @@ describe('MinMaxStack', () => {
 ]=],
   },
 
+  {
+    name = "Command Pattern with Undo/Redo",
+    difficulty = "medium",
+    stub = [=[
+/**
+ * Command Pattern with Undo/Redo
+ *
+ * Implement the Command design pattern with full undo/redo support.
+ *
+ * The Command pattern encapsulates requests as objects, enabling:
+ * - Parameterization of clients with different requests
+ * - Queueing and logging of operations
+ * - Undo/redo functionality
+ * - Transactional behavior (macro commands)
+ *
+ * Implement:
+ * - Command interface: execute(), undo(), getDescription()
+ * - CommandHistory class: push(command), undo(), redo(), clear()
+ * - Concrete commands: InsertText, DeleteText, FormatText (for a text editor)
+ * - MacroCommand: Combine multiple commands into one atomic operation
+ *
+ * Requirements:
+ * - Undo stack and redo stack management
+ * - Proper state restoration on undo
+ * - Clearing redo stack on new command after undo
+ * - Support for macro/nested commands
+ */
+
+export interface Command {
+  execute(): void;
+  undo(): void;
+  getDescription(): string;
+}
+
+export class CommandHistory {
+  constructor() {
+    // YOUR CODE HERE
+  }
+
+  push(command: Command): void {
+    // YOUR CODE HERE
+  }
+
+  undo(): Command | null {
+    // YOUR CODE HERE
+    return null;
+  }
+
+  redo(): Command | null {
+    // YOUR CODE HERE
+    return null;
+  }
+
+  clear(): void {
+    // YOUR CODE HERE
+  }
+
+  canUndo(): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  canRedo(): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  getUndoStackSize(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+
+  getRedoStackSize(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+}
+
+// Text editor state for concrete commands
+export interface TextEditorState {
+  content: string;
+  cursorPosition: number;
+}
+
+export class InsertTextCommand implements Command {
+  constructor(state: TextEditorState, text: string, position: number) {
+    // YOUR CODE HERE
+  }
+
+  execute(): void {
+    // YOUR CODE HERE
+  }
+
+  undo(): void {
+    // YOUR CODE HERE
+  }
+
+  getDescription(): string {
+    // YOUR CODE HERE
+    return '';
+  }
+}
+
+export class DeleteTextCommand implements Command {
+  constructor(state: TextEditorState, start: number, length: number) {
+    // YOUR CODE HERE
+  }
+
+  execute(): void {
+    // YOUR CODE HERE
+  }
+
+  undo(): void {
+    // YOUR CODE HERE
+  }
+
+  getDescription(): string {
+    // YOUR CODE HERE
+    return '';
+  }
+}
+
+export class MacroCommand implements Command {
+  constructor() {
+    // YOUR CODE HERE
+  }
+
+  add(command: Command): void {
+    // YOUR CODE HERE
+  }
+
+  execute(): void {
+    // YOUR CODE HERE
+  }
+
+  undo(): void {
+    // YOUR CODE HERE
+  }
+
+  getDescription(): string {
+    // YOUR CODE HERE
+    return '';
+  }
+}
+]=],
+    tests = [=[
+import { describe, it, expect } from 'vitest';
+import {
+  CommandHistory,
+  InsertTextCommand,
+  DeleteTextCommand,
+  MacroCommand,
+  type TextEditorState
+} from './challenge';
+
+function createEditorState(content: string = '', cursorPosition: number = 0): TextEditorState {
+  return { content, cursorPosition };
+}
+
+describe('CommandHistory', () => {
+  it('creates empty history', () => {
+    const history = new CommandHistory();
+    expect(history.canUndo()).toBe(false);
+    expect(history.canRedo()).toBe(false);
+    expect(history.getUndoStackSize()).toBe(0);
+    expect(history.getRedoStackSize()).toBe(0);
+  });
+
+  it('pushes commands to undo stack', () => {
+    const history = new CommandHistory();
+    const state = createEditorState('hello');
+    const cmd = new InsertTextCommand(state, ' world', 5);
+    history.push(cmd);
+    expect(history.canUndo()).toBe(true);
+    expect(history.getUndoStackSize()).toBe(1);
+  });
+
+  it('undo executes undo on command', () => {
+    const history = new CommandHistory();
+    const state = createEditorState('hello');
+    const cmd = new InsertTextCommand(state, ' world', 5);
+    cmd.execute();
+    expect(state.content).toBe('hello world');
+    history.push(cmd);
+    history.undo();
+    expect(state.content).toBe('hello');
+  });
+
+  it('undo moves command to redo stack', () => {
+    const history = new CommandHistory();
+    const state = createEditorState('hello');
+    const cmd = new InsertTextCommand(state, ' world', 5);
+    cmd.execute();
+    history.push(cmd);
+    history.undo();
+    expect(history.canUndo()).toBe(false);
+    expect(history.canRedo()).toBe(true);
+    expect(history.getRedoStackSize()).toBe(1);
+  });
+
+  it('redo executes command again', () => {
+    const history = new CommandHistory();
+    const state = createEditorState('hello');
+    const cmd = new InsertTextCommand(state, ' world', 5);
+    cmd.execute();
+    history.push(cmd);
+    history.undo();
+    expect(state.content).toBe('hello');
+    history.redo();
+    expect(state.content).toBe('hello world');
+  });
+
+  it('new command after undo clears redo stack', () => {
+    const history = new CommandHistory();
+    const state = createEditorState('hello');
+    const cmd1 = new InsertTextCommand(state, ' world', 5);
+    const cmd2 = new InsertTextCommand(state, '!', 11);
+    cmd1.execute();
+    history.push(cmd1);
+    history.undo();
+    expect(history.getRedoStackSize()).toBe(1);
+    cmd2.execute();
+    history.push(cmd2);
+    expect(history.getRedoStackSize()).toBe(0);
+    expect(history.canRedo()).toBe(false);
+  });
+
+  it('clear removes all history', () => {
+    const history = new CommandHistory();
+    const state = createEditorState('hello');
+    const cmd = new InsertTextCommand(state, ' world', 5);
+    cmd.execute();
+    history.push(cmd);
+    history.undo();
+    history.clear();
+    expect(history.canUndo()).toBe(false);
+    expect(history.canRedo()).toBe(false);
+    expect(history.getUndoStackSize()).toBe(0);
+    expect(history.getRedoStackSize()).toBe(0);
+  });
+
+  it('undo on empty returns null', () => {
+    const history = new CommandHistory();
+    expect(history.undo()).toBeNull();
+  });
+
+  it('redo on empty returns null', () => {
+    const history = new CommandHistory();
+    expect(history.redo()).toBeNull();
+  });
+
+  it('multiple undo/redo cycles', () => {
+    const history = new CommandHistory();
+    const state = createEditorState('');
+    
+    const cmd1 = new InsertTextCommand(state, 'hello', 0);
+    const cmd2 = new InsertTextCommand(state, ' world', 5);
+    const cmd3 = new InsertTextCommand(state, '!', 11);
+    
+    cmd1.execute();
+    history.push(cmd1);
+    cmd2.execute();
+    history.push(cmd2);
+    cmd3.execute();
+    history.push(cmd3);
+    
+    expect(state.content).toBe('hello world!');
+    
+    history.undo();
+    expect(state.content).toBe('hello world');
+    history.undo();
+    expect(state.content).toBe('hello');
+    history.undo();
+    expect(state.content).toBe('');
+    
+    history.redo();
+    expect(state.content).toBe('hello');
+    history.redo();
+    expect(state.content).toBe('hello world');
+    history.redo();
+    expect(state.content).toBe('hello world!');
+  });
+});
+
+describe('InsertTextCommand', () => {
+  it('inserts text at position', () => {
+    const state = createEditorState('hello', 5);
+    const cmd = new InsertTextCommand(state, ' world', 5);
+    cmd.execute();
+    expect(state.content).toBe('hello world');
+    expect(state.cursorPosition).toBe(11);
+  });
+
+  it('inserts at beginning', () => {
+    const state = createEditorState('world', 5);
+    const cmd = new InsertTextCommand(state, 'hello ', 0);
+    cmd.execute();
+    expect(state.content).toBe('hello world');
+  });
+
+  it('undo removes inserted text', () => {
+    const state = createEditorState('hello', 5);
+    const cmd = new InsertTextCommand(state, ' world', 5);
+    cmd.execute();
+    expect(state.content).toBe('hello world');
+    cmd.undo();
+    expect(state.content).toBe('hello');
+    expect(state.cursorPosition).toBe(5);
+  });
+
+  it('getDescription returns description', () => {
+    const state = createEditorState('hello', 5);
+    const cmd = new InsertTextCommand(state, ' world', 5);
+    expect(cmd.getDescription()).toContain('Insert');
+  });
+});
+
+describe('DeleteTextCommand', () => {
+  it('deletes text at position', () => {
+    const state = createEditorState('hello world', 5);
+    const cmd = new DeleteTextCommand(state, 5, 6);
+    cmd.execute();
+    expect(state.content).toBe('hello');
+  });
+
+  it('deletes at beginning', () => {
+    const state = createEditorState('hello world', 5);
+    const cmd = new DeleteTextCommand(state, 0, 6);
+    cmd.execute();
+    expect(state.content).toBe('world');
+  });
+
+  it('undo restores deleted text', () => {
+    const state = createEditorState('hello world', 5);
+    const cmd = new DeleteTextCommand(state, 5, 6);
+    cmd.execute();
+    expect(state.content).toBe('hello');
+    cmd.undo();
+    expect(state.content).toBe('hello world');
+    expect(state.cursorPosition).toBe(5);
+  });
+
+  it('getDescription returns description', () => {
+    const state = createEditorState('hello world', 5);
+    const cmd = new DeleteTextCommand(state, 5, 6);
+    expect(cmd.getDescription()).toContain('Delete');
+  });
+
+  it('handles delete at end', () => {
+    const state = createEditorState('hello', 5);
+    const cmd = new DeleteTextCommand(state, 5, 1);
+    cmd.execute();
+    expect(state.content).toBe('hello');
+  });
+
+  it('handles delete beyond length', () => {
+    const state = createEditorState('hello', 5);
+    const cmd = new DeleteTextCommand(state, 3, 10);
+    cmd.execute();
+    expect(state.content).toBe('hel');
+  });
+});
+
+describe('MacroCommand', () => {
+  it('executes all sub-commands', () => {
+    const state = createEditorState('', 0);
+    const macro = new MacroCommand();
+    
+    const cmd1 = new InsertTextCommand(state, 'hello', 0);
+    const cmd2 = new InsertTextCommand(state, ' world', 5);
+    
+    macro.add(cmd1);
+    macro.add(cmd2);
+    macro.execute();
+    
+    expect(state.content).toBe('hello world');
+  });
+
+  it('undoes all sub-commands in reverse', () => {
+    const state = createEditorState('', 0);
+    const macro = new MacroCommand();
+    
+    const cmd1 = new InsertTextCommand(state, 'hello', 0);
+    const cmd2 = new InsertTextCommand(state, ' world', 5);
+    
+    macro.add(cmd1);
+    macro.add(cmd2);
+    macro.execute();
+    expect(state.content).toBe('hello world');
+    
+    macro.undo();
+    expect(state.content).toBe('');
+  });
+
+  it('getDescription describes macro', () => {
+    const state = createEditorState('', 0);
+    const macro = new MacroCommand();
+    macro.add(new InsertTextCommand(state, 'hello', 0));
+    macro.add(new DeleteTextCommand(state, 0, 2));
+    expect(macro.getDescription()).toContain('Macro');
+  });
+
+  it('nested macros work correctly', () => {
+    const state = createEditorState('', 0);
+    const outerMacro = new MacroCommand();
+    const innerMacro = new MacroCommand();
+    
+    innerMacro.add(new InsertTextCommand(state, 'inner', 0));
+    outerMacro.add(innerMacro);
+    outerMacro.add(new InsertTextCommand(state, ' outer', 5));
+    
+    outerMacro.execute();
+    expect(state.content).toBe('inner outer');
+    
+    outerMacro.undo();
+    expect(state.content).toBe('');
+  });
+
+  it('empty macro does nothing', () => {
+    const state = createEditorState('hello', 5);
+    const macro = new MacroCommand();
+    const original = state.content;
+    macro.execute();
+    macro.undo();
+    expect(state.content).toBe(original);
+  });
+});
+
+describe('integration', () => {
+  it('full editor workflow with history', () => {
+    const history = new CommandHistory();
+    const state = createEditorState('', 0);
+    
+    // Type "hello"
+    const cmd1 = new InsertTextCommand(state, 'hello', 0);
+    cmd1.execute();
+    history.push(cmd1);
+    
+    // Type " world"
+    const cmd2 = new InsertTextCommand(state, ' world', 5);
+    cmd2.execute();
+    history.push(cmd2);
+    
+    // Delete " world"
+    const cmd3 = new DeleteTextCommand(state, 5, 6);
+    cmd3.execute();
+    history.push(cmd3);
+    
+    expect(state.content).toBe('hello');
+    expect(history.getUndoStackSize()).toBe(3);
+    
+    // Undo delete
+    history.undo();
+    expect(state.content).toBe('hello world');
+    
+    // Undo " world"
+    history.undo();
+    expect(state.content).toBe('hello');
+    
+    // Undo "hello"
+    history.undo();
+    expect(state.content).toBe('');
+    
+    // Redo all
+    history.redo();
+    history.redo();
+    history.redo();
+    expect(state.content).toBe('hello world');
+  });
+
+  it('macro in history', () => {
+    const history = new CommandHistory();
+    const state = createEditorState('', 0);
+    
+    const macro = new MacroCommand();
+    macro.add(new InsertTextCommand(state, 'hello', 0));
+    macro.add(new InsertTextCommand(state, ' world', 5));
+    
+    macro.execute();
+    history.push(macro);
+    
+    expect(state.content).toBe('hello world');
+    expect(history.getUndoStackSize()).toBe(1);
+    
+    history.undo();
+    expect(state.content).toBe('');
+    
+    history.redo();
+    expect(state.content).toBe('hello world');
+  });
+});
+]=],
+  },
+
 }
 
 --- Deterministic challenge selection based on date.
