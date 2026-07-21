@@ -8871,6 +8871,181 @@ describe('integration', () => {
 ]=],
   },
 
+  {
+    name = "Async Semaphore",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * Async Semaphore
+ *
+ * Build a semaphore that limits how many asynchronous jobs may run at once.
+ *
+ * Implement the AsyncSemaphore class:
+ * - constructor(maxConcurrent: number) initializes the semaphore with a positive limit.
+ * - acquire(): Promise<() => void> waits for a permit and resolves to a release function.
+ * - runExclusive<T>(task: () => Promise<T> | T): Promise<T> runs a task while holding a permit.
+ *
+ * Permits must be granted in FIFO order, release must be idempotent, and permits must be
+ * released even when runExclusive throws or rejects.
+ */
+
+export class AsyncSemaphore {
+  constructor(maxConcurrent: number) {
+    // YOUR CODE HERE
+  }
+
+  acquire(): Promise<() => void> {
+    // YOUR CODE HERE
+    return Promise.resolve(() => {});
+  }
+
+  async runExclusive<T>(task: () => Promise<T> | T): Promise<T> {
+    // YOUR CODE HERE
+    return task();
+  }
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { AsyncSemaphore } from './challenge';
+
+const tick = () => new Promise(resolve => setTimeout(resolve, 0));
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+describe('Async Semaphore', () => {
+  it('allows immediate acquire while capacity is available', async () => {
+    const semaphore = new AsyncSemaphore(2);
+    const releaseA = await semaphore.acquire();
+    const releaseB = await semaphore.acquire();
+
+    expect(typeof releaseA).toBe('function');
+    expect(typeof releaseB).toBe('function');
+
+    releaseA();
+    releaseB();
+  });
+
+  it('queues acquire calls when capacity is exhausted', async () => {
+    const semaphore = new AsyncSemaphore(1);
+    const release = await semaphore.acquire();
+    let acquired = false;
+
+    const waiter = semaphore.acquire().then(nextRelease => {
+      acquired = true;
+      nextRelease();
+    });
+
+    await tick();
+    expect(acquired).toBe(false);
+
+    release();
+    await waiter;
+    expect(acquired).toBe(true);
+  });
+
+  it('grants queued permits in FIFO order', async () => {
+    const semaphore = new AsyncSemaphore(1);
+    const release = await semaphore.acquire();
+    const order: number[] = [];
+
+    const first = semaphore.acquire().then(nextRelease => {
+      order.push(1);
+      nextRelease();
+    });
+    const second = semaphore.acquire().then(nextRelease => {
+      order.push(2);
+      nextRelease();
+    });
+
+    release();
+    await Promise.all([first, second]);
+
+    expect(order).toEqual([1, 2]);
+  });
+
+  it('makes release idempotent', async () => {
+    const semaphore = new AsyncSemaphore(1);
+    const release = await semaphore.acquire();
+    const order: string[] = [];
+
+    const first = semaphore.acquire().then(nextRelease => {
+      order.push('first');
+      nextRelease();
+    });
+    const second = semaphore.acquire().then(nextRelease => {
+      order.push('second');
+      nextRelease();
+    });
+
+    release();
+    release();
+    await Promise.all([first, second]);
+
+    expect(order).toEqual(['first', 'second']);
+  });
+
+  it('runs synchronous tasks through runExclusive', async () => {
+    const semaphore = new AsyncSemaphore(1);
+
+    await expect(semaphore.runExclusive(() => 42)).resolves.toBe(42);
+  });
+
+  it('runs asynchronous tasks through runExclusive', async () => {
+    const semaphore = new AsyncSemaphore(1);
+
+    await expect(semaphore.runExclusive(async () => {
+      await tick();
+      return 'done';
+    })).resolves.toBe('done');
+  });
+
+  it('never exceeds the concurrency limit', async () => {
+    const semaphore = new AsyncSemaphore(3);
+    let active = 0;
+    let maxActive = 0;
+
+    await Promise.all(Array.from({ length: 12 }, (_, index) =>
+      semaphore.runExclusive(async () => {
+        active++;
+        maxActive = Math.max(maxActive, active);
+        await sleep(index % 3);
+        active--;
+      })
+    ));
+
+    expect(maxActive).toBeLessThanOrEqual(3);
+  });
+
+  it('releases permits after task rejection', async () => {
+    const semaphore = new AsyncSemaphore(1);
+
+    await expect(semaphore.runExclusive(async () => {
+      throw new Error('boom');
+    })).rejects.toThrow('boom');
+
+    await expect(semaphore.runExclusive(() => 'recovered')).resolves.toBe('recovered');
+  });
+
+  it('releases permits after synchronous throws', async () => {
+    const semaphore = new AsyncSemaphore(1);
+
+    await expect(semaphore.runExclusive(() => {
+      throw new Error('sync boom');
+    })).rejects.toThrow('sync boom');
+
+    const release = await semaphore.acquire();
+    release();
+  });
+
+  it('rejects invalid concurrency limits', () => {
+    expect(() => new AsyncSemaphore(0)).toThrow();
+    expect(() => new AsyncSemaphore(-1)).toThrow();
+    expect(() => new AsyncSemaphore(Number.NaN)).toThrow();
+  });
+});
+]==],
+  },
+
 }
 
 --- Deterministic challenge selection based on date.
