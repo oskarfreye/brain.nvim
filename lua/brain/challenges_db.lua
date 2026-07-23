@@ -9046,6 +9046,145 @@ describe('Async Semaphore', () => {
 ]==],
   },
 
+  {
+    name = "Promise Timeout Wrapper",
+    difficulty = "easy",
+    stub = [==[
+/**
+ * Promise Timeout Wrapper
+ *
+ * Write a helper that runs a promise-returning task with a timeout.
+ *
+ * Implement withTimeout<T>:
+ * - Calls task() and resolves or rejects with the task result when it settles first.
+ * - Rejects with Error(timeoutMessage) when the timeout wins.
+ * - Clears timers after either side settles so no extra timeout is left behind.
+ *
+ * The timeout must start when withTimeout is called, and synchronous task throws should
+ * reject the returned promise.
+ */
+
+export function withTimeout<T>(
+  task: () => Promise<T> | T,
+  milliseconds: number,
+  timeoutMessage = 'Operation timed out'
+): Promise<T> {
+  // YOUR CODE HERE
+  return Promise.resolve(task());
+}
+]==],
+    tests = [==[
+import { describe, it, expect, vi } from 'vitest';
+import { withTimeout } from './challenge';
+
+const flush = () => Promise.resolve();
+
+describe('Promise Timeout Wrapper', () => {
+  it('resolves with the task value when it finishes before the timeout', async () => {
+    vi.useFakeTimers();
+    const promise = withTimeout(() => Promise.resolve('done'), 1000);
+
+    await flush();
+
+    await expect(promise).resolves.toBe('done');
+    vi.useRealTimers();
+  });
+
+  it('supports synchronous task return values', async () => {
+    await expect(withTimeout(() => 42, 100)).resolves.toBe(42);
+  });
+
+  it('rejects with the original error when the task rejects first', async () => {
+    const error = new Error('task failed');
+
+    await expect(withTimeout(() => Promise.reject(error), 100)).rejects.toBe(error);
+  });
+
+  it('rejects when the timeout wins', async () => {
+    vi.useFakeTimers();
+    const promise = withTimeout(() => new Promise(() => {}), 250, 'too slow');
+
+    vi.advanceTimersByTime(250);
+
+    await expect(promise).rejects.toThrow('too slow');
+    vi.useRealTimers();
+  });
+
+  it('uses the default timeout message', async () => {
+    vi.useFakeTimers();
+    const promise = withTimeout(() => new Promise(() => {}), 10);
+
+    vi.advanceTimersByTime(10);
+
+    await expect(promise).rejects.toThrow('Operation timed out');
+    vi.useRealTimers();
+  });
+
+  it('rejects synchronous task throws through the returned promise', async () => {
+    await expect(withTimeout(() => {
+      throw new Error('sync boom');
+    }, 100)).rejects.toThrow('sync boom');
+  });
+
+  it('clears the timeout after a successful task', async () => {
+    vi.useFakeTimers();
+    const clearSpy = vi.spyOn(globalThis, 'clearTimeout');
+    const promise = withTimeout(() => Promise.resolve('ok'), 1000);
+
+    await flush();
+    await expect(promise).resolves.toBe('ok');
+
+    expect(clearSpy).toHaveBeenCalled();
+    vi.advanceTimersByTime(1000);
+    clearSpy.mockRestore();
+    vi.useRealTimers();
+  });
+
+  it('clears the timeout after a failed task', async () => {
+    vi.useFakeTimers();
+    const clearSpy = vi.spyOn(globalThis, 'clearTimeout');
+    const promise = withTimeout(() => Promise.reject(new Error('bad')), 1000);
+
+    await flush();
+    await expect(promise).rejects.toThrow('bad');
+
+    expect(clearSpy).toHaveBeenCalled();
+    clearSpy.mockRestore();
+    vi.useRealTimers();
+  });
+
+  it('does not let a late task resolution replace a timeout rejection', async () => {
+    vi.useFakeTimers();
+    const promise = withTimeout(
+      () => new Promise(resolve => setTimeout(() => resolve('late'), 100)),
+      50,
+      'timeout first'
+    );
+
+    vi.advanceTimersByTime(50);
+    await expect(promise).rejects.toThrow('timeout first');
+
+    vi.advanceTimersByTime(50);
+    await flush();
+    vi.useRealTimers();
+  });
+
+  it('handles several independent wrappers at the same time', async () => {
+    vi.useFakeTimers();
+    const fast = withTimeout(() => Promise.resolve('fast'), 100);
+    const slow = withTimeout(() => new Promise(() => {}), 100, 'slow timed out');
+
+    await flush();
+    await expect(fast).resolves.toBe('fast');
+
+    vi.advanceTimersByTime(100);
+    await expect(slow).rejects.toThrow('slow timed out');
+    vi.useRealTimers();
+  });
+});
+]==],
+  },
+
 }
 
 --- Deterministic challenge selection based on date.
