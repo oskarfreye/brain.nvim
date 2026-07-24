@@ -9185,6 +9185,214 @@ describe('Promise Timeout Wrapper', () => {
 ]==],
   },
 
+  {
+    name = "Observable Stream",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * Observable Stream
+ *
+ * Build a tiny observable implementation for push-based values.
+ *
+ * Implement Observable<T> with:
+ * - subscribe(observer): returns an unsubscribe function.
+ * - next(value): synchronously sends value to current subscribers in subscription order.
+ * - complete(): marks the stream complete, calls observer.complete once, and ignores future next calls.
+ * - map(fn): returns a derived observable with transformed future values.
+ * - filter(predicate): returns a derived observable with only matching future values.
+ *
+ * Unsubscribing during an emission must not prevent later subscribers in that same emission
+ * from receiving the current value.
+ */
+
+export type Unsubscribe = () => void;
+
+export type Observer<T> = {
+  next: (value: T) => void;
+  complete?: () => void;
+};
+
+export class Observable<T> {
+  subscribe(observer: Observer<T>): Unsubscribe {
+    // YOUR CODE HERE
+    return () => {};
+  }
+
+  next(value: T): void {
+    // YOUR CODE HERE
+  }
+
+  complete(): void {
+    // YOUR CODE HERE
+  }
+
+  map<U>(fn: (value: T) => U): Observable<U> {
+    // YOUR CODE HERE
+    return new Observable<U>();
+  }
+
+  filter(predicate: (value: T) => boolean): Observable<T> {
+    // YOUR CODE HERE
+    return new Observable<T>();
+  }
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { Observable } from './challenge';
+
+describe('Observable Stream', () => {
+  it('emits values to subscribers in subscription order', () => {
+    const stream = new Observable<number>();
+    const seen: string[] = [];
+
+    stream.subscribe({ next: value => seen.push(`a:${value}`) });
+    stream.subscribe({ next: value => seen.push(`b:${value}`) });
+    stream.next(3);
+
+    expect(seen).toEqual(['a:3', 'b:3']);
+  });
+
+  it('supports unsubscribing a subscriber', () => {
+    const stream = new Observable<number>();
+    const seen: number[] = [];
+    const unsubscribe = stream.subscribe({ next: value => seen.push(value) });
+
+    stream.next(1);
+    unsubscribe();
+    stream.next(2);
+
+    expect(seen).toEqual([1]);
+  });
+
+  it('makes unsubscribe idempotent', () => {
+    const stream = new Observable<string>();
+    const seen: string[] = [];
+    const unsubscribe = stream.subscribe({ next: value => seen.push(value) });
+
+    unsubscribe();
+    unsubscribe();
+    stream.next('late');
+
+    expect(seen).toEqual([]);
+  });
+
+  it('uses an emission snapshot when a subscriber unsubscribes itself', () => {
+    const stream = new Observable<number>();
+    const seen: string[] = [];
+    let unsubscribeFirst: () => void = () => {};
+
+    unsubscribeFirst = stream.subscribe({
+      next: value => {
+        seen.push(`first:${value}`);
+        unsubscribeFirst();
+      },
+    });
+    stream.subscribe({ next: value => seen.push(`second:${value}`) });
+
+    stream.next(10);
+    stream.next(20);
+
+    expect(seen).toEqual(['first:10', 'second:10', 'second:20']);
+  });
+
+  it('does not emit to subscribers added during the current emission', () => {
+    const stream = new Observable<number>();
+    const seen: string[] = [];
+
+    stream.subscribe({
+      next: value => {
+        seen.push(`first:${value}`);
+        stream.subscribe({ next: later => seen.push(`late:${later}`) });
+      },
+    });
+
+    stream.next(1);
+    stream.next(2);
+
+    expect(seen).toEqual(['first:1', 'first:2', 'late:2']);
+  });
+
+  it('completes all current subscribers exactly once', () => {
+    const stream = new Observable<number>();
+    let completed = 0;
+
+    stream.subscribe({ next: () => {}, complete: () => completed++ });
+    stream.subscribe({ next: () => {}, complete: () => completed++ });
+
+    stream.complete();
+    stream.complete();
+
+    expect(completed).toBe(2);
+  });
+
+  it('ignores future values after completion', () => {
+    const stream = new Observable<number>();
+    const seen: number[] = [];
+
+    stream.subscribe({ next: value => seen.push(value) });
+    stream.complete();
+    stream.next(99);
+
+    expect(seen).toEqual([]);
+  });
+
+  it('does not add new subscribers after completion', () => {
+    const stream = new Observable<number>();
+    const seen: number[] = [];
+
+    stream.complete();
+    const unsubscribe = stream.subscribe({ next: value => seen.push(value) });
+    stream.next(1);
+    unsubscribe();
+
+    expect(seen).toEqual([]);
+  });
+
+  it('maps future values into a derived observable', () => {
+    const stream = new Observable<number>();
+    const doubled = stream.map(value => value * 2);
+    const seen: number[] = [];
+
+    doubled.subscribe({ next: value => seen.push(value) });
+    stream.next(2);
+    stream.next(5);
+
+    expect(seen).toEqual([4, 10]);
+  });
+
+  it('filters future values in a derived observable', () => {
+    const stream = new Observable<number>();
+    const even = stream.filter(value => value % 2 === 0);
+    const seen: number[] = [];
+
+    even.subscribe({ next: value => seen.push(value) });
+    stream.next(1);
+    stream.next(2);
+    stream.next(3);
+    stream.next(4);
+
+    expect(seen).toEqual([2, 4]);
+  });
+
+  it('can chain map and filter derived streams', () => {
+    const stream = new Observable<number>();
+    const labels = stream
+      .filter(value => value > 1)
+      .map(value => `#${value}`);
+    const seen: string[] = [];
+
+    labels.subscribe({ next: value => seen.push(value) });
+    stream.next(1);
+    stream.next(2);
+    stream.next(3);
+
+    expect(seen).toEqual(['#2', '#3']);
+  });
+});
+]==],
+  },
+
 }
 
 --- Deterministic challenge selection based on date.
