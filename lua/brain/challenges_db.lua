@@ -9392,6 +9392,192 @@ describe('Observable Stream', () => {
 });
 ]==],
   },
+  {
+    name = "Consistent Hash Ring",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * Consistent Hash Ring
+ *
+ * Build a small consistent hashing implementation for distributing keys across nodes.
+ *
+ * Implement the ConsistentHashRing class:
+ * - constructor(replicas?: number) creates an empty ring with the given number of virtual nodes per real node.
+ * - addNode(nodeId: string): void adds a node and its virtual replicas.
+ * - removeNode(nodeId: string): void removes the node and all of its replicas.
+ * - getNode(key: string): string | null returns the node responsible for the key, wrapping around the ring.
+ * - getNodes(): string[] returns the unique real node IDs in sorted order.
+ *
+ * Use the exported hash(input: string): number helper for placement. Duplicate addNode calls should be ignored.
+ */
+
+export function hash(input: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < input.length; i++) {
+    h ^= input.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+export class ConsistentHashRing {
+  constructor(replicas = 3) {
+    // YOUR CODE HERE
+  }
+
+  addNode(nodeId: string): void {
+    // YOUR CODE HERE
+  }
+
+  removeNode(nodeId: string): void {
+    // YOUR CODE HERE
+  }
+
+  getNode(key: string): string | null {
+    // YOUR CODE HERE
+    return null;
+  }
+
+  getNodes(): string[] {
+    // YOUR CODE HERE
+    return [];
+  }
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { ConsistentHashRing, hash } from './challenge';
+
+describe('Consistent Hash Ring', () => {
+  it('returns null when the ring has no nodes', () => {
+    const ring = new ConsistentHashRing();
+    expect(ring.getNode('user:1')).toBeNull();
+  });
+
+  it('routes keys to the only available node', () => {
+    const ring = new ConsistentHashRing();
+    ring.addNode('alpha');
+
+    expect(ring.getNode('user:1')).toBe('alpha');
+    expect(ring.getNode('user:2')).toBe('alpha');
+  });
+
+  it('keeps node IDs unique when adding duplicates', () => {
+    const ring = new ConsistentHashRing();
+    ring.addNode('alpha');
+    ring.addNode('alpha');
+
+    expect(ring.getNodes()).toEqual(['alpha']);
+  });
+
+  it('returns node IDs in sorted order', () => {
+    const ring = new ConsistentHashRing();
+    ring.addNode('gamma');
+    ring.addNode('alpha');
+    ring.addNode('beta');
+
+    expect(ring.getNodes()).toEqual(['alpha', 'beta', 'gamma']);
+  });
+
+  it('uses deterministic routing for the same key', () => {
+    const ring = new ConsistentHashRing(5);
+    ring.addNode('alpha');
+    ring.addNode('beta');
+    ring.addNode('gamma');
+
+    const first = ring.getNode('invoice:2026-07');
+    const second = ring.getNode('invoice:2026-07');
+
+    expect(second).toBe(first);
+  });
+
+  it('matches the next clockwise virtual node on the ring', () => {
+    const ring = new ConsistentHashRing(2);
+    ring.addNode('alpha');
+    ring.addNode('beta');
+
+    const points = [
+      { point: hash('alpha#0'), node: 'alpha' },
+      { point: hash('alpha#1'), node: 'alpha' },
+      { point: hash('beta#0'), node: 'beta' },
+      { point: hash('beta#1'), node: 'beta' },
+    ].sort((a, b) => a.point - b.point);
+
+    const keyPoint = hash('session:42');
+    const expected = points.find(entry => entry.point >= keyPoint)?.node ?? points[0].node;
+
+    expect(ring.getNode('session:42')).toBe(expected);
+  });
+
+  it('wraps around when the key hash is beyond the final point', () => {
+    const ring = new ConsistentHashRing(1);
+    ring.addNode('alpha');
+    ring.addNode('beta');
+
+    const points = [
+      { point: hash('alpha#0'), node: 'alpha' },
+      { point: hash('beta#0'), node: 'beta' },
+    ].sort((a, b) => a.point - b.point);
+
+    let key = '';
+    for (let i = 0; i < 10000; i++) {
+      const candidate = `wrap:${i}`;
+      if (hash(candidate) > points[points.length - 1].point) {
+        key = candidate;
+        break;
+      }
+    }
+
+    expect(key).not.toBe('');
+    expect(ring.getNode(key)).toBe(points[0].node);
+  });
+
+  it('removes a node from future routing', () => {
+    const ring = new ConsistentHashRing(8);
+    ring.addNode('alpha');
+    ring.addNode('beta');
+    ring.addNode('gamma');
+    ring.removeNode('beta');
+
+    expect(ring.getNodes()).toEqual(['alpha', 'gamma']);
+
+    for (let i = 0; i < 50; i++) {
+      expect(ring.getNode(`key:${i}`)).not.toBe('beta');
+    }
+  });
+
+  it('ignores removal of missing nodes', () => {
+    const ring = new ConsistentHashRing();
+    ring.addNode('alpha');
+    ring.removeNode('missing');
+
+    expect(ring.getNodes()).toEqual(['alpha']);
+    expect(ring.getNode('anything')).toBe('alpha');
+  });
+
+  it('moves only some keys when adding a new node', () => {
+    const ring = new ConsistentHashRing(20);
+    ring.addNode('alpha');
+    ring.addNode('beta');
+
+    const keys = Array.from({ length: 100 }, (_, i) => `object:${i}`);
+    const before = new Map(keys.map(key => [key, ring.getNode(key)]));
+
+    ring.addNode('gamma');
+
+    const moved = keys.filter(key => before.get(key) !== ring.getNode(key));
+    expect(moved.length).toBeGreaterThan(0);
+    expect(moved.length).toBeLessThan(keys.length);
+  });
+
+  it('rejects invalid replica counts', () => {
+    expect(() => new ConsistentHashRing(0)).toThrow();
+    expect(() => new ConsistentHashRing(-2)).toThrow();
+    expect(() => new ConsistentHashRing(1.5)).toThrow();
+  });
+});
+]==],
+  },
 
 }
 
