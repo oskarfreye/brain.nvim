@@ -9579,6 +9579,131 @@ describe('Consistent Hash Ring', () => {
 ]==],
   },
 
+  {
+    name = "Weighted Random Picker",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * Weighted Random Picker
+ *
+ * Build a picker that returns values according to positive numeric weights.
+ * Larger weights should be selected proportionally more often than smaller weights.
+ *
+ * Implement the WeightedRandomPicker class:
+ * - constructor(entries: Array<{ value: string; weight: number }>)
+ * - pick(random?: () => number): string
+ * - update(value: string, weight: number): void
+ *
+ * The optional random function returns a number in [0, 1). Use it to make tests deterministic.
+ */
+
+export class WeightedRandomPicker {
+  constructor(entries: Array<{ value: string; weight: number }>) {
+    // YOUR CODE HERE
+  }
+
+  pick(random: () => number = Math.random): string {
+    // YOUR CODE HERE
+    return '';
+  }
+
+  update(value: string, weight: number): void {
+    // YOUR CODE HERE
+  }
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { WeightedRandomPicker } from './challenge';
+
+describe('Weighted Random Picker', () => {
+  it('picks the only entry', () => {
+    const picker = new WeightedRandomPicker([{ value: 'solo', weight: 10 }]);
+    expect(picker.pick(() => 0)).toBe('solo');
+    expect(picker.pick(() => 0.999)).toBe('solo');
+  });
+
+  it('maps random ranges proportionally', () => {
+    const picker = new WeightedRandomPicker([
+      { value: 'a', weight: 1 },
+      { value: 'b', weight: 3 },
+      { value: 'c', weight: 6 },
+    ]);
+
+    expect(picker.pick(() => 0)).toBe('a');
+    expect(picker.pick(() => 0.099)).toBe('a');
+    expect(picker.pick(() => 0.1)).toBe('b');
+    expect(picker.pick(() => 0.399)).toBe('b');
+    expect(picker.pick(() => 0.4)).toBe('c');
+    expect(picker.pick(() => 0.999999)).toBe('c');
+  });
+
+  it('updates an existing value weight', () => {
+    const picker = new WeightedRandomPicker([
+      { value: 'a', weight: 1 },
+      { value: 'b', weight: 1 },
+    ]);
+
+    picker.update('a', 9);
+
+    expect(picker.pick(() => 0.89)).toBe('a');
+    expect(picker.pick(() => 0.9)).toBe('b');
+  });
+
+  it('adds a new value through update', () => {
+    const picker = new WeightedRandomPicker([{ value: 'a', weight: 2 }]);
+    picker.update('b', 2);
+
+    expect(picker.pick(() => 0.49)).toBe('a');
+    expect(picker.pick(() => 0.5)).toBe('b');
+  });
+
+  it('removes a value when updated to zero', () => {
+    const picker = new WeightedRandomPicker([
+      { value: 'a', weight: 1 },
+      { value: 'b', weight: 1 },
+    ]);
+
+    picker.update('a', 0);
+
+    expect(picker.pick(() => 0)).toBe('b');
+    expect(picker.pick(() => 0.999)).toBe('b');
+  });
+
+  it('throws when constructed with no positive weights', () => {
+    expect(() => new WeightedRandomPicker([])).toThrow();
+    expect(() => new WeightedRandomPicker([{ value: 'a', weight: 0 }])).toThrow();
+  });
+
+  it('throws for invalid weights', () => {
+    expect(() => new WeightedRandomPicker([{ value: 'a', weight: -1 }])).toThrow();
+    expect(() => new WeightedRandomPicker([{ value: 'a', weight: Number.NaN }])).toThrow();
+    expect(() => new WeightedRandomPicker([{ value: 'a', weight: Infinity }])).toThrow();
+  });
+
+  it('keeps duplicate values as one latest weight', () => {
+    const picker = new WeightedRandomPicker([
+      { value: 'a', weight: 1 },
+      { value: 'a', weight: 4 },
+      { value: 'b', weight: 1 },
+    ]);
+
+    expect(picker.pick(() => 0.79)).toBe('a');
+    expect(picker.pick(() => 0.8)).toBe('b');
+  });
+
+  it('clamps random values very close to one into the last bucket', () => {
+    const picker = new WeightedRandomPicker([
+      { value: 'a', weight: 1 },
+      { value: 'b', weight: 1 },
+    ]);
+
+    expect(picker.pick(() => 1)).toBe('b');
+  });
+});
+]==],
+  },
+
 }
 
 --- Deterministic challenge selection based on date.
