@@ -9704,6 +9704,133 @@ describe('Weighted Random Picker', () => {
 ]==],
   },
 
+  {
+    name = "Dependency Graph Resolver",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * Dependency Graph Resolver
+ *
+ * Build a resolver for tasks with dependencies. Given task ids and dependency pairs,
+ * return a valid execution order where every dependency appears before the task that
+ * needs it.
+ *
+ * Implement resolveDependencyOrder:
+ * - tasks: list of unique task ids
+ * - dependencies: pairs shaped [task, dependency]
+ * - return an ordered array containing every task exactly once
+ * - throw an Error for cycles, unknown task ids, or duplicate task ids
+ *
+ * Aim for O(V + E) time complexity.
+ */
+
+export function resolveDependencyOrder(
+  tasks: string[],
+  dependencies: Array<[task: string, dependency: string]>
+): string[] {
+  // YOUR CODE HERE
+  return [];
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { resolveDependencyOrder } from './challenge';
+
+function expectValidOrder(
+  order: string[],
+  tasks: string[],
+  dependencies: Array<[string, string]>
+) {
+  expect(order).toHaveLength(tasks.length);
+  expect(new Set(order)).toEqual(new Set(tasks));
+
+  const position = new Map(order.map((task, index) => [task, index]));
+  for (const [task, dependency] of dependencies) {
+    expect(position.get(dependency)!).toBeLessThan(position.get(task)!);
+  }
+}
+
+describe('Dependency Graph Resolver', () => {
+  it('orders a simple chain', () => {
+    const tasks = ['build', 'test', 'deploy'];
+    const dependencies: Array<[string, string]> = [
+      ['test', 'build'],
+      ['deploy', 'test'],
+    ];
+
+    expect(resolveDependencyOrder(tasks, dependencies)).toEqual(['build', 'test', 'deploy']);
+  });
+
+  it('handles branching dependencies', () => {
+    const tasks = ['api', 'web', 'db', 'cache', 'deploy'];
+    const dependencies: Array<[string, string]> = [
+      ['api', 'db'],
+      ['api', 'cache'],
+      ['web', 'api'],
+      ['deploy', 'web'],
+      ['deploy', 'api'],
+    ];
+
+    expectValidOrder(resolveDependencyOrder(tasks, dependencies), tasks, dependencies);
+  });
+
+  it('keeps independent tasks in the output', () => {
+    const tasks = ['lint', 'build', 'docs'];
+    const dependencies: Array<[string, string]> = [['build', 'lint']];
+
+    expectValidOrder(resolveDependencyOrder(tasks, dependencies), tasks, dependencies);
+  });
+
+  it('returns an empty array for no tasks', () => {
+    expect(resolveDependencyOrder([], [])).toEqual([]);
+  });
+
+  it('supports tasks with no dependencies', () => {
+    const tasks = ['a', 'b', 'c'];
+    expect(resolveDependencyOrder(tasks, [])).toEqual(tasks);
+  });
+
+  it('throws on a direct cycle', () => {
+    expect(() =>
+      resolveDependencyOrder(['a', 'b'], [
+        ['a', 'b'],
+        ['b', 'a'],
+      ])
+    ).toThrow(/cycle/i);
+  });
+
+  it('throws on a longer cycle', () => {
+    expect(() =>
+      resolveDependencyOrder(['a', 'b', 'c'], [
+        ['b', 'a'],
+        ['c', 'b'],
+        ['a', 'c'],
+      ])
+    ).toThrow(/cycle/i);
+  });
+
+  it('throws when a dependency references an unknown task', () => {
+    expect(() => resolveDependencyOrder(['a'], [['a', 'missing']])).toThrow(/unknown/i);
+    expect(() => resolveDependencyOrder(['a'], [['missing', 'a']])).toThrow(/unknown/i);
+  });
+
+  it('throws on duplicate task ids', () => {
+    expect(() => resolveDependencyOrder(['a', 'a'], [])).toThrow(/duplicate/i);
+  });
+
+  it('handles a larger acyclic graph', () => {
+    const tasks = Array.from({ length: 30 }, (_, index) => `task-${index}`);
+    const dependencies: Array<[string, string]> = [];
+    for (let index = 1; index < tasks.length; index++) {
+      dependencies.push([tasks[index], tasks[index - 1]]);
+    }
+
+    expect(resolveDependencyOrder(tasks, dependencies)).toEqual(tasks);
+  });
+});
+]==],
+  },
+
 }
 
 --- Deterministic challenge selection based on date.
