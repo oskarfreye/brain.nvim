@@ -9831,6 +9831,88 @@ describe('Dependency Graph Resolver', () => {
 ]==],
   },
 
+  {
+    name = "Interval Merge Calendar",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * Merge a list of half-open calendar intervals.
+ *
+ * Each interval is represented as [start, end], where start is inclusive and end is exclusive.
+ * Overlapping intervals and intervals that touch at the boundary should be merged.
+ * Return the merged intervals sorted by start time.
+ *
+ * Rules:
+ * - Do not mutate the input array or its nested interval pairs.
+ * - Throw an error for invalid intervals where start >= end.
+ * - Negative times and zero are valid.
+ */
+export function mergeCalendarIntervals(intervals: Array<[number, number]>): Array<[number, number]> {
+  // YOUR CODE HERE
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { mergeCalendarIntervals } from './solution';
+
+describe('mergeCalendarIntervals', () => {
+  it('returns an empty array for no intervals', () => {
+    expect(mergeCalendarIntervals([])).toEqual([]);
+  });
+
+  it('keeps a single interval unchanged', () => {
+    expect(mergeCalendarIntervals([[3, 8]])).toEqual([[3, 8]]);
+  });
+
+  it('sorts non-overlapping intervals by start time', () => {
+    expect(mergeCalendarIntervals([[10, 12], [1, 3], [6, 9]])).toEqual([[1, 3], [6, 9], [10, 12]]);
+  });
+
+  it('merges overlapping intervals', () => {
+    expect(mergeCalendarIntervals([[1, 5], [2, 6], [8, 10]])).toEqual([[1, 6], [8, 10]]);
+  });
+
+  it('merges intervals that touch at the boundary', () => {
+    expect(mergeCalendarIntervals([[1, 3], [3, 5], [5, 8]])).toEqual([[1, 8]]);
+  });
+
+  it('handles nested intervals', () => {
+    expect(mergeCalendarIntervals([[1, 10], [2, 3], [4, 8], [10, 11]])).toEqual([[1, 11]]);
+  });
+
+  it('handles negative time values', () => {
+    expect(mergeCalendarIntervals([[-10, -5], [-7, 0], [2, 4]])).toEqual([[-10, 0], [2, 4]]);
+  });
+
+  it('does not mutate the input intervals', () => {
+    const input: Array<[number, number]> = [[5, 7], [1, 3], [2, 4]];
+    const snapshot = input.map(([start, end]) => [start, end]);
+
+    mergeCalendarIntervals(input);
+
+    expect(input).toEqual(snapshot);
+  });
+
+  it('throws for zero-length intervals', () => {
+    expect(() => mergeCalendarIntervals([[1, 1]])).toThrow(/invalid/i);
+  });
+
+  it('throws for reversed intervals', () => {
+    expect(() => mergeCalendarIntervals([[5, 2]])).toThrow(/invalid/i);
+  });
+
+  it('merges a larger mixed list', () => {
+    const intervals: Array<[number, number]> = [];
+    for (let index = 0; index < 100; index++) {
+      intervals.push([index * 2, index * 2 + 2]);
+    }
+
+    expect(mergeCalendarIntervals(intervals)).toEqual([[0, 200]]);
+  });
+});
+]==],
+  },
+
 }
 
 --- Deterministic challenge selection based on date.
