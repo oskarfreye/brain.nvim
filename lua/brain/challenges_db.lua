@@ -9912,6 +9912,124 @@ describe('mergeCalendarIntervals', () => {
 });
 ]==],
   },
+  {
+    name = "Running Median Stream",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * Maintain the median of a stream of numbers.
+ *
+ * Implement a MedianStream class that supports adding values one at a time and
+ * reading the current median in O(log n) insertion time.
+ *
+ * Rules:
+ * - add(value) inserts one finite number into the stream.
+ * - median() returns the middle value when the count is odd.
+ * - median() returns the average of the two middle values when the count is even.
+ * - median() throws an Error when the stream is empty.
+ * - add(value) throws an Error for NaN, Infinity, and -Infinity.
+ */
+export class MedianStream {
+  constructor() {
+    // YOUR CODE HERE
+  }
+
+  add(value: number): void {
+    // YOUR CODE HERE
+  }
+
+  median(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { MedianStream } from './solution';
+
+describe('MedianStream', () => {
+  it('throws before any values are added', () => {
+    const stream = new MedianStream();
+    expect(() => stream.median()).toThrow(/empty/i);
+  });
+
+  it('returns the only inserted value', () => {
+    const stream = new MedianStream();
+    stream.add(42);
+    expect(stream.median()).toBe(42);
+  });
+
+  it('averages the two middle values for an even count', () => {
+    const stream = new MedianStream();
+    stream.add(10);
+    stream.add(20);
+    expect(stream.median()).toBe(15);
+  });
+
+  it('tracks medians for ascending input', () => {
+    const stream = new MedianStream();
+    const medians: number[] = [];
+    for (const value of [1, 2, 3, 4, 5]) {
+      stream.add(value);
+      medians.push(stream.median());
+    }
+    expect(medians).toEqual([1, 1.5, 2, 2.5, 3]);
+  });
+
+  it('tracks medians for descending input', () => {
+    const stream = new MedianStream();
+    const medians: number[] = [];
+    for (const value of [5, 4, 3, 2, 1]) {
+      stream.add(value);
+      medians.push(stream.median());
+    }
+    expect(medians).toEqual([5, 4.5, 4, 3.5, 3]);
+  });
+
+  it('handles negative numbers and zero', () => {
+    const stream = new MedianStream();
+    for (const value of [-5, 0, -10, 15]) {
+      stream.add(value);
+    }
+    expect(stream.median()).toBe(-2.5);
+  });
+
+  it('handles duplicate values', () => {
+    const stream = new MedianStream();
+    for (const value of [7, 7, 7, 7, 7]) {
+      stream.add(value);
+    }
+    expect(stream.median()).toBe(7);
+  });
+
+  it('does not require values to arrive sorted', () => {
+    const stream = new MedianStream();
+    for (const value of [8, 1, 9, 2, 7, 3]) {
+      stream.add(value);
+    }
+    expect(stream.median()).toBe(5);
+  });
+
+  it('throws for non-finite values', () => {
+    const stream = new MedianStream();
+    expect(() => stream.add(Number.NaN)).toThrow(/finite/i);
+    expect(() => stream.add(Number.POSITIVE_INFINITY)).toThrow(/finite/i);
+    expect(() => stream.add(Number.NEGATIVE_INFINITY)).toThrow(/finite/i);
+  });
+
+  it('handles a larger mixed stream', () => {
+    const stream = new MedianStream();
+    const values = [50, 10, 70, 20, 60, 30, 40, 100, -10, 0, 90];
+    for (const value of values) {
+      stream.add(value);
+    }
+    expect(stream.median()).toBe(40);
+  });
+});
+]==],
+  },
+
 
 }
 
