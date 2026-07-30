@@ -10030,6 +10030,83 @@ describe('MedianStream', () => {
 ]==],
   },
 
+  {
+    name = "Word Ladder Shortest Path",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * Word Ladder Shortest Path
+ *
+ * Given a begin word, an end word, and a dictionary of valid words, return the
+ * number of words in the shortest transformation sequence from beginWord to endWord.
+ *
+ * Rules:
+ * - Change exactly one character at a time.
+ * - Every intermediate word must exist in wordList.
+ * - beginWord does not need to be in wordList.
+ * - Return 0 when no valid transformation exists.
+ *
+ * Example: hit -> hot -> dot -> dog -> cog has length 5.
+ */
+
+export function ladderLength(beginWord: string, endWord: string, wordList: string[]): number {
+  // YOUR CODE HERE
+  return 0;
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { ladderLength } from './challenge';
+
+describe('Word Ladder Shortest Path', () => {
+  it('finds the classic shortest ladder', () => {
+    expect(ladderLength('hit', 'cog', ['hot', 'dot', 'dog', 'lot', 'log', 'cog'])).toBe(5);
+  });
+
+  it('returns 0 when the end word is missing', () => {
+    expect(ladderLength('hit', 'cog', ['hot', 'dot', 'dog', 'lot', 'log'])).toBe(0);
+  });
+
+  it('uses the shortest path instead of the first path discovered', () => {
+    const words = ['hot', 'dot', 'dog', 'lot', 'log', 'hog', 'cog'];
+    expect(ladderLength('hit', 'cog', words)).toBe(4);
+  });
+
+  it('handles a one-step transformation', () => {
+    expect(ladderLength('hit', 'hot', ['hot'])).toBe(2);
+  });
+
+  it('returns 1 when the begin and end words match', () => {
+    expect(ladderLength('same', 'same', ['same', 'came'])).toBe(1);
+  });
+
+  it('does not require beginWord to appear in wordList', () => {
+    expect(ladderLength('cold', 'warm', ['cord', 'card', 'ward', 'warm'])).toBe(5);
+  });
+
+  it('ignores duplicate words in the dictionary', () => {
+    expect(ladderLength('hit', 'cog', ['hot', 'hot', 'dot', 'dog', 'dog', 'cog'])).toBe(5);
+  });
+
+  it('rejects words with different lengths', () => {
+    expect(ladderLength('ab', 'abc', ['abc'])).toBe(0);
+  });
+
+  it('handles disconnected same-length dictionaries', () => {
+    expect(ladderLength('aaa', 'bbb', ['aab', 'abb', 'ccc', 'bbb'])).toBe(4);
+  });
+
+  it('handles a larger branching dictionary efficiently', () => {
+    const words = [
+      'aaaa', 'aaab', 'aabb', 'abbb', 'bbbb',
+      'baaa', 'bbaa', 'bbba', 'caaa', 'ccaa', 'ccca', 'cccc',
+      'aaac', 'aacc', 'accc', 'bccc', 'bbcc', 'bbbc'
+    ];
+    expect(ladderLength('aaaa', 'bbbb', words)).toBe(5);
+  });
+});
+]==],
+  },
 
 }
 
