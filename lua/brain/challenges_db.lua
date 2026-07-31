@@ -10108,6 +10108,111 @@ describe('Word Ladder Shortest Path', () => {
 ]==],
   },
 
+  {
+    name = "Kth Largest in Stream",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * Maintain the kth largest value in a stream of numbers.
+ *
+ * Construct the stream with an initial list of numbers. Each call to add(val)
+ * inserts val and returns the current kth largest value across everything seen.
+ *
+ * The stream will always contain at least k numbers before add() needs to
+ * return a value. Duplicates count as separate values.
+ */
+export class KthLargest {
+  constructor(k: number, nums: number[]) {
+    // YOUR CODE HERE
+  }
+
+  add(val: number): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { KthLargest } from './challenge';
+
+describe('Kth Largest in Stream', () => {
+  it('tracks the classic third-largest example', () => {
+    const stream = new KthLargest(3, [4, 5, 8, 2]);
+    expect(stream.add(3)).toBe(4);
+    expect(stream.add(5)).toBe(5);
+    expect(stream.add(10)).toBe(5);
+    expect(stream.add(9)).toBe(8);
+    expect(stream.add(4)).toBe(8);
+  });
+
+  it('works when k is one', () => {
+    const stream = new KthLargest(1, [-2, -1]);
+    expect(stream.add(-3)).toBe(-1);
+    expect(stream.add(0)).toBe(0);
+    expect(stream.add(0)).toBe(0);
+  });
+
+  it('counts duplicate values separately', () => {
+    const stream = new KthLargest(2, [5, 5]);
+    expect(stream.add(5)).toBe(5);
+    expect(stream.add(4)).toBe(5);
+    expect(stream.add(6)).toBe(5);
+  });
+
+  it('handles negative numbers', () => {
+    const stream = new KthLargest(2, [-10, -7, -11]);
+    expect(stream.add(-8)).toBe(-8);
+    expect(stream.add(-6)).toBe(-7);
+    expect(stream.add(-12)).toBe(-7);
+  });
+
+  it('accepts a short initial stream once enough values are added', () => {
+    const stream = new KthLargest(3, [4, 1]);
+    expect(stream.add(7)).toBe(1);
+    expect(stream.add(9)).toBe(4);
+  });
+
+  it('keeps the kth value unchanged when new values are too small', () => {
+    const stream = new KthLargest(3, [10, 9, 8]);
+    expect(stream.add(1)).toBe(8);
+    expect(stream.add(2)).toBe(8);
+    expect(stream.add(3)).toBe(8);
+  });
+
+  it('promotes the kth value after repeated large inserts', () => {
+    const stream = new KthLargest(4, [1, 2, 3, 4]);
+    expect(stream.add(100)).toBe(2);
+    expect(stream.add(90)).toBe(3);
+    expect(stream.add(80)).toBe(4);
+    expect(stream.add(70)).toBe(70);
+  });
+
+  it('handles values at JavaScript safe integer boundaries', () => {
+    const stream = new KthLargest(2, [Number.MAX_SAFE_INTEGER, 0]);
+    expect(stream.add(Number.MIN_SAFE_INTEGER)).toBe(0);
+    expect(stream.add(Number.MAX_SAFE_INTEGER - 1)).toBe(Number.MAX_SAFE_INTEGER - 1);
+  });
+
+  it('does not mutate the input array', () => {
+    const nums = [3, 1, 2];
+    const stream = new KthLargest(2, nums);
+    stream.add(4);
+    expect(nums).toEqual([3, 1, 2]);
+  });
+
+  it('handles a longer increasing stream efficiently', () => {
+    const stream = new KthLargest(5, [1, 2, 3, 4, 5]);
+    let current = 1;
+    for (let value = 6; value <= 100; value++) {
+      current = stream.add(value);
+    }
+    expect(current).toBe(96);
+  });
+});
+]==],
+  },
+
 }
 
 --- Deterministic challenge selection based on date.
