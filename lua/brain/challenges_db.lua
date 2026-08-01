@@ -10213,6 +10213,149 @@ describe('Kth Largest in Stream', () => {
 ]==],
   },
 
+
+  {
+    name = "TTL Cache with Expiration",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * Build a key-value cache where each entry expires after a fixed TTL.
+ *
+ * The constructor receives ttlMs, the number of milliseconds each value stays
+ * fresh after set() is called. get() returns undefined for missing or expired
+ * keys. size() returns only currently fresh entries.
+ *
+ * Use Date.now() as the time source. Updating a key replaces its value and
+ * refreshes its expiration time.
+ */
+export class TTLCache<K, V> {
+  constructor(ttlMs: number) {
+    // YOUR CODE HERE
+  }
+
+  set(key: K, value: V): void {
+    // YOUR CODE HERE
+  }
+
+  get(key: K): V | undefined {
+    // YOUR CODE HERE
+    return undefined;
+  }
+
+  delete(key: K): boolean {
+    // YOUR CODE HERE
+    return false;
+  }
+
+  size(): number {
+    // YOUR CODE HERE
+    return 0;
+  }
+}
+]==],
+    tests = [==[
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { TTLCache } from './challenge';
+
+describe('TTL Cache with Expiration', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(0);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('returns values before they expire', () => {
+    const cache = new TTLCache<string, number>(1000);
+    cache.set('a', 42);
+    vi.setSystemTime(999);
+    expect(cache.get('a')).toBe(42);
+  });
+
+  it('returns undefined after the ttl has elapsed', () => {
+    const cache = new TTLCache<string, string>(1000);
+    cache.set('token', 'abc');
+    vi.setSystemTime(1000);
+    expect(cache.get('token')).toBeUndefined();
+  });
+
+  it('distinguishes missing keys from stored undefined values', () => {
+    const cache = new TTLCache<string, undefined>(500);
+    cache.set('empty', undefined);
+    expect(cache.get('empty')).toBeUndefined();
+    expect(cache.delete('empty')).toBe(true);
+    expect(cache.delete('empty')).toBe(false);
+  });
+
+  it('refreshes expiration when an existing key is updated', () => {
+    const cache = new TTLCache<string, string>(1000);
+    cache.set('mode', 'old');
+    vi.setSystemTime(800);
+    cache.set('mode', 'new');
+    vi.setSystemTime(1500);
+    expect(cache.get('mode')).toBe('new');
+    vi.setSystemTime(1800);
+    expect(cache.get('mode')).toBeUndefined();
+  });
+
+  it('reports size using only fresh entries', () => {
+    const cache = new TTLCache<string, number>(100);
+    cache.set('a', 1);
+    cache.set('b', 2);
+    vi.setSystemTime(99);
+    expect(cache.size()).toBe(2);
+    vi.setSystemTime(100);
+    expect(cache.size()).toBe(0);
+  });
+
+  it('deletes fresh entries and reports whether a key existed', () => {
+    const cache = new TTLCache<string, number>(1000);
+    cache.set('a', 1);
+    expect(cache.delete('a')).toBe(true);
+    expect(cache.get('a')).toBeUndefined();
+    expect(cache.delete('a')).toBe(false);
+  });
+
+  it('treats expired entries as absent when deleting', () => {
+    const cache = new TTLCache<string, number>(10);
+    cache.set('a', 1);
+    vi.setSystemTime(10);
+    expect(cache.delete('a')).toBe(false);
+    expect(cache.size()).toBe(0);
+  });
+
+  it('supports object keys by reference identity', () => {
+    const cache = new TTLCache<object, string>(1000);
+    const first = { id: 1 };
+    const second = { id: 1 };
+    cache.set(first, 'stored');
+    expect(cache.get(first)).toBe('stored');
+    expect(cache.get(second)).toBeUndefined();
+  });
+
+  it('handles zero ttl as immediately expired', () => {
+    const cache = new TTLCache<string, number>(0);
+    cache.set('now', 1);
+    expect(cache.get('now')).toBeUndefined();
+    expect(cache.size()).toBe(0);
+  });
+
+  it('cleans up many expired entries during size checks', () => {
+    const cache = new TTLCache<number, number>(50);
+    for (let i = 0; i < 500; i++) {
+      cache.set(i, i * 2);
+    }
+    vi.setSystemTime(50);
+    expect(cache.size()).toBe(0);
+    cache.set(501, 1002);
+    expect(cache.size()).toBe(1);
+  });
+});
+]==],
+  },
+
 }
 
 --- Deterministic challenge selection based on date.
