@@ -10356,6 +10356,117 @@ describe('TTL Cache with Expiration', () => {
 ]==],
   },
 
+  {
+    name = "Deep Object Diff",
+    difficulty = "medium",
+    stub = [==[
+/**
+ * Deep Object Diff
+ *
+ * Compare two JSON-like values and return a stable list of changes needed to
+ * transform the first value into the second. Paths use dot notation for object
+ * keys and bracket notation for array indexes.
+ *
+ * Rules:
+ * - Return an empty array when values are deeply equal.
+ * - Use type "added" when a path exists only in the after value.
+ * - Use type "removed" when a path exists only in the before value.
+ * - Use type "changed" when both paths exist but their values differ.
+ * - Compare object keys in sorted order so output is deterministic.
+ * - Treat arrays as index-addressed values; changed lengths produce added or removed indexes.
+ */
+
+export type DiffChange =
+  | { type: 'added'; path: string; value: unknown }
+  | { type: 'removed'; path: string; oldValue: unknown }
+  | { type: 'changed'; path: string; oldValue: unknown; value: unknown };
+
+export function diffObjects(before: unknown, after: unknown): DiffChange[] {
+  // YOUR CODE HERE
+  return [];
+}
+]==],
+    tests = [==[
+import { describe, it, expect } from 'vitest';
+import { diffObjects } from './challenge';
+
+describe('Deep Object Diff', () => {
+  it('returns an empty array for deeply equal primitives', () => {
+    expect(diffObjects(42, 42)).toEqual([]);
+    expect(diffObjects('same', 'same')).toEqual([]);
+  });
+
+  it('reports a root primitive change', () => {
+    expect(diffObjects(false, true)).toEqual([
+      { type: 'changed', path: '', oldValue: false, value: true },
+    ]);
+  });
+
+  it('reports added object keys in sorted order', () => {
+    expect(diffObjects({ a: 1 }, { c: 3, a: 1, b: 2 })).toEqual([
+      { type: 'added', path: 'b', value: 2 },
+      { type: 'added', path: 'c', value: 3 },
+    ]);
+  });
+
+  it('reports removed object keys', () => {
+    expect(diffObjects({ a: 1, b: 2 }, { b: 2 })).toEqual([
+      { type: 'removed', path: 'a', oldValue: 1 },
+    ]);
+  });
+
+  it('reports nested object changes with dot paths', () => {
+    const before = { user: { name: 'Ada', age: 36 } };
+    const after = { user: { name: 'Ada', age: 37 } };
+    expect(diffObjects(before, after)).toEqual([
+      { type: 'changed', path: 'user.age', oldValue: 36, value: 37 },
+    ]);
+  });
+
+  it('handles mixed added, removed, and changed nested fields deterministically', () => {
+    const before = { meta: { draft: true, views: 10 }, title: 'Old' };
+    const after = { meta: { published: true, views: 11 }, title: 'New' };
+    expect(diffObjects(before, after)).toEqual([
+      { type: 'removed', path: 'meta.draft', oldValue: true },
+      { type: 'added', path: 'meta.published', value: true },
+      { type: 'changed', path: 'meta.views', oldValue: 10, value: 11 },
+      { type: 'changed', path: 'title', oldValue: 'Old', value: 'New' },
+    ]);
+  });
+
+  it('compares arrays by index with bracket paths', () => {
+    expect(diffObjects(['a', 'b', 'c'], ['a', 'x'])).toEqual([
+      { type: 'changed', path: '[1]', oldValue: 'b', value: 'x' },
+      { type: 'removed', path: '[2]', oldValue: 'c' },
+    ]);
+  });
+
+  it('reports nested array object changes', () => {
+    const before = { items: [{ id: 1, done: false }] };
+    const after = { items: [{ id: 1, done: true }, { id: 2, done: false }] };
+    expect(diffObjects(before, after)).toEqual([
+      { type: 'changed', path: 'items[0].done', oldValue: false, value: true },
+      { type: 'added', path: 'items[1]', value: { id: 2, done: false } },
+    ]);
+  });
+
+  it('treats null and objects as different values', () => {
+    expect(diffObjects({ value: null }, { value: { nested: true } })).toEqual([
+      { type: 'changed', path: 'value', oldValue: null, value: { nested: true } },
+    ]);
+  });
+
+  it('does not mutate either input', () => {
+    const before = { a: { b: 1 } };
+    const after = { a: { b: 2 } };
+    diffObjects(before, after);
+    expect(before).toEqual({ a: { b: 1 } });
+    expect(after).toEqual({ a: { b: 2 } });
+  });
+});
+]==],
+  },
+
 }
 
 --- Deterministic challenge selection based on date.
